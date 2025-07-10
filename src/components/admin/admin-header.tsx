@@ -3,6 +3,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getAuth, signOut } from 'firebase/auth';
+import { firebaseApp } from '@/lib/firebaseConfig';
 import { Button } from '@/components/ui/button';
 import { Home, LogOut } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
@@ -11,12 +13,18 @@ import { AdminSidebarContent } from './admin-sidebar';
 
 export function AdminHeader() {
   const router = useRouter();
+  const auth = getAuth(firebaseApp);
 
-  const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('isAdminLoggedIn');
+  const handleLogout = async () => {
+    try {
+        await signOut(auth);
+        localStorage.removeItem('isAdminLoggedIn');
+        router.push('/admin/login');
+    } catch (error) {
+        console.error('Logout Error:', error);
+        // Still attempt to redirect even if there's an error
+        router.push('/admin/login');
     }
-    router.push('/admin/login');
   };
 
   return (

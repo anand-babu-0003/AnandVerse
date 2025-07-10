@@ -1,6 +1,7 @@
 
 import { initializeApp, getApps, getApp, type FirebaseOptions } from 'firebase/app';
 import { getFirestore, type Firestore } from 'firebase/firestore';
+import { getAuth } from "firebase/auth";
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -53,4 +54,7 @@ if (!firestoreInstance) {
     console.error(`${logPrefix} Firebase & Firestore ARE NOT CONFIGURED or available. App functionality will be severely limited.`);
 }
 
-export { firestoreInstance as firestore, firebaseConfig, app as firebaseApp };
+// Export auth instance
+const auth = getAuth(app);
+
+export { firestoreInstance as firestore, firebaseConfig, app as firebaseApp, auth };

@@ -4,6 +4,8 @@
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { firebaseApp } from '@/lib/firebaseConfig';
 import { AdminHeader } from '@/components/admin/admin-header';
 import { AdminSidebar } from '@/components/admin/admin-sidebar';
 import { Toaster } from '@/components/ui/toaster';
@@ -16,29 +18,42 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isClientSideLoggedIn, setIsClientSideLoggedIn] = useState<boolean | null>(null); 
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null); 
+  const auth = getAuth(firebaseApp);
 
   useEffect(() => {
-    const loggedInStatus = localStorage.getItem('isAdminLoggedIn') === 'true';
-    setIsClientSideLoggedIn(loggedInStatus);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setIsAuthenticated(true);
+        localStorage.setItem('isAdminLoggedIn', 'true'); // Keep for session continuity
+        if (pathname === '/admin/login') {
+          router.replace('/admin/dashboard');
+        }
+      } else {
+        setIsAuthenticated(false);
+        localStorage.removeItem('isAdminLoggedIn');
+        if (pathname !== '/admin/login') {
+          router.replace('/admin/login');
+        }
+      }
+    });
 
-    if (!loggedInStatus && pathname !== '/admin/login') {
-      router.replace('/admin/login');
-    } else if (loggedInStatus && pathname === '/admin/login') {
-      router.replace('/admin/dashboard');
-    }
-  }, [pathname, router]);
+    // Cleanup subscription on unmount
+    return () => unsubscribe();
+  }, [pathname, router, auth]);
 
-  if (pathname === '/admin/login') {
-    return <>{children}<Toaster /></>;
-  }
 
-  if (isClientSideLoggedIn === null) {
+  if (isAuthenticated === null) {
     return <FullScreenLoader />;
   }
 
-  if (isClientSideLoggedIn === false) {
+  if (!isAuthenticated && pathname !== '/admin/login') {
+      // While redirecting, show a loader to prevent flicker
       return <FullScreenLoader />;
+  }
+  
+  if (pathname === '/admin/login') {
+    return <>{children}<Toaster /></>;
   }
 
   return (
@@ -54,4 +69,3 @@ export default function AdminLayout({
     </div>
   );
 }
-

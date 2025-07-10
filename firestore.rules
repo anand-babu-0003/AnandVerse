@@ -1,34 +1,45 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- Publicly Readable & Writable Collections ---
-    // These collections need to be writable from your admin panel.
-    // WARNING: Since the current admin auth is basic, these are temporarily public.
-    // For production, you should implement Firebase Authentication and change
-    // the `allow write` rule to `if request.auth != null;`
+    // --- Site Settings & Config ---
     match /app_config/{documentId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if request.auth != null; // Admin-only write
     }
 
+    // --- Portfolio Items ---
     match /portfolioItems/{itemId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if request.auth != null; // Admin-only write
     }
 
+    // --- Skills ---
     match /skills/{skillId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if request.auth != null; // Admin-only write
     }
 
+    // --- Announcements ---
     match /announcements/{announcementId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if request.auth != null; // Admin-only write
     }
 
     // --- Contact Messages ---
     match /contactMessages/{messageId} {
-      allow create: if true; // Anyone can submit a message
-      allow read, delete: if true; // Admin can read/delete. Change to `if request.auth != null;` with Firebase Auth.
-      allow update: if false; // Messages should not be editable.
+      allow create: if true; // Anyone can submit the contact form
+      allow read, delete: if request.auth != null; // Admin can read and delete
+      allow update: if false; // Messages should be immutable
+    }
+
+    // --- Default deny all other collections ---
+    // This is an important security practice.
+    // If you add new collections, you must add rules for them.
+    match /{path=**} {
+      allow read, write: if false;
     }
   }
 }
