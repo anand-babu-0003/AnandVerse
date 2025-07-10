@@ -4,42 +4,35 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- Site Settings & Config ---
+    // --- Config collections (site settings, about me, etc.) ---
     match /app_config/{documentId} {
       allow read: if true;
-      allow write: if request.auth != null; // Admin-only write
+      allow write: if request.auth != null; // Only authenticated admins can write
     }
 
     // --- Portfolio Items ---
     match /portfolioItems/{itemId} {
       allow read: if true;
-      allow write: if request.auth != null; // Admin-only write
+      allow write: if request.auth != null; // Only authenticated admins can write
     }
 
     // --- Skills ---
     match /skills/{skillId} {
       allow read: if true;
-      allow write: if request.auth != null; // Admin-only write
+      allow write: if request.auth != null; // Only authenticated admins can write
     }
-
+    
     // --- Announcements ---
     match /announcements/{announcementId} {
       allow read: if true;
-      allow write: if request.auth != null; // Admin-only write
+      allow write: if request.auth != null; // Only authenticated admins can write
     }
 
     // --- Contact Messages ---
     match /contactMessages/{messageId} {
       allow create: if true; // Anyone can submit the contact form
-      allow read, delete: if request.auth != null; // Admin can read and delete
-      allow update: if false; // Messages should be immutable
-    }
-
-    // --- Default deny all other collections ---
-    // This is an important security practice.
-    // If you add new collections, you must add rules for them.
-    match /{path=**} {
-      allow read, write: if false;
+      allow read, delete: if request.auth != null; // Only admins can read/delete messages
+      allow update: if false; // Prevent messages from being altered
     }
   }
 }
