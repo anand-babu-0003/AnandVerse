@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from 'react'; 
+import { useEffect } from 'react'; 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useForm, type Path } from 'react-hook-form';
@@ -18,8 +18,14 @@ import { useToast } from '@/hooks/use-toast';
 import { Info, Save, Loader2, Wrench, Settings2, ListChecks } from 'lucide-react'; 
 
 import { siteSettingsAdminSchema, type SiteSettingsAdminFormData } from '@/lib/adminSchemas';
-import { getSiteSettingsAction, updateSiteSettingsAction, type UpdateSiteSettingsFormState } from '@/actions/admin/settingsActions';
+import { updateSiteSettingsAction, type UpdateSiteSettingsFormState } from '@/actions/admin/settingsActions';
 import type { SiteSettings } from '@/lib/types';
+
+// This is the new parent server component
+export default async function AdminSettingsPage() {
+    const initialData = await getSiteSettingsAction();
+    return <SettingsAdminClientPage initialData={initialData} />;
+}
 
 
 const initialFormState: UpdateSiteSettingsFormState = { message: '', status: 'idle', errors: {}, data: undefined };
@@ -116,10 +122,4 @@ function SettingsAdminClientPage({ initialData }: { initialData: SiteSettings })
             </div>
         </div>
     );
-}
-
-// Server component to fetch the initial data
-export default async function AdminSettingsPage() {
-    const initialData = await getSiteSettingsAction();
-    return <SettingsAdminClientPage initialData={initialData} />;
 }
