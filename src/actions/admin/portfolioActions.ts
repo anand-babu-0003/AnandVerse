@@ -179,20 +179,6 @@ export async function savePortfolioItemAction(
 
   const tags: string[] = data.tagsString ? data.tagsString.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
 
-  const projectDataForFirestore: Omit<LibPortfolioItemType, 'id' | 'createdAt' | 'updatedAt'> & { updatedAt: any, createdAt?: any } = {
-    title: data.title,
-    description: data.description,
-    longDescription: data.longDescription || '', 
-    images: finalImages,
-    tags,
-    liveUrl: data.liveUrl || '',
-    repoUrl: data.repoUrl || '',
-    slug: data.slug,
-    dataAiHint: data.dataAiHint || defaultPortfolioItemStructure.dataAiHint,
-    readmeContent: data.readmeContent || defaultPortfolioItemStructure.readmeContent,
-    updatedAt: serverTimestamp(),
-  };
-  
   let projectId = data.id;
 
   try {
@@ -217,38 +203,70 @@ export async function savePortfolioItemAction(
       };
     }
 
-    if (projectId) { 
-      await setDoc(portfolioDocRef(projectId), projectDataForFirestore, { merge: true });
-    } else { 
-      projectDataForFirestore.createdAt = serverTimestamp(); 
+    if (projectId) {
+      // Logic for UPDATING an existing project
+      const docRef = portfolioDocRef(projectId);
+      const docSnap = await getDoc(docRef);
+      if (!docSnap.exists()) throw new Error("Trying to update a project that does not exist.");
+
+      const existingData = docSnap.data();
+      const projectDataForFirestore: Omit<LibPortfolioItemType, 'id' | 'createdAt' | 'updatedAt'> & { updatedAt: any, createdAt: any } = {
+        title: data.title,
+        description: data.description,
+        longDescription: data.longDescription || '',
+        images: finalImages,
+        tags,
+        liveUrl: data.liveUrl || '',
+        repoUrl: data.repoUrl || '',
+        slug: data.slug,
+        dataAiHint: data.dataAiHint || defaultPortfolioItemStructure.dataAiHint,
+        readmeContent: data.readmeContent || defaultPortfolioItemStructure.readmeContent,
+        updatedAt: serverTimestamp(),
+        createdAt: existingData.createdAt, // Preserve original creation timestamp
+      };
+      await setDoc(docRef, projectDataForFirestore, { merge: true });
+    } else {
+      // Logic for CREATING a new project
+      const projectDataForFirestore: Omit<LibPortfolioItemType, 'id'> & { createdAt?: any, updatedAt?: any } = {
+        title: data.title,
+        description: data.description,
+        longDescription: data.longDescription || '',
+        images: finalImages,
+        tags,
+        liveUrl: data.liveUrl || '',
+        repoUrl: data.repoUrl || '',
+        slug: data.slug,
+        dataAiHint: data.dataAiHint || defaultPortfolioItemStructure.dataAiHint,
+        readmeContent: data.readmeContent || defaultPortfolioItemStructure.readmeContent,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
       const newProjectRef = await addDoc(portfolioCollectionRef(), projectDataForFirestore);
       projectId = newProjectRef.id;
     }
     
-    const savedDoc = await getDoc(portfolioDocRef(projectId!)); 
+    const savedDoc = await getDoc(portfolioDocRef(projectId!));
     if (!savedDoc.exists()) {
         throw new Error("Failed to retrieve saved project from Firestore after save operation.");
     }
     const savedData = savedDoc.data()!;
-    // Ensure createdAt is only set if it's a new document, otherwise, it gets overwritten by serverTimestamp() if not careful
-    const createdAtRaw = data.id ? savedData.createdAt : projectDataForFirestore.createdAt;
-    const createdAt = createdAtRaw instanceof Timestamp ? createdAtRaw.toDate().toISOString() : (createdAtRaw ? new Date().toISOString() : new Date(0).toISOString());
+    const createdAt = savedData.createdAt instanceof Timestamp ? savedData.createdAt.toDate().toISOString() : new Date(0).toISOString();
     const updatedAt = savedData.updatedAt instanceof Timestamp ? savedData.updatedAt.toDate().toISOString() : new Date().toISOString();
 
     const finalSavedProject: LibPortfolioItemType = {
       id: projectId!,
-      title: savedData.title || projectDataForFirestore.title,
-      description: savedData.description || projectDataForFirestore.description,
-      longDescription: savedData.longDescription || projectDataForFirestore.longDescription,
-      images: savedData.images || projectDataForFirestore.images, // Use saved images directly
-      tags: savedData.tags || projectDataForFirestore.tags,
-      liveUrl: savedData.liveUrl || projectDataForFirestore.liveUrl,
-      repoUrl: savedData.repoUrl || projectDataForFirestore.repoUrl,
-      slug: savedData.slug || projectDataForFirestore.slug,
-      dataAiHint: savedData.dataAiHint || projectDataForFirestore.dataAiHint,
-      readmeContent: savedData.readmeContent || projectDataForFirestore.readmeContent,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      title: savedData.title,
+      description: savedData.description,
+      longDescription: savedData.longDescription,
+      images: savedData.images,
+      tags: savedData.tags,
+      liveUrl: savedData.liveUrl,
+      repoUrl: savedData.repoUrl,
+      slug: savedData.slug,
+      dataAiHint: savedData.dataAiHint,
+      readmeContent: savedData.readmeContent,
+      createdAt,
+      updatedAt,
     };
 
     revalidatePath('/portfolio');
