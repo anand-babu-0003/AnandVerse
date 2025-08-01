@@ -7,11 +7,12 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
-import { getContactMessagesAction, deleteContactMessageAction, type DeleteMessageResult } from '@/actions/admin/messagesActions';
+import { deleteContactMessageAction } from '@/actions/admin/messagesActions';
 import type { ContactMessage } from '@/lib/types';
 import { Trash2, Mail, CalendarDays, Inbox } from 'lucide-react';
 import { format } from 'date-fns';
-import FullScreenLoader from '@/components/shared/FullScreenLoader';
+import { getContactMessagesAction } from '@/actions/admin/messagesActions';
+
 
 // Client Component to handle state and interactions
 function MessagesAdminClientPage({ initialMessages }: { initialMessages: ContactMessage[] }) {
