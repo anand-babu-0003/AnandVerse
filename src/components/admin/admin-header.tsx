@@ -18,11 +18,11 @@ export function AdminHeader() {
   const handleLogout = async () => {
     try {
         await signOut(auth);
-        localStorage.removeItem('isAdminLoggedIn');
-        router.push('/admin/login');
     } catch (error) {
         console.error('Logout Error:', error);
-        // Still attempt to redirect even if there's an error
+    } finally {
+        // Always attempt to clear local session state and redirect
+        localStorage.removeItem('isAdminLoggedIn');
         router.push('/admin/login');
     }
   };

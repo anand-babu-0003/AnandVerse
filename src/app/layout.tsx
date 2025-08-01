@@ -23,6 +23,10 @@ export async function generateMetadata(): Promise<Metadata> {
       images: settings.siteOgImageUrl ? [{ url: settings.siteOgImageUrl }] : [],
       type: 'website',
     },
+    icons: {
+      icon: '/favicon.ico',
+      apple: '/apple-touch-icon.png',
+    }
   };
 }
 
@@ -34,8 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {/* Favicon links are now generated via Metadata API */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />

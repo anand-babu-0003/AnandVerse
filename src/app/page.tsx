@@ -22,7 +22,11 @@ export default async function Home() {
   const displayedAboutMe = aboutMeData || defaultAboutMeDataForClient;
   const featuredProjects = (allPortfolioItems || defaultPortfolioItemsDataForClient).slice(0, 2);
   const highlightedSkills = (allSkills || defaultSkillsDataForClient).slice(0, 6);
-  const firstParagraphBio = (displayedAboutMe.bio || '').split('\n\n')[0] || defaultAboutMeDataForClient.bio.split('\n\n')[0];
+  
+  const fullBio = displayedAboutMe.bio || defaultAboutMeDataForClient.bio;
+  const firstParagraphBio = fullBio.split('\n\n')[0];
+  const bioSnippet = firstParagraphBio.length > 150 ? `${firstParagraphBio.substring(0, 150)}...` : firstParagraphBio;
+
 
   return (
     <div className="flex flex-col">
@@ -35,12 +39,12 @@ export default async function Home() {
               <span className="block text-primary animate-fadeInUp-2">{displayedAboutMe.title || 'My Awesome Title'}</span>
             </h1>
             <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground animate-fadeInUp-2" style={{ animationDelay: '0.5s' }}>
-              {(displayedAboutMe.bio || defaultAboutMeDataForClient.bio).substring(0, 150)}...
+              {bioSnippet}
             </p>
             <div className="mt-10 flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 animate-fadeInUp-2" style={{ animationDelay: '0.7s' }}>
               <Button
                 asChild
-                className="bg-[hsl(260,55%,78%)] text-[hsl(260,25%,30%)] hover:bg-[hsl(260,55%,72%)] dark:bg-[hsl(260,55%,78%)] dark:text-[hsl(260,25%,30%)] dark:hover:bg-[hsl(260,55%,72%)] font-semibold shadow-lg transition-all duration-300 rounded-md text-base leading-snug px-6 py-3"
+                className="font-semibold shadow-lg transition-all duration-300 rounded-md text-base leading-snug px-6 py-3"
               >
                 <Link href="/portfolio">
                   <span className="inline-flex items-center">
@@ -51,7 +55,7 @@ export default async function Home() {
               </Button>
               <Button
                 asChild
-                className="bg-[hsl(260,55%,78%)] text-[hsl(260,25%,30%)] hover:bg-[hsl(260,55%,72%)] dark:bg-[hsl(260,55%,78%)] dark:text-[hsl(260,25%,30%)] dark:hover:bg-[hsl(260,55%,72%)] font-semibold shadow-lg transition-all duration-300 rounded-md text-base leading-snug px-6 py-3"
+                className="font-semibold shadow-lg transition-all duration-300 rounded-md text-base leading-snug px-6 py-3"
               >
                 <Link href="/contact">
                   <span className="inline-flex items-center">

@@ -22,19 +22,18 @@ export const educationSchema = z.object({
 });
 export type Education = z.infer<typeof educationSchema>;
 
-
 export const aboutMeSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   title: z.string().min(5, { message: "Title must be at least 5 characters." }),
   bio: z.string().min(20, { message: "Bio must be at least 20 characters." }),
-  profileImage: z.string().url({ message: "Please enter a valid URL for the profile image." }).or(z.literal("").transform(() => undefined)).optional(),
-  dataAiHint: z.string().max(50, { message: "AI hint must be 50 characters or less." }).or(z.literal("").transform(() => undefined)).optional(),
+  profileImage: z.string().url({ message: "Please enter a valid URL for the profile image." }).or(z.literal("")).optional(),
+  dataAiHint: z.string().max(50, { message: "AI hint must be 50 characters or less." }).or(z.literal("")).optional(),
   experience: z.array(experienceSchema),
   education: z.array(educationSchema),
-  email: z.string().email({ message: "Please enter a valid email." }).or(z.literal("").transform(() => undefined)).optional(),
-  linkedinUrl: z.string().url({ message: "Please enter a valid LinkedIn URL." }).or(z.literal("").transform(() => undefined)).optional(),
-  githubUrl: z.string().url({ message: "Please enter a valid GitHub URL." }).or(z.literal("").transform(() => undefined)).optional(),
-  twitterUrl: z.string().url({ message: "Please enter a valid Twitter URL." }).or(z.literal("").transform(() => undefined)).optional(),
+  email: z.string().email({ message: "Please enter a valid email." }).or(z.literal("")).optional(),
+  linkedinUrl: z.string().url({ message: "Please enter a valid LinkedIn URL." }).or(z.literal("")).optional(),
+  githubUrl: z.string().url({ message: "Please enter a valid GitHub URL." }).or(z.literal("")).optional(),
+  twitterUrl: z.string().url({ message: "Please enter a valid Twitter URL." }).or(z.literal("")).optional(),
 });
 
 export const profileBioSchema = aboutMeSchema.pick({
@@ -135,4 +134,3 @@ export const notFoundPageAdminSchema = z.object({
   buttonText: z.string().min(3, "Button text is too short.").max(30, "Button text is too long."),
 });
 export type NotFoundPageAdminFormData = z.infer<typeof notFoundPageAdminSchema>;
-
