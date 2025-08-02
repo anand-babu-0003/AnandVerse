@@ -21,7 +21,7 @@ const certificationDocRef = (id: string) => {
 export async function getCertificationsAction(): Promise<LibCertificationType[]> {
     if (!firestore) {
         console.warn("Firestore not initialized in getCertificationsAction. Returning default client data.");
-        return JSON.parse(JSON.stringify(defaultCertificationsDataForClient));
+        return JSON.parse(JSON.stringify(defaultCertificationsDataForClient || []));
     }
     try {
         const q = query(certificationsCollectionRef(), orderBy('date', 'desc'));
@@ -42,7 +42,8 @@ export async function getCertificationsAction(): Promise<LibCertificationType[]>
         });
     } catch (error) {
         console.error("Error fetching certifications from Firestore:", error);
-        return JSON.parse(JSON.stringify(defaultCertificationsDataForClient));
+        // Ensure that a valid, empty array is returned on error, not undefined.
+        return JSON.parse(JSON.stringify(defaultCertificationsDataForClient || []));
     }
 }
 
