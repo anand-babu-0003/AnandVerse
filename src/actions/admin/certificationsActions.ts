@@ -38,6 +38,9 @@ export async function getCertificationsAction(): Promise<LibCertificationType[]>
                 name: data.name || 'Untitled Certification',
                 issuingBody: data.issuingBody || 'Unknown Body',
                 date: data.date || 'N/A',
+                imageUrl: data.imageUrl || '',
+                credentialId: data.credentialId || '',
+                credentialUrl: data.credentialUrl || '',
             } as LibCertificationType;
         });
     } catch (error) {
@@ -73,6 +76,9 @@ export async function saveCertificationAction(
         name: String(formData.get('name') || ''),
         issuingBody: String(formData.get('issuingBody') || ''),
         date: String(formData.get('date') || ''),
+        imageUrl: String(formData.get('imageUrl') || ''),
+        credentialId: String(formData.get('credentialId') || ''),
+        credentialUrl: String(formData.get('credentialUrl') || ''),
     };
     
     const validatedFields = certificationAdminSchema.safeParse(rawData);
@@ -96,6 +102,9 @@ export async function saveCertificationAction(
         name: data.name,
         issuingBody: data.issuingBody,
         date: data.date,
+        imageUrl: data.imageUrl,
+        credentialId: data.credentialId,
+        credentialUrl: data.credentialUrl,
     };
 
     try {

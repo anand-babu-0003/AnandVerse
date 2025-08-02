@@ -87,8 +87,24 @@ export const defaultEducationForClient: Education[] = [
 ];
 
 export const defaultCertificationsDataForClient: Certification[] = [
-    { id: 'cert_default_1', name: 'Certified Next.js Developer', issuingBody: 'Vercel', date: '2023' },
-    { id: 'cert_default_2', name: 'Google Cloud Certified - Associate Cloud Engineer', issuingBody: 'Google Cloud', date: '2022' },
+    { 
+      id: 'cert_default_1', 
+      name: 'Certified Next.js Developer', 
+      issuingBody: 'Vercel', 
+      date: '2023',
+      imageUrl: 'https://placehold.co/600x400.png?text=Next.js+Cert',
+      credentialId: 'CRED-12345-NEXT',
+      credentialUrl: 'https://vercel.com/certs/12345'
+    },
+    { 
+      id: 'cert_default_2', 
+      name: 'Google Cloud Certified - Associate Cloud Engineer', 
+      issuingBody: 'Google Cloud', 
+      date: '2022',
+      imageUrl: 'https://placehold.co/600x400.png?text=GCP+Cert',
+      credentialId: 'CRED-67890-GCP',
+      credentialUrl: 'https://google.com/certs/67890'
+    },
 ];
 
 export const defaultAboutMeDataForClient: AboutMeData = {

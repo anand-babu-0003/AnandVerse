@@ -27,6 +27,9 @@ export const certificationSchema = z.object({
   name: z.string().min(1, "Certification name is required"),
   issuingBody: z.string().min(1, "Issuing body is required"),
   date: z.string().min(1, "Date is required"),
+  imageUrl: z.string().url().optional().or(z.literal('')),
+  credentialId: z.string().optional(),
+  credentialUrl: z.string().url().optional().or(z.literal('')),
 });
 export type Certification = z.infer<typeof certificationSchema>;
 
@@ -144,6 +147,9 @@ export const certificationAdminSchema = z.object({
   name: z.string().min(2, { message: "Certification name must be at least 2 characters." }),
   issuingBody: z.string().min(2, { message: "Issuing body must be at least 2 characters." }),
   date: z.string().min(4, { message: "Date must be at least 4 characters (e.g., '2023')." }),
+  imageUrl: z.string().url({ message: "Please enter a valid URL or leave blank." }).or(z.literal("")).optional(),
+  credentialId: z.string().optional(),
+  credentialUrl: z.string().url({ message: "Please enter a valid URL or leave blank." }).or(z.literal("")).optional(),
 });
 export type CertificationAdminFormData = z.infer<typeof certificationAdminSchema>;
 

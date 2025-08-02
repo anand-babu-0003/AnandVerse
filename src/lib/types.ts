@@ -54,6 +54,9 @@ export interface Certification {
   name: string;
   issuingBody: string;
   date: string;
+  imageUrl?: string;
+  credentialId?: string;
+  credentialUrl?: string;
 }
 
 export interface AboutMeData {

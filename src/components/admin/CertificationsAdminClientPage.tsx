@@ -27,6 +27,9 @@ const defaultFormValues: CertificationAdminFormData = {
   name: '',
   issuingBody: '',
   date: '',
+  imageUrl: '',
+  credentialId: '',
+  credentialUrl: '',
 };
 
 function SubmitButton() {
@@ -100,6 +103,9 @@ export default function CertificationsAdminClientPage({ initialCertifications }:
         name: certification.name,
         issuingBody: certification.issuingBody,
         date: certification.date,
+        imageUrl: certification.imageUrl,
+        credentialId: certification.credentialId,
+        credentialUrl: certification.credentialUrl,
     });
     setShowForm(true);
   };
@@ -149,6 +155,15 @@ export default function CertificationsAdminClientPage({ initialCertifications }:
                 )} />
                 <FormField control={form.control} name="date" render={({ field }) => (
                   <FormItem><FormLabel>Date Issued (e.g., 2023 or Nov 2023)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="imageUrl" render={({ field }) => (
+                  <FormItem><FormLabel>Image URL (Optional)</FormLabel><FormControl><Input {...field} placeholder="https://example.com/cert-image.png" /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="credentialId" render={({ field }) => (
+                  <FormItem><FormLabel>Credential ID (Optional)</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                )} />
+                <FormField control={form.control} name="credentialUrl" render={({ field }) => (
+                  <FormItem><FormLabel>Credential URL (Optional)</FormLabel><FormControl><Input {...field} placeholder="https://example.com/verify/123" /></FormControl><FormMessage /></FormItem>
                 )} />
               </CardContent>
               <CardFooter className="flex justify-end gap-2">
