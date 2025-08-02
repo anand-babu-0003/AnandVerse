@@ -95,41 +95,35 @@ export async function saveCertificationAction(
     let certId = data.id;
 
     try {
+        const certDataToSave: Omit<LibCertificationType, 'id'> = {
+            name: data.name,
+            issuingBody: data.issuingBody,
+            date: data.date,
+            imageUrl: data.imageUrl,
+            credentialId: data.credentialId,
+            credentialUrl: data.credentialUrl,
+        };
+
         if (certId) {
             // Logic to UPDATE an existing certification
             const certRef = certificationDocRef(certId);
-            const certToUpdate: Omit<LibCertificationType, 'id'> = {
-                name: data.name,
-                issuingBody: data.issuingBody,
-                date: data.date,
-                imageUrl: data.imageUrl,
-                credentialId: data.credentialId,
-                credentialUrl: data.credentialUrl,
-            };
-            await setDoc(certRef, certToUpdate, { merge: true });
+            await setDoc(certRef, certDataToSave, { merge: true });
         } else {
             // Logic to CREATE a new certification
             const collectionRef = certificationsCollectionRef();
-            const certToCreate: Omit<LibCertificationType, 'id'> = {
-                name: data.name,
-                issuingBody: data.issuingBody,
-                date: data.date,
-                imageUrl: data.imageUrl,
-                credentialId: data.credentialId,
-                credentialUrl: data.credentialUrl,
-            };
-            const newDocRef = await addDoc(collectionRef, certToCreate);
-            certId = newDocRef.id;
+            const newDocRef = await addDoc(collectionRef, certDataToSave);
+            certId = newDocRef.id; // Correctly assign the new ID from Firestore
         }
 
-        const savedDoc = await getDoc(certificationDocRef(certId));
+        // Use the final, correct certId to fetch the saved document
+        const savedDoc = await getDoc(certificationDocRef(certId!));
         if (!savedDoc.exists()) {
              throw new Error("Failed to retrieve saved certification from Firestore after save operation.");
         }
         const savedData = savedDoc.data();
         
         const finalSavedCertification: LibCertificationType = {
-            id: certId,
+            id: certId!,
             name: savedData.name,
             issuingBody: savedData.issuingBody,
             date: savedData.date,
