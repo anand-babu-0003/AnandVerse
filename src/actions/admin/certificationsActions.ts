@@ -33,7 +33,6 @@ export async function getCertificationsAction(): Promise<LibCertificationType[]>
 
         return snapshot.docs.map(docSnap => {
             const data = docSnap.data();
-            // Firestore timestamps can be null if the document was created before the field was added
             const createdAt = data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : new Date(0).toISOString();
             const updatedAt = data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : createdAt;
 
@@ -123,7 +122,7 @@ export async function saveCertificationAction(
                 createdAt: existingData.createdAt || serverTimestamp(), // Preserve original creation date
                 updatedAt: serverTimestamp(),
             };
-            await setDoc(certRef, certDataToUpdate);
+            await setDoc(certRef, certDataToUpdate, { merge: true });
         } else {
             // --- CREATE PATH ---
             const collectionRef = certificationsCollectionRef();
@@ -146,12 +145,8 @@ export async function saveCertificationAction(
         if (!savedDoc.exists()) {
              throw new Error("Failed to retrieve saved certification from Firestore after save operation.");
         }
-        const savedData = savedDoc.data();
-        // Wait briefly for server timestamp to populate if needed, or handle it being a server-side object
-        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay can sometimes help with timestamp propagation
-        const finalSnap = await getDoc(certificationDocRef(finalCertId));
-        const finalData = finalSnap.data()!;
-
+        
+        const finalData = savedDoc.data()!;
         const createdAt = finalData.createdAt instanceof Timestamp ? finalData.createdAt.toDate().toISOString() : new Date().toISOString();
         const updatedAt = finalData.updatedAt instanceof Timestamp ? finalData.updatedAt.toDate().toISOString() : new Date().toISOString();
         
