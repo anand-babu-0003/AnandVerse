@@ -98,12 +98,15 @@ export async function saveCertificationAction(
     }
 
     const data = validatedFields.data;
-    let certId = data.id;
+    const certId = data.id;
 
     try {
+        let finalCertId: string;
+        
         if (certId) {
-            // Logic to UPDATE an existing certification
-            const certRef = certificationDocRef(certId);
+            // --- UPDATE PATH ---
+            finalCertId = certId;
+            const certRef = certificationDocRef(finalCertId);
             const docSnap = await getDoc(certRef);
             if (!docSnap.exists()) {
                 throw new Error("Attempted to update a certification that does not exist.");
@@ -114,46 +117,52 @@ export async function saveCertificationAction(
                 name: data.name,
                 issuingBody: data.issuingBody,
                 date: data.date,
-                imageUrl: data.imageUrl,
-                credentialId: data.credentialId,
-                credentialUrl: data.credentialUrl,
+                imageUrl: data.imageUrl || '',
+                credentialId: data.credentialId || '',
+                credentialUrl: data.credentialUrl || '',
                 createdAt: existingData.createdAt || serverTimestamp(), // Preserve original creation date
-                updatedAt: serverTimestamp(), // Set new update date
+                updatedAt: serverTimestamp(),
             };
             await setDoc(certRef, certDataToUpdate);
         } else {
-            // Logic to CREATE a new certification
+            // --- CREATE PATH ---
             const collectionRef = certificationsCollectionRef();
             const certDataToCreate = {
                 name: data.name,
                 issuingBody: data.issuingBody,
                 date: data.date,
-                imageUrl: data.imageUrl,
-                credentialId: data.credentialId,
-                credentialUrl: data.credentialUrl,
+                imageUrl: data.imageUrl || '',
+                credentialId: data.credentialId || '',
+                credentialUrl: data.credentialUrl || '',
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
             };
             const newDocRef = await addDoc(collectionRef, certDataToCreate);
-            certId = newDocRef.id; // IMPORTANT: Use the ID returned by Firestore
+            finalCertId = newDocRef.id;
         }
 
-        const savedDoc = await getDoc(certificationDocRef(certId!)); // Use the confirmed final ID
+        // --- FETCH AND RETURN SAVED DATA ---
+        const savedDoc = await getDoc(certificationDocRef(finalCertId));
         if (!savedDoc.exists()) {
              throw new Error("Failed to retrieve saved certification from Firestore after save operation.");
         }
         const savedData = savedDoc.data();
-        const createdAt = savedData.createdAt instanceof Timestamp ? savedData.createdAt.toDate().toISOString() : new Date().toISOString();
-        const updatedAt = savedData.updatedAt instanceof Timestamp ? savedData.updatedAt.toDate().toISOString() : new Date().toISOString();
+        // Wait briefly for server timestamp to populate if needed, or handle it being a server-side object
+        await new Promise(resolve => setTimeout(resolve, 100)); // Small delay can sometimes help with timestamp propagation
+        const finalSnap = await getDoc(certificationDocRef(finalCertId));
+        const finalData = finalSnap.data()!;
+
+        const createdAt = finalData.createdAt instanceof Timestamp ? finalData.createdAt.toDate().toISOString() : new Date().toISOString();
+        const updatedAt = finalData.updatedAt instanceof Timestamp ? finalData.updatedAt.toDate().toISOString() : new Date().toISOString();
         
         const finalSavedCertification: LibCertificationType = {
-            id: certId!,
-            name: savedData.name,
-            issuingBody: savedData.issuingBody,
-            date: savedData.date,
-            imageUrl: savedData.imageUrl,
-            credentialId: savedData.credentialId,
-            credentialUrl: savedData.credentialUrl,
+            id: finalCertId,
+            name: finalData.name,
+            issuingBody: finalData.issuingBody,
+            date: finalData.date,
+            imageUrl: finalData.imageUrl,
+            credentialId: finalData.credentialId,
+            credentialUrl: finalData.credentialUrl,
             createdAt: createdAt,
             updatedAt: updatedAt,
         };
