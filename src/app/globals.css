@@ -178,6 +178,11 @@ body {
   z-index: 9999;
 }
 
+.dark .fullscreen-loader-container {
+  background-color: hsl(0 0% 0%); /* Solid black background for dark theme */
+}
+
+
 .loader-content {
   display: flex;
   flex-direction: column;
@@ -387,4 +392,3 @@ body:has(div[role="alert"][aria-live="polite"]:not([style*="opacity: 0"]):not([d
 body:has(div[data-maintenance-banner]):not(:has(div[role="alert"][aria-live="polite"]:not([style*="opacity: 0"]):not([data-maintenance-banner]))) {
   padding-top: 3rem; 
 }
-
