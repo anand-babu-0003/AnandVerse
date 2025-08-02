@@ -3,7 +3,7 @@ import { PageHeader } from '@/components/shared/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Briefcase, Sparkles, UserCircle, SettingsIcon, Inbox, FileQuestion } from 'lucide-react'; // Removed Megaphone
+import { ArrowRight, Briefcase, UserCircle, SettingsIcon, Inbox, FileQuestion, Award } from 'lucide-react';
 
 export default function AdminDashboardPage() {
   return (
@@ -26,7 +26,6 @@ export default function AdminDashboardPage() {
             </Button>
           </CardContent>
         </Card>
-        {/* Card for Announcements Removed */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xl font-medium">
@@ -48,7 +47,7 @@ export default function AdminDashboardPage() {
             <CardTitle className="text-xl font-medium">
               Manage Skills
             </CardTitle>
-            <Sparkles className="h-5 w-5 text-muted-foreground" />
+            <Award className="h-5 w-5 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <CardDescription className="mb-4">Update your skills and proficiency levels.</CardDescription>

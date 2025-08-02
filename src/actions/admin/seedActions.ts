@@ -19,7 +19,7 @@ import {
   defaultPortfolioItemsDataForClient,
   defaultNotFoundPageDataForClient // Added
 } from '@/lib/data'; // Using more comprehensive defaults from data.ts
-import type { SiteSettings, AboutMeData, Skill, PortfolioItem, Experience, Education, NotFoundPageData } from '@/lib/types';
+import type { SiteSettings, AboutMeData, Skill, PortfolioItem, Experience, Education, Certification, NotFoundPageData } from '@/lib/types';
 
 export interface SeedDetails {
   siteSettings: { status: 'success' | 'error'; message?: string; count: number };
@@ -89,8 +89,9 @@ export async function seedFirestoreWithMockDataAction(): Promise<SeedResult> {
       // Ensure experience and education have IDs if they are missing in defaults
       const aboutMeDataToSeed: AboutMeData = {
         ...defaultAboutMeDataForClient,
-        experience: defaultAboutMeDataForClient.experience.map((exp, i) => ({ id: exp.id || `exp_seed_${i}`, ...exp })),
-        education: defaultAboutMeDataForClient.education.map((edu, i) => ({ id: edu.id || `edu_seed_${i}`, ...edu })),
+        experience: defaultAboutMeDataForClient.experience.map((exp, i) => ({ ...exp, id: exp.id || `exp_seed_${i}` })),
+        education: defaultAboutMeDataForClient.education.map((edu, i) => ({ ...edu, id: edu.id || `edu_seed_${i}` })),
+        certifications: defaultAboutMeDataForClient.certifications.map((cert, i) => ({ ...cert, id: cert.id || `cert_seed_${i}` })),
       };
       await setDoc(aboutMeRef, aboutMeDataToSeed);
       details.aboutMe = { status: 'success', count: 1, message: "About Me data seeded." };

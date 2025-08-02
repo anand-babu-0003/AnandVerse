@@ -49,6 +49,13 @@ export interface Education {
   period: string;
 }
 
+export interface Certification {
+  id: string;
+  name: string;
+  issuingBody: string;
+  date: string;
+}
+
 export interface AboutMeData {
   name: string;
   title: string;
@@ -57,6 +64,7 @@ export interface AboutMeData {
   dataAiHint: string;
   experience: Experience[];
   education: Education[];
+  certifications: Certification[];
   email?: string;
   linkedinUrl?: string;
   githubUrl?: string;

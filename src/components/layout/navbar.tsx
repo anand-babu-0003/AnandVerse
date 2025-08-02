@@ -13,7 +13,6 @@ import { ThemeToggleButton } from './theme-toggle-button';
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/about', label: 'About', icon: UserCircle },
-  { href: '/skills', label: 'Skills', icon: Sparkles },
   { href: '/portfolio', label: 'Portfolio', icon: Briefcase },
   { href: '/contact', label: 'Contact', icon: Mail },
 ];

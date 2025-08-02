@@ -34,6 +34,10 @@ export async function getAboutMeDataAction(): Promise<AboutMeData> {
             ...edu, 
             id: edu.id || `edu_fetch_${Date.now()}_${Math.random().toString(36).substring(2, 7)}` 
         })),
+        certifications: (Array.isArray(data.certifications) ? data.certifications : defaultData.certifications).map(cert => ({
+            ...cert,
+            id: cert.id || `cert_fetch_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
+        })),
         email: data.email || defaultData.email,
         linkedinUrl: data.linkedinUrl || defaultData.linkedinUrl,
         githubUrl: data.githubUrl || defaultData.githubUrl,
@@ -48,6 +52,3 @@ export async function getAboutMeDataAction(): Promise<AboutMeData> {
     return JSON.parse(JSON.stringify(defaultAboutMeDataForClient)); 
   }
 }
-
-
-    

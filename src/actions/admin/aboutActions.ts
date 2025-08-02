@@ -3,14 +3,16 @@
 
 import { firestore } from '@/lib/firebaseConfig';
 import { doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
-import type { AboutMeData, Experience as LibExperienceType, Education as LibEducationType } from '@/lib/types';
+import type { AboutMeData, Experience as LibExperienceType, Education as LibEducationType, Certification as LibCertificationType } from '@/lib/types';
 import { 
   aboutMeSchema, 
   profileBioSchema, type ProfileBioData,
   experienceSectionSchema, type ExperienceSectionData,
   educationSectionSchema, type EducationSectionData,
+  certificationSectionSchema, type CertificationSectionData,
   type Experience as ZodExperienceType, 
-  type Education as ZodEducationType 
+  type Education as ZodEducationType,
+  type Certification as ZodCertificationType,
 } from '@/lib/adminSchemas';
 import type { z } from 'zod';
 import { revalidatePath } from 'next/cache';
@@ -45,6 +47,10 @@ async function readAboutMeDataFromFirestore(): Promise<AboutMeData> {
             ...edu, 
             id: edu.id || `edu_fb_${Date.now()}_${Math.random().toString(36).substring(2, 7)}` 
         })),
+        certifications: (data.certifications || defaultData.certifications).map(cert => ({
+            ...cert,
+            id: cert.id || `cert_fb_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
+        })),
         email: data.email || defaultData.email,
         linkedinUrl: data.linkedinUrl || defaultData.linkedinUrl,
         githubUrl: data.githubUrl || defaultData.githubUrl,
@@ -61,7 +67,7 @@ async function readAboutMeDataFromFirestore(): Promise<AboutMeData> {
 
 async function writeAboutMeDataToFirestore(data: AboutMeData): Promise<void> {
   if (!firestore) throw new Error("Firestore not initialized. Cannot write AboutMeData.");
-  // Ensure experience and education items have IDs before writing
+  // Ensure experience, education and certifications items have IDs before writing
   const dataToSave: AboutMeData = {
     ...data,
     experience: data.experience.map(exp => ({
@@ -71,7 +77,11 @@ async function writeAboutMeDataToFirestore(data: AboutMeData): Promise<void> {
     education: data.education.map(edu => ({
       ...edu,
       id: edu.id || `edu_fs_write_${Date.now()}_${Math.random().toString(36).substring(2,7)}`
-    }))
+    })),
+    certifications: data.certifications.map(cert => ({
+        ...cert,
+        id: cert.id || `cert_fs_write_${Date.now()}_${Math.random().toString(36).substring(2,7)}`
+    })),
   };
   await setDoc(aboutMeDocRef(), dataToSave, { merge: true });
 }
@@ -103,6 +113,13 @@ export type UpdateEducationDataFormState = {
   status: 'success' | 'error' | 'idle';
   errors?: z.inferFlattenedErrors<typeof educationSectionSchema>['fieldErrors'];
   data?: EducationSectionData;
+};
+
+export type UpdateCertificationDataFormState = {
+    message: string;
+    status: 'success' | 'error' | 'idle';
+    errors?: z.inferFlattenedErrors<typeof certificationSectionSchema>['fieldErrors'];
+    data?: CertificationSectionData;
 };
 
 
@@ -352,6 +369,88 @@ export async function updateEducationDataAction(
   }
 }
 
+// Server Action for Certifications section
+export async function updateCertificationsDataAction(
+    prevState: UpdateCertificationDataFormState,
+    formData: FormData
+  ): Promise<UpdateCertificationDataFormState> {
+    let currentAboutMeData: AboutMeData;
+    try {
+      currentAboutMeData = await readAboutMeDataFromFirestore();
+    } catch (e) {
+      console.error("Failed to read current About Me data before update:", e);
+       return { message: "Failed to read current settings. Update aborted.", status: 'error', data: { certifications: [] } };
+    }
+    if (!firestore) {
+      return { message: "Firestore not initialized.", status: 'error', data: { certifications: [] } };
+    }
+    let rawDataForZod: CertificationSectionData | undefined = undefined;
+    try {
+      const certificationEntries: ZodCertificationType[] = [];
+      const certificationIndices = new Set<string>();
+  
+      for (const [key] of formData.entries()) {
+        if (key.startsWith('certifications.') && key.includes('.id')) {
+            certificationIndices.add(key.split('.')[1]);
+        }
+      }
+      
+      const sortedIndices = Array.from(certificationIndices).sort((a,b) => parseInt(a) - parseInt(b));
+  
+      for (const index of sortedIndices) {
+        const id = String(formData.get(`certifications.${index}.id`) || `cert_new_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+        const name = String(formData.get(`certifications.${index}.name`) || '');
+        const issuingBody = String(formData.get(`certifications.${index}.issuingBody`) || '');
+        const date = String(formData.get(`certifications.${index}.date`) || '');
+  
+        certificationEntries.push({ id, name, issuingBody, date });
+      }
+  
+      rawDataForZod = { certifications: certificationEntries };
+      const validatedFields = certificationSectionSchema.safeParse(rawDataForZod);
+  
+      if (!validatedFields.success) {
+        const fieldErrors = validatedFields.error.flatten().fieldErrors;
+        return {
+          message: "Failed to update certifications. Please check the errors below.",
+          status: 'error',
+          errors: fieldErrors as z.inferFlattenedErrors<typeof certificationSectionSchema>['fieldErrors'],
+          data: rawDataForZod,
+        };
+      }
+  
+      const dataToSave = validatedFields.data;
+      const updatedAboutMeData: AboutMeData = {
+        ...currentAboutMeData,
+        certifications: (dataToSave.certifications || []).map(cert => ({
+          ...cert,
+          id: cert.id.startsWith('new_cert_') ? `cert_${Date.now()}_${Math.random().toString(36).substring(2, 7)}` : cert.id
+        })),
+      };
+      await writeAboutMeDataToFirestore(updatedAboutMeData);
+  
+      revalidatePath('/about');
+      revalidatePath('/admin/about');
+  
+      return {
+        message: "Certifications data updated successfully!",
+        status: 'success',
+        data: { certifications: updatedAboutMeData.certifications },
+        errors: {},
+      };
+  
+    } catch (error) {
+      console.error("Admin Certifications Action: An unexpected error occurred:", error);
+      const errorResponseData: CertificationSectionData = rawDataForZod || { certifications: currentAboutMeData.certifications };
+      return {
+        message: "An unexpected server error occurred while updating certifications.",
+        status: 'error',
+        errors: {},
+        data: errorResponseData,
+      };
+    }
+  }
+
 // Server Action for Contact & Socials
 export async function updateAboutDataAction( // This action name implies updating the whole AboutMeData
   prevState: UpdateAboutDataFormState,
@@ -426,5 +525,3 @@ export async function updateAboutDataAction( // This action name implies updatin
     };
   }
 }
-
-    

@@ -1,6 +1,6 @@
 
 import type React from 'react';
-import type { PortfolioItem, Skill, AboutMeData, SiteSettings, Experience, Education, NotFoundPageData } from '@/lib/types';
+import type { PortfolioItem, Skill, AboutMeData, SiteSettings, Experience, Education, Certification, NotFoundPageData } from '@/lib/types';
 import {
   Code, Database, Server, Cloud, PenTool, Terminal, Briefcase, Brain, MessageSquare, Settings, Smartphone, Laptop, GitMerge, Cog, Lightbulb,
   Network, Puzzle, ShieldCheck, LineChart, Cpu, Package, Atom, Accessibility, Anchor, AppWindow, Archive, Asterisk, Award, Axe,
@@ -86,6 +86,11 @@ export const defaultEducationForClient: Education[] = [
   { id: 'edu_default_client_2_static', degree: 'Bachelor of Technology in Computer Science', institution: 'Tech University', period: '2014 - 2018' },
 ];
 
+export const defaultCertificationsForClient: Certification[] = [
+    { id: 'cert_default_1', name: 'Certified Next.js Developer', issuingBody: 'Vercel', date: '2023' },
+    { id: 'cert_default_2', name: 'Google Cloud Certified - Associate Cloud Engineer', issuingBody: 'Google Cloud', date: '2022' },
+];
+
 export const defaultAboutMeDataForClient: AboutMeData = {
   name: 'Anand Verma',
   title: 'Full-Stack Developer & UI Enthusiast',
@@ -94,6 +99,7 @@ export const defaultAboutMeDataForClient: AboutMeData = {
   dataAiHint: 'developer portrait modern tech',
   experience: defaultExperienceForClient,
   education: defaultEducationForClient,
+  certifications: defaultCertificationsForClient,
   email: 'anand.verma.dev@example.com',
   linkedinUrl: 'https://linkedin.com/in/anandverma-dev',
   githubUrl: 'https://github.com/anandverma-dev',

@@ -22,6 +22,15 @@ export const educationSchema = z.object({
 });
 export type Education = z.infer<typeof educationSchema>;
 
+export const certificationSchema = z.object({
+  id: z.string().min(1, "Certification item ID is required"),
+  name: z.string().min(1, "Certification name is required"),
+  issuingBody: z.string().min(1, "Issuing body is required"),
+  date: z.string().min(1, "Date is required"),
+});
+export type Certification = z.infer<typeof certificationSchema>;
+
+
 export const aboutMeSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   title: z.string().min(5, { message: "Title must be at least 5 characters." }),
@@ -30,6 +39,7 @@ export const aboutMeSchema = z.object({
   dataAiHint: z.string().max(50, { message: "AI hint must be 50 characters or less." }).or(z.literal("")).optional(),
   experience: z.array(experienceSchema),
   education: z.array(educationSchema),
+  certifications: z.array(certificationSchema),
   email: z.string().email({ message: "Please enter a valid email." }).or(z.literal("")).optional(),
   linkedinUrl: z.string().url({ message: "Please enter a valid LinkedIn URL." }).or(z.literal("")).optional(),
   githubUrl: z.string().url({ message: "Please enter a valid GitHub URL." }).or(z.literal("")).optional(),
@@ -75,6 +85,21 @@ export const educationSectionSchema = z.object({
     .optional(),
 });
 export type EducationSectionData = z.infer<typeof educationSectionSchema>;
+
+export const certificationSectionSchema = z.object({
+    certifications: z.array(certificationSchema)
+      .min(0)
+      .refine(items => {
+          return items.every(item =>
+              item.name.trim() !== '' ||
+              item.issuingBody.trim() !== '' ||
+              item.date.trim() !== '' ||
+              !item.id.startsWith('new_cert_')
+          );
+      }, { message: "New certification entries cannot be completely blank." })
+      .optional(),
+  });
+export type CertificationSectionData = z.infer<typeof certificationSectionSchema>;
 
 
 export const portfolioItemAdminSchema = z.object({

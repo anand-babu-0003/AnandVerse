@@ -171,7 +171,7 @@ export default async function Home() {
             {(allSkills.length > highlightedSkills.length || allSkills.length === 0 && highlightedSkills.length === 0) && (
               <ScrollAnimationWrapper className="mt-12 text-center" delay={highlightedSkills.length * 100}>
                 <Button asChild size="lg" variant="outline" className="text-lg">
-                  <Link href="/skills">
+                  <Link href="/about#skills">
                     <span>
                       Explore All My Skills <ArrowRight className="ml-2 h-5 w-5" />
                     </span>
