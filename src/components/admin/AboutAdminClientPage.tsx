@@ -84,7 +84,7 @@ export default function AboutAdminClientPage({ initialData }: { initialData: Abo
       toast({ title: "Success!", description: profileBioState.message });
       if (profileBioState.data) profileBioForm.reset(prepareProfileBioDataForForm(profileBioState.data));
     } else if (profileBioState.status === 'error') {
-      toast({ title: "Error Profile & Bio", description: profileBioState.message || "An error occurred.", variant: "destructive" });
+      toast({ title: "Error Saving Profile & Bio", description: profileBioState.message || "An error occurred.", variant: "destructive" });
       if (profileBioState.data) profileBioForm.reset(prepareProfileBioDataForForm(profileBioState.data));
       else profileBioForm.reset(profileBioForm.getValues());
       if (profileBioState.errors) {
@@ -103,7 +103,7 @@ export default function AboutAdminClientPage({ initialData }: { initialData: Abo
       toast({ title: "Success!", description: experienceState.message });
       if (experienceState.data) experienceForm.reset(prepareExperienceSectionDataForForm(experienceState.data));
     } else if (experienceState.status === 'error') {
-      toast({ title: "Error Experience", description: experienceState.message || "An error occurred.", variant: "destructive" });
+      toast({ title: "Error Saving Experience", description: experienceState.message || "An error occurred.", variant: "destructive" });
       if (experienceState.data) experienceForm.reset(prepareExperienceSectionDataForForm(experienceState.data));
       else experienceForm.reset(experienceForm.getValues());
       if (experienceState.errors) {
@@ -131,7 +131,7 @@ export default function AboutAdminClientPage({ initialData }: { initialData: Abo
       toast({ title: "Success!", description: educationState.message });
       if (educationState.data) educationForm.reset(prepareEducationSectionDataForForm(educationState.data));
     } else if (educationState.status === 'error') {
-      toast({ title: "Error Education", description: educationState.message || "An error occurred.", variant: "destructive" });
+      toast({ title: "Error Saving Education", description: educationState.message || "An error occurred.", variant: "destructive" });
       if (educationState.data) educationForm.reset(prepareEducationSectionDataForForm(educationState.data));
       else educationForm.reset(educationForm.getValues());
       if (educationState.errors) {
@@ -156,10 +156,10 @@ export default function AboutAdminClientPage({ initialData }: { initialData: Abo
   // Effect for handling Contact & Socials form state changes
   useEffect(() => {
     if (fullFormState.status === 'success' && fullFormState.message) {
-      toast({ title: "Success (Contact/Socials)!", description: fullFormState.message });
+      toast({ title: "Success!", description: fullFormState.message });
       if (fullFormState.data) fullForm.reset(prepareFullAboutMeDataForForm(fullFormState.data));
     } else if (fullFormState.status === 'error') {
-      toast({ title: "Error Saving (Contact/Socials)", description: fullFormState.message || "An error occurred.", variant: "destructive" });
+      toast({ title: "Error Saving Contact & Socials", description: fullFormState.message || "An error occurred.", variant: "destructive" });
       if (fullFormState.data) fullForm.reset(prepareFullAboutMeDataForForm(fullFormState.data));
       else fullForm.reset(fullForm.getValues());
       if (fullFormState.errors) {
@@ -174,11 +174,6 @@ export default function AboutAdminClientPage({ initialData }: { initialData: Abo
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Manage About Page"
-        subtitle="Edit your profile, bio, contact, experience, and education details."
-        className="py-0 text-left"
-      />
       <Tabs defaultValue="profile" className="w-full">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 mb-6">
           <TabsTrigger value="profile">Profile & Bio</TabsTrigger>
@@ -359,6 +354,7 @@ const prepareFullAboutMeDataForForm = (data?: Partial<AboutMeData>): AboutMeData
     dataAiHint: data?.dataAiHint || defaults.dataAiHint,
     experience: (Array.isArray(data?.experience) && data.experience.length > 0 ? data.experience : defaults.experience).map(exp => ({ ...exp, id: exp.id || `exp_form_${Date.now()}_${Math.random().toString(36).substring(2,7)}` })),
     education: (Array.isArray(data?.education) && data.education.length > 0 ? data.education : defaults.education).map(edu => ({ ...edu, id: edu.id || `edu_form_${Date.now()}_${Math.random().toString(36).substring(2,7)}` })),
+    certifications: [], // Managed elsewhere
     email: data?.email || defaults.email,
     linkedinUrl: data?.linkedinUrl || defaults.linkedinUrl,
     githubUrl: data?.githubUrl || defaults.githubUrl,
@@ -366,7 +362,7 @@ const prepareFullAboutMeDataForForm = (data?: Partial<AboutMeData>): AboutMeData
   };
 };
 
-const prepareProfileBioDataForForm = (data?: Partial<ProfileBioData>): ProfileBioData => {
+const prepareProfileBioDataForForm = (data?: Partial<ProfileBioData | AboutMeData>): ProfileBioData => {
   const defaults = defaultAboutMeDataForClient;
   return {
     name: data?.name || defaults.name,

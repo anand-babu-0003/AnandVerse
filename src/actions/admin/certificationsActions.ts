@@ -140,7 +140,9 @@ export async function saveCertificationAction(
             finalCertId = newDocRef.id;
         }
 
-        // --- FETCH AND RETURN SAVED DATA ---
+        revalidatePath('/certifications');
+        revalidatePath('/admin/certifications');
+
         const savedDoc = await getDoc(certificationDocRef(finalCertId));
         if (!savedDoc.exists()) {
              throw new Error("Failed to retrieve saved certification from Firestore after save operation.");
@@ -161,9 +163,6 @@ export async function saveCertificationAction(
             createdAt: createdAt,
             updatedAt: updatedAt,
         };
-
-        revalidatePath('/certifications');
-        revalidatePath('/admin/certifications');
 
         return {
             message: `Certification "${finalSavedCertification.name}" ${data.id ? 'updated' : 'added'} successfully!`,

@@ -1,42 +1,51 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow public read access for site settings and about me data
+  
+    // Default deny all reads and writes
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- App Config (Site Settings, About Me, etc.) ---
+    // Public can read, only authenticated admins should write.
+    // For this app, we assume server actions are authenticated or have admin rights.
+    // However, to ensure public pages work, we allow public read.
+    // Write access is restricted.
     match /app_config/{docId} {
       allow read: if true;
-      allow write: if request.auth != null; // Only authenticated users can write
+      allow write: if request.auth != null; // Only authenticated users can write.
     }
-
-    // Allow public read access for portfolio items
+    
+    // --- Announcements ---
+    // Public can read for live banners, only authenticated can write.
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // --- Contact Messages ---
+    // Public can create, only authenticated can read/delete.
+    match /contactMessages/{messageId} {
+      allow create: if true;
+      allow read, delete: if request.auth != null;
+    }
+    
+    // --- Portfolio, Skills, Certifications ---
+    // Public can read, only authenticated can write/delete.
     match /portfolioItems/{itemId} {
       allow read: if true;
-      allow write: if true; // Allow admin actions to write
+      allow create, update, delete: if request.auth != null;
     }
-
-    // Allow public read access for skills
+    
     match /skills/{skillId} {
       allow read: if true;
-      allow write: if true; // Allow admin actions to write
+      allow create, update, delete: if request.auth != null;
     }
-
-    // Allow public read access for certifications and allow admin writes
+    
     match /certifications/{certId} {
-        allow read: if true;
-        allow write: if true; // Allow admin actions to write
-    }
-
-    // Restrict contact messages to be written by anyone, but only readable/deletable by admin
-    match /contactMessages/{messageId} {
-      allow read, delete: if request.auth != null;
-      allow create: if true;
-      allow update: if false; // Messages shouldn't be updatable
-    }
-
-    // Allow anyone to publish an announcement, but only admins can manage them
-     match /announcements/{announcementId} {
-      allow read: if true; // Everyone can read announcements
+      allow read: if true;
       allow create, update, delete: if request.auth != null;
     }
   }
