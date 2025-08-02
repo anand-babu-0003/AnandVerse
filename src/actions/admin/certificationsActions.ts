@@ -2,7 +2,7 @@
 "use server";
 
 import { firestore } from '@/lib/firebaseConfig';
-import { collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, Timestamp, addDoc, serverTimestamp } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 import type { Certification as LibCertificationType } from '@/lib/types';
 import { certificationAdminSchema, type CertificationAdminFormData } from '@/lib/adminSchemas';
@@ -45,7 +45,6 @@ export async function getCertificationsAction(): Promise<LibCertificationType[]>
         });
     } catch (error) {
         console.error("Error fetching certifications from Firestore:", error);
-        // Ensure that a valid, empty array is returned on error, not undefined.
         return JSON.parse(JSON.stringify(defaultCertificationsDataForClient || []));
     }
 }
@@ -94,31 +93,58 @@ export async function saveCertificationAction(
 
     const data = validatedFields.data;
     let certId = data.id;
-    if (!certId) {
-        certId = `cert_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-    }
-
-    const certToSave: Omit<LibCertificationType, 'id'> = {
-        name: data.name,
-        issuingBody: data.issuingBody,
-        date: data.date,
-        imageUrl: data.imageUrl,
-        credentialId: data.credentialId,
-        credentialUrl: data.credentialUrl,
-    };
 
     try {
-        await setDoc(certificationDocRef(certId), certToSave, { merge: true });
+        if (certId) {
+            // Logic to UPDATE an existing certification
+            const certRef = certificationDocRef(certId);
+            const certToUpdate: Omit<LibCertificationType, 'id'> = {
+                name: data.name,
+                issuingBody: data.issuingBody,
+                date: data.date,
+                imageUrl: data.imageUrl,
+                credentialId: data.credentialId,
+                credentialUrl: data.credentialUrl,
+            };
+            await setDoc(certRef, certToUpdate, { merge: true });
+        } else {
+            // Logic to CREATE a new certification
+            const collectionRef = certificationsCollectionRef();
+            const certToCreate: Omit<LibCertificationType, 'id'> = {
+                name: data.name,
+                issuingBody: data.issuingBody,
+                date: data.date,
+                imageUrl: data.imageUrl,
+                credentialId: data.credentialId,
+                credentialUrl: data.credentialUrl,
+            };
+            const newDocRef = await addDoc(collectionRef, certToCreate);
+            certId = newDocRef.id;
+        }
+
+        const savedDoc = await getDoc(certificationDocRef(certId));
+        if (!savedDoc.exists()) {
+             throw new Error("Failed to retrieve saved certification from Firestore after save operation.");
+        }
+        const savedData = savedDoc.data();
         
-        const savedData: LibCertificationType = { id: certId, ...certToSave };
+        const finalSavedCertification: LibCertificationType = {
+            id: certId,
+            name: savedData.name,
+            issuingBody: savedData.issuingBody,
+            date: savedData.date,
+            imageUrl: savedData.imageUrl,
+            credentialId: savedData.credentialId,
+            credentialUrl: savedData.credentialUrl,
+        };
 
         revalidatePath('/certifications');
         revalidatePath('/admin/certifications');
 
         return {
-            message: `Certification "${savedData.name}" ${data.id ? 'updated' : 'added'} successfully!`,
+            message: `Certification "${finalSavedCertification.name}" ${data.id ? 'updated' : 'added'} successfully!`,
             status: 'success',
-            savedCertification: savedData,
+            savedCertification: finalSavedCertification,
             errors: {},
         };
     } catch (error) {
