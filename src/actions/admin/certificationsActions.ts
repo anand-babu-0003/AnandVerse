@@ -2,7 +2,7 @@
 "use server";
 
 import { firestore } from '@/lib/firebaseConfig';
-import { collection, doc, getDocs, setDoc, deleteDoc, query, orderBy, Timestamp, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, doc, getDocs, getDoc, setDoc, deleteDoc, query, orderBy, Timestamp, addDoc, serverTimestamp } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 import type { Certification as LibCertificationType } from '@/lib/types';
 import { certificationAdminSchema, type CertificationAdminFormData } from '@/lib/adminSchemas';
@@ -33,6 +33,9 @@ export async function getCertificationsAction(): Promise<LibCertificationType[]>
 
         return snapshot.docs.map(docSnap => {
             const data = docSnap.data();
+            const createdAt = data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : new Date(0).toISOString();
+            const updatedAt = data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : createdAt;
+
             return {
                 id: docSnap.id,
                 name: data.name || 'Untitled Certification',
@@ -41,6 +44,8 @@ export async function getCertificationsAction(): Promise<LibCertificationType[]>
                 imageUrl: data.imageUrl || '',
                 credentialId: data.credentialId || '',
                 credentialUrl: data.credentialUrl || '',
+                createdAt: createdAt,
+                updatedAt: updatedAt
             } as LibCertificationType;
         });
     } catch (error) {
@@ -95,32 +100,50 @@ export async function saveCertificationAction(
     let certId = data.id;
 
     try {
-        const certDataToSave: Omit<LibCertificationType, 'id'> = {
-            name: data.name,
-            issuingBody: data.issuingBody,
-            date: data.date,
-            imageUrl: data.imageUrl,
-            credentialId: data.credentialId,
-            credentialUrl: data.credentialUrl,
-        };
-
         if (certId) {
             // Logic to UPDATE an existing certification
             const certRef = certificationDocRef(certId);
-            await setDoc(certRef, certDataToSave, { merge: true });
+            const docSnap = await getDoc(certRef);
+            if (!docSnap.exists()) {
+                throw new Error("Attempted to update a certification that does not exist.");
+            }
+            const existingData = docSnap.data();
+
+            const certDataToUpdate = {
+                name: data.name,
+                issuingBody: data.issuingBody,
+                date: data.date,
+                imageUrl: data.imageUrl,
+                credentialId: data.credentialId,
+                credentialUrl: data.credentialUrl,
+                createdAt: existingData.createdAt || serverTimestamp(), // Preserve original creation date
+                updatedAt: serverTimestamp(), // Set new update date
+            };
+            await setDoc(certRef, certDataToUpdate);
         } else {
             // Logic to CREATE a new certification
             const collectionRef = certificationsCollectionRef();
-            const newDocRef = await addDoc(collectionRef, certDataToSave);
-            certId = newDocRef.id; // Correctly assign the new ID from Firestore
+            const certDataToCreate = {
+                name: data.name,
+                issuingBody: data.issuingBody,
+                date: data.date,
+                imageUrl: data.imageUrl,
+                credentialId: data.credentialId,
+                credentialUrl: data.credentialUrl,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            };
+            const newDocRef = await addDoc(collectionRef, certDataToCreate);
+            certId = newDocRef.id;
         }
 
-        // Use the final, correct certId to fetch the saved document
         const savedDoc = await getDoc(certificationDocRef(certId!));
         if (!savedDoc.exists()) {
              throw new Error("Failed to retrieve saved certification from Firestore after save operation.");
         }
         const savedData = savedDoc.data();
+        const createdAt = savedData.createdAt instanceof Timestamp ? savedData.createdAt.toDate().toISOString() : new Date().toISOString();
+        const updatedAt = savedData.updatedAt instanceof Timestamp ? savedData.updatedAt.toDate().toISOString() : new Date().toISOString();
         
         const finalSavedCertification: LibCertificationType = {
             id: certId!,
@@ -130,6 +153,8 @@ export async function saveCertificationAction(
             imageUrl: savedData.imageUrl,
             credentialId: savedData.credentialId,
             credentialUrl: savedData.credentialUrl,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
         };
 
         revalidatePath('/certifications');

@@ -57,6 +57,8 @@ export interface Certification {
   imageUrl?: string;
   credentialId?: string;
   credentialUrl?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface AboutMeData {
