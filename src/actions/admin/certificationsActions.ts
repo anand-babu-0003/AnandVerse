@@ -33,6 +33,7 @@ export async function getCertificationsAction(): Promise<LibCertificationType[]>
 
         return snapshot.docs.map(docSnap => {
             const data = docSnap.data();
+            // Firestore timestamps can be null if the document was created before the field was added
             const createdAt = data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : new Date(0).toISOString();
             const updatedAt = data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : createdAt;
 
@@ -134,10 +135,10 @@ export async function saveCertificationAction(
                 updatedAt: serverTimestamp(),
             };
             const newDocRef = await addDoc(collectionRef, certDataToCreate);
-            certId = newDocRef.id;
+            certId = newDocRef.id; // IMPORTANT: Use the ID returned by Firestore
         }
 
-        const savedDoc = await getDoc(certificationDocRef(certId!));
+        const savedDoc = await getDoc(certificationDocRef(certId!)); // Use the confirmed final ID
         if (!savedDoc.exists()) {
              throw new Error("Failed to retrieve saved certification from Firestore after save operation.");
         }
