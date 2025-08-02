@@ -41,11 +41,25 @@ export async function getSkillsAction(): Promise<LibSkillType[]> {
       } as LibSkillType;
     });
   } catch (error) {
-    console.error("Error fetching skills from Firestore:", error);
     if (error instanceof Error && error.message.includes("query requires an index")) {
-        console.error("Firebase Firestore: The query for skills requires a composite index. Please ensure it is created and active in your Firebase console.");
-        console.error("Required index: Collection 'skills', Fields: 'category' (Ascending), 'name' (Ascending).");
+        const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+        if (projectId) {
+          const indexCreationLink = `https://console.firebase.google.com/project/${projectId}/firestore/indexes/composite/create?collectionId=skills&field[0]=category,ASCENDING&field[1]=name,ASCENDING`;
+          console.error("--- FIRESTORE INDEX REQUIRED ---");
+          console.error("A query in `getSkillsAction` requires a composite index that has not been created in your Firestore database.");
+          console.error("Please create the index by clicking the link below or by manually creating it in your Firebase console:");
+          console.error(`Link: ${indexCreationLink}`);
+          console.error("Index Details: Collection='skills', Fields: [ { fieldPath: 'category', order: 'ASCENDING' }, { fieldPath: 'name', order: 'ASCENDING' } ]");
+          console.error("--- END FIRESTORE INDEX REQUIRED ---");
+        } else {
+           console.error("Firebase Firestore: The query for skills requires a composite index. Please ensure it is created and active in your Firebase console. (Project ID not found in environment variables to create link).");
+           console.error("Required index: Collection 'skills', Fields: 'category' (Ascending), 'name' (Ascending).");
+        }
+    } else {
+      console.error("Error fetching skills from Firestore:", error);
     }
+    
+    // Return default data to prevent the app from crashing on the client
     return JSON.parse(JSON.stringify(defaultSkillsDataForClient)); 
   }
 }
@@ -198,5 +212,3 @@ export async function deleteSkillAction(itemId: string): Promise<DeleteSkillResu
         return { success: false, message: "Failed to delete skill due to a server error." };
     }
 }
-
-
