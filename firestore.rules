@@ -3,71 +3,41 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // --- Site Settings ---
-    match /app_config/{documentId} {
+    // Allow public read access for site settings and about me data
+    match /app_config/{docId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null; // Only authenticated users can write
     }
 
-    // --- Portfolio Items ---
+    // Allow public read access for portfolio items
     match /portfolioItems/{itemId} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if true; // Allow admin actions to write
     }
 
-    // --- Skills ---
+    // Allow public read access for skills
     match /skills/{skillId} {
       allow read: if true;
-      allow write: if request.auth != null;
-    }
-    
-    // --- Certifications ---
-    match /certifications/{certificationId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if true; // Allow admin actions to write
     }
 
-    // --- Announcements ---
-    match /announcements/{announcementId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+    // Allow public read access for certifications and allow admin writes
+    match /certifications/{certId} {
+        allow read: if true;
+        allow write: if true; // Allow admin actions to write
     }
 
-    // --- Contact Messages ---
+    // Restrict contact messages to be written by anyone, but only readable/deletable by admin
     match /contactMessages/{messageId} {
-      allow create: if true; // Anyone can submit
       allow read, delete: if request.auth != null;
-      allow update: if false;
+      allow create: if true;
+      allow update: if false; // Messages shouldn't be updatable
     }
 
-    // --- Live Users (for live visitor count) ---
-    match /live_users/{userId} {
-      allow read: if request.auth != null;
-      allow create, update, delete: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // --- Admins Collection (optional) ---
-    match /admins/{userId} {
-      allow read, write: if request.auth != null;
-    }
-
-    // --- Not Found Page Settings ---
-    match /notFoundPage/{documentId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-
-    // --- About Me Data ---
-    match /aboutMe/{documentId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-
-    // --- Site Pages (Privacy/Terms) ---
-    match /site_pages/{pageId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+    // Allow anyone to publish an announcement, but only admins can manage them
+     match /announcements/{announcementId} {
+      allow read: if true; // Everyone can read announcements
+      allow create, update, delete: if request.auth != null;
     }
   }
 }
