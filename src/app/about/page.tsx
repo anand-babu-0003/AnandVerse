@@ -62,8 +62,8 @@ export default async function AboutPage() {
       <ScrollAnimationWrapper className="mb-16 md:mb-24" delay={300}>
         <section id="experience-education">
           <h2 className="font-headline text-3xl md:text-4xl font-bold text-primary mb-8 text-center">My Journey</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
               <h3 className="font-headline text-2xl font-semibold text-primary/90 mb-6 flex items-center">
                 <Briefcase className="mr-3 h-7 w-7 text-primary" /> Professional Journey
               </h3>
@@ -88,7 +88,7 @@ export default async function AboutPage() {
               </div>
             </div>
 
-            <div className="lg:col-span-1">
+            <div>
               <h3 className="font-headline text-2xl font-semibold text-primary/90 mb-6 flex items-center">
                 <GraduationCap className="mr-3 h-7 w-7 text-primary" /> Academic Background
               </h3>
@@ -106,28 +106,6 @@ export default async function AboutPage() {
                   ))
                 ) : (
                   <p className="text-muted-foreground">No academic background listed yet. Details coming soon!</p>
-                )}
-              </div>
-            </div>
-
-            <div className="lg:col-span-1">
-              <h3 className="font-headline text-2xl font-semibold text-primary/90 mb-6 flex items-center">
-                <Award className="mr-3 h-7 w-7 text-primary" /> Certifications
-              </h3>
-              <div className="space-y-6">
-                {(displayedData.certifications || []).length > 0 ? (
-                  (displayedData.certifications || []).map((cert: Certification, index: number) => (
-                    <ScrollAnimationWrapper key={cert.id || `cert-${index}-${Date.now()}`} delay={index * 100}>
-                      <Card className="shadow-md hover:shadow-lg transition-shadow">
-                        <CardHeader>
-                          <CardTitle className="font-headline text-xl text-primary">{cert.name}</CardTitle>
-                          <p className="text-sm text-muted-foreground">{cert.issuingBody} | {cert.date}</p>
-                        </CardHeader>
-                      </Card>
-                    </ScrollAnimationWrapper>
-                  ))
-                ) : (
-                  <p className="text-muted-foreground">No certifications listed yet. Details coming soon!</p>
                 )}
               </div>
             </div>

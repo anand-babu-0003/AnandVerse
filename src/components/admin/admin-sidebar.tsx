@@ -10,7 +10,8 @@ const adminNavItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/messages', label: 'Messages', icon: Inbox },
   { href: '/admin/portfolio', label: 'Portfolio', icon: Briefcase },
-  { href: '/admin/skills', label: 'Skills', icon: Award }, // Changed icon to Award
+  { href: '/admin/skills', label: 'Skills', icon: Award },
+  { href: '/admin/certifications', label: 'Certifications', icon: Award },
   { href: '/admin/about', label: 'About Page', icon: UserCircle },
   { href: '/admin/settings', label: 'Site Settings', icon: Settings }, 
   { href: '/admin/not-found-settings', label: '404 Page', icon: FileQuestion },

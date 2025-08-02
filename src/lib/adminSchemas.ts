@@ -139,6 +139,14 @@ export const skillAdminSchema = z.object({
 
 export type SkillAdminFormData = z.infer<typeof skillAdminSchema>;
 
+export const certificationAdminSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(2, { message: "Certification name must be at least 2 characters." }),
+  issuingBody: z.string().min(2, { message: "Issuing body must be at least 2 characters." }),
+  date: z.string().min(4, { message: "Date must be at least 4 characters (e.g., '2023')." }),
+});
+export type CertificationAdminFormData = z.infer<typeof certificationAdminSchema>;
+
 
 export const siteSettingsAdminSchema = z.object({
   siteName: z.string().min(3, { message: "Site Name must be at least 3 characters." }),

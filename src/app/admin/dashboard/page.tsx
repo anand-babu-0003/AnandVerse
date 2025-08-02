@@ -58,6 +58,22 @@ export default function AdminDashboardPage() {
             </Button>
           </CardContent>
         </Card>
+         <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xl font-medium">
+              Manage Certifications
+            </CardTitle>
+            <Award className="h-5 w-5 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <CardDescription className="mb-4">Add, edit, or remove your certifications.</CardDescription>
+            <Button asChild variant="outline">
+              <Link href="/admin/certifications">
+                Go to Certifications <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-xl font-medium">

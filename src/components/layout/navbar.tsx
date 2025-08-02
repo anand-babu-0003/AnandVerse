@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, Briefcase, Home, UserCircle, Sparkles, Mail } from 'lucide-react';
+import { Menu, X, Briefcase, Home, UserCircle, Award, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/about', label: 'About', icon: UserCircle },
   { href: '/portfolio', label: 'Portfolio', icon: Briefcase },
+  { href: '/certifications', label: 'Certifications', icon: Award },
   { href: '/contact', label: 'Contact', icon: Mail },
 ];
 

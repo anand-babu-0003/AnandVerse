@@ -95,6 +95,7 @@ export interface AppData {
   aboutMe: AboutMeData;
   siteSettings: SiteSettings;
   notFoundPage?: NotFoundPageData;
+  certifications: Certification[];
 }
 
 export interface ContactMessage {
@@ -103,4 +104,11 @@ export interface ContactMessage {
   email: string;
   message: string;
   submittedAt: string;
+}
+
+export interface Announcement {
+    id: string;
+    message: string;
+    createdAt: Date;
+    isActive: boolean;
 }

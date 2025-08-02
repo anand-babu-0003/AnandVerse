@@ -10,6 +10,7 @@ const mainNavItems = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
   { href: '/portfolio', label: 'Portfolio' },
+  { href: '/certifications', label: 'Certifications' },
   { href: '/contact', label: 'Contact' },
 ];
 
