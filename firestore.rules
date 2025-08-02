@@ -4,8 +4,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- Site Settings, About Me, 404 Page ---
-    // These are single documents within a config collection.
+    // --- Site Settings ---
     match /app_config/{documentId} {
       allow read: if true;
       allow write: if request.auth != null;
@@ -22,20 +21,53 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null;
     }
+    
+    // --- Certifications ---
+    match /certifications/{certificationId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
 
     // --- Announcements ---
-    // Note: The client app uses live snapshots. This rule allows anyone to read.
     match /announcements/{announcementId} {
       allow read: if true;
       allow write: if request.auth != null;
     }
 
     // --- Contact Messages ---
-    // Anyone can create a message. Only authenticated users can read/delete.
     match /contactMessages/{messageId} {
-      allow create: if true; 
+      allow create: if true; // Anyone can submit
       allow read, delete: if request.auth != null;
-      allow update: if false; // Messages should be immutable.
+      allow update: if false;
+    }
+
+    // --- Live Users (for live visitor count) ---
+    match /live_users/{userId} {
+      allow read: if request.auth != null;
+      allow create, update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // --- Admins Collection (optional) ---
+    match /admins/{userId} {
+      allow read, write: if request.auth != null;
+    }
+
+    // --- Not Found Page Settings ---
+    match /notFoundPage/{documentId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // --- About Me Data ---
+    match /aboutMe/{documentId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // --- Site Pages (Privacy/Terms) ---
+    match /site_pages/{pageId} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
   }
 }
