@@ -3,39 +3,33 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Allow public read access to content collections
-    match /portfolioItems/{itemId} {
+    // Default: Allow public read-only access to most collections
+    match /{document=**} {
       allow read: if true;
-      allow write: if true; // Allow write from server actions (protected by admin auth)
-    }
-
-    match /skills/{skillId} {
-      allow read: if true;
-      allow write: if true; // Allow write from server actions
-    }
-
-    match /certifications/{certId} {
-      allow read: if true;
-      allow write: if true; // Allow write from server actions
+      allow write: if false; // Deny writes by default
     }
     
+    // Allow authenticated admins to write to specific collections
+    match /portfolioItems/{itemId} {
+      allow write: if request.auth != null;
+    }
+    match /skills/{skillId} {
+      allow write: if request.auth != null;
+    }
+    match /certifications/{certId} {
+      allow write: if request.auth != null;
+    }
+    match /app_config/{configId} {
+      allow write: if request.auth != null;
+    }
     match /announcements/{announcementId} {
-      allow read: if true;
-      allow write: if true; // Allow write from server actions
+        allow write: if request.auth != null;
     }
 
-    // Config documents can be read by anyone, but only written by server actions
-    match /app_config/{docId} {
-      allow read: if true;
-      allow write: if true; // Allow write from server actions
-    }
-
-    // Contact messages should only be created by the public, and read/deleted by admin
+    // Contact messages: Allow public to create, but only admins can read/delete
     match /contactMessages/{messageId} {
-      allow read: if request.auth != null; // Only authenticated admins can read
-      allow create: if true; // Anyone can send a message
-      allow update: if request.auth != null; // Admin can update (e.g., mark as read)
-      allow delete: if request.auth != null; // Admin can delete
+      allow create: if true;
+      allow read, write, delete: if request.auth != null;
     }
   }
 }
