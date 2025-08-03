@@ -13,8 +13,7 @@ const adminNavItems = [
   { href: '/admin/skills', label: 'Skills', icon: Award },
   { href: '/admin/certifications', label: 'Certifications', icon: Award },
   { href: '/admin/about', label: 'About Page', icon: UserCircle },
-  { href: '/admin/settings', label: 'Site Settings', icon: Settings }, 
-  { href: '/admin/not-found-settings', label: '404 Page', icon: FileQuestion },
+  { href: '/admin/settings', label: 'Site Settings', icon: Settings },
 ];
 
 export function AdminSidebarContent() {
