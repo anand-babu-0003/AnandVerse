@@ -35,8 +35,10 @@ export async function getSiteSettingsAction(): Promise<SiteSettings> {
         defaultMetaKeywords: data.defaultMetaKeywords || defaultSiteSettingsForClient.defaultMetaKeywords,
         siteOgImageUrl: data.siteOgImageUrl || defaultSiteSettingsForClient.siteOgImageUrl,
         maintenanceMode: typeof data.maintenanceMode === 'boolean' ? data.maintenanceMode : defaultSiteSettingsForClient.maintenanceMode,
-        skillsPageMetaTitle: data.skillsPageMetaTitle || defaultSiteSettingsForClient.skillsPageMetaTitle, // Added
-        skillsPageMetaDescription: data.skillsPageMetaDescription || defaultSiteSettingsForClient.skillsPageMetaDescription, // Added
+        skillsPageMetaTitle: data.skillsPageMetaTitle || defaultSiteSettingsForClient.skillsPageMetaTitle, 
+        skillsPageMetaDescription: data.skillsPageMetaDescription || defaultSiteSettingsForClient.skillsPageMetaDescription,
+        faviconUrl: data.faviconUrl || defaultSiteSettingsForClient.faviconUrl,
+        appleTouchIconUrl: data.appleTouchIconUrl || defaultSiteSettingsForClient.appleTouchIconUrl,
       };
     } else {
       console.warn("Site settings document not found in Firestore. Returning default settings.");
@@ -64,15 +66,7 @@ export async function updateSiteSettingsAction(
       message: criticalErrorLog,
       status: 'error',
       errors: {},
-      data: { 
-        siteName: String(formData.get('siteName') || defaultSiteSettingsForClient.siteName),
-        defaultMetaDescription: String(formData.get('defaultMetaDescription') || defaultSiteSettingsForClient.defaultMetaDescription),
-        defaultMetaKeywords: String(formData.get('defaultMetaKeywords') || defaultSiteSettingsForClient.defaultMetaKeywords || ''),
-        siteOgImageUrl: String(formData.get('siteOgImageUrl') || defaultSiteSettingsForClient.siteOgImageUrl || ''),
-        maintenanceMode: formData.get('maintenanceMode') === 'on',
-        skillsPageMetaTitle: String(formData.get('skillsPageMetaTitle') || defaultSiteSettingsForClient.skillsPageMetaTitle || ''), // Added
-        skillsPageMetaDescription: String(formData.get('skillsPageMetaDescription') || defaultSiteSettingsForClient.skillsPageMetaDescription || ''), // Added
-      }
+      data: Object.fromEntries(formData.entries()) as unknown as SiteSettingsAdminFormData,
     };
   }
 
@@ -92,8 +86,10 @@ export async function updateSiteSettingsAction(
       defaultMetaKeywords: String(formData.get('defaultMetaKeywords') || currentSettings.defaultMetaKeywords || ''),
       siteOgImageUrl: String(formData.get('siteOgImageUrl') || currentSettings.siteOgImageUrl || ''),
       maintenanceMode: formData.get('maintenanceMode') === 'on',
-      skillsPageMetaTitle: String(formData.get('skillsPageMetaTitle') || currentSettings.skillsPageMetaTitle || ''), // Added
-      skillsPageMetaDescription: String(formData.get('skillsPageMetaDescription') || currentSettings.skillsPageMetaDescription || ''), // Added
+      skillsPageMetaTitle: String(formData.get('skillsPageMetaTitle') || currentSettings.skillsPageMetaTitle || ''), 
+      skillsPageMetaDescription: String(formData.get('skillsPageMetaDescription') || currentSettings.skillsPageMetaDescription || ''),
+      faviconUrl: String(formData.get('faviconUrl') || currentSettings.faviconUrl || ''),
+      appleTouchIconUrl: String(formData.get('appleTouchIconUrl') || currentSettings.appleTouchIconUrl || ''),
     };
 
     const validatedFields = siteSettingsAdminSchema.safeParse(rawData);
@@ -115,8 +111,10 @@ export async function updateSiteSettingsAction(
       defaultMetaKeywords: validatedFields.data.defaultMetaKeywords || '',
       siteOgImageUrl: validatedFields.data.siteOgImageUrl || '',
       maintenanceMode: validatedFields.data.maintenanceMode || false,
-      skillsPageMetaTitle: validatedFields.data.skillsPageMetaTitle || '', // Added
-      skillsPageMetaDescription: validatedFields.data.skillsPageMetaDescription || '', // Added
+      skillsPageMetaTitle: validatedFields.data.skillsPageMetaTitle || '',
+      skillsPageMetaDescription: validatedFields.data.skillsPageMetaDescription || '',
+      faviconUrl: validatedFields.data.faviconUrl || defaultSiteSettingsForClient.faviconUrl,
+      appleTouchIconUrl: validatedFields.data.appleTouchIconUrl || defaultSiteSettingsForClient.appleTouchIconUrl,
     };
 
     await setDoc(siteSettingsDocRef(), dataToSave, { merge: true });
@@ -139,15 +137,7 @@ export async function updateSiteSettingsAction(
 
   } catch (error) {
     console.error("Admin SiteSettings Action: An unexpected error occurred:", error);
-    const errorResponseData: SiteSettingsAdminFormData = rawData || {
-      siteName: String(formData.get('siteName') || defaultSiteSettingsForClient.siteName),
-      defaultMetaDescription: String(formData.get('defaultMetaDescription') || defaultSiteSettingsForClient.defaultMetaDescription),
-      defaultMetaKeywords: String(formData.get('defaultMetaKeywords') || defaultSiteSettingsForClient.defaultMetaKeywords || ''),
-      siteOgImageUrl: String(formData.get('siteOgImageUrl') || defaultSiteSettingsForClient.siteOgImageUrl || ''),
-      maintenanceMode: formData.get('maintenanceMode') === 'on',
-      skillsPageMetaTitle: String(formData.get('skillsPageMetaTitle') || defaultSiteSettingsForClient.skillsPageMetaTitle || ''), // Added
-      skillsPageMetaDescription: String(formData.get('skillsPageMetaDescription') || defaultSiteSettingsForClient.skillsPageMetaDescription || ''), // Added
-    };
+    const errorResponseData: SiteSettingsAdminFormData = rawData || (Object.fromEntries(formData.entries()) as unknown as SiteSettingsAdminFormData);
     const errorMessage = (error instanceof Error && 'code' in error)
       ? `Firebase error (${(error as any).code}): ${(error as Error).message}`
       : (error instanceof Error ? error.message : "An unknown server error occurred.");

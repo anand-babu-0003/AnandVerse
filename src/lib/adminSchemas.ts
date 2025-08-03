@@ -162,6 +162,8 @@ export const siteSettingsAdminSchema = z.object({
   maintenanceMode: z.boolean().optional(),
   skillsPageMetaTitle: z.string().min(5, "Skills page meta title is too short.").max(70, "Skills page meta title is too long.").optional(),
   skillsPageMetaDescription: z.string().min(10, "Skills page meta description is too short.").max(160, "Skills page meta description is too long.").optional(),
+  faviconUrl: z.string().url({ message: "Please enter a valid URL for the .ico favicon." }).or(z.literal("")).optional(),
+  appleTouchIconUrl: z.string().url({ message: "Please enter a valid URL for the apple-touch-icon.png." }).or(z.literal("")).optional(),
 });
 export type SiteSettingsAdminFormData = z.infer<typeof siteSettingsAdminSchema>;
 

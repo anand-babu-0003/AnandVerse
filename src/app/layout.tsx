@@ -24,8 +24,8 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'website',
     },
     icons: {
-      icon: '/favicon.ico',
-      apple: '/apple-touch-icon.png',
+      icon: settings.faviconUrl || '/favicon.ico',
+      apple: settings.appleTouchIconUrl || '/apple-touch-icon.png',
     }
   };
 }

@@ -74,6 +74,8 @@ export const defaultSiteSettingsForClient: SiteSettings = {
   maintenanceMode: false,
   skillsPageMetaTitle: 'My Skills | VermaVerse',
   skillsPageMetaDescription: 'Explore my diverse skill set including programming languages, frameworks, and tools used in VermaVerse.',
+  faviconUrl: '/favicon.ico', // Default local favicon
+  appleTouchIconUrl: '/apple-touch-icon.png', // Default local apple touch icon
 };
 
 export const defaultExperienceForClient: Experience[] = [

@@ -84,6 +84,8 @@ export interface SiteSettings {
   maintenanceMode?: boolean;
   skillsPageMetaTitle?: string; 
   skillsPageMetaDescription?: string; 
+  faviconUrl?: string;
+  appleTouchIconUrl?: string;
 }
 
 export interface NotFoundPageData {

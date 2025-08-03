@@ -14,7 +14,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Info, Save, Loader2, Wrench, Settings2, ListChecks } from 'lucide-react';
+import { Info, Save, Loader2, Wrench, Settings2, ListChecks, Image as ImageIcon } from 'lucide-react';
 
 import { siteSettingsAdminSchema, type SiteSettingsAdminFormData } from '@/lib/adminSchemas';
 import { updateSiteSettingsAction, type UpdateSiteSettingsFormState } from '@/actions/admin/settingsActions';
@@ -77,6 +77,21 @@ export default function SettingsAdminClientPage({ initialData }: { initialData: 
                     </CardContent>
                     <CardFooter className="flex justify-end"><SubmitButton /></CardFooter>
                 </Card>
+                
+                <Card>
+                    <CardHeader><CardTitle className="flex items-center gap-2"><ImageIcon className="h-6 w-6 text-primary" /> Favicon Management</CardTitle><CardDescription>Manage your site's browser icon by providing public URLs.</CardDescription></CardHeader>
+                    <CardContent className="space-y-4">
+                        <Alert>
+                            <Info className="h-4 w-4" />
+                            <AlertDescription>
+                                Upload your `favicon.ico` and `apple-touch-icon.png` files to a public host (like Firebase Storage) and paste the URLs below.
+                            </AlertDescription>
+                        </Alert>
+                        <FormField control={form.control} name="faviconUrl" render={({ field }) => (<FormItem><FormLabel>Favicon URL (.ico)</FormLabel><FormControl><Input {...field} placeholder="https://storage.googleapis.com/.../favicon.ico" /></FormControl><FormMessage /><p className="text-xs text-muted-foreground">The public URL to your `favicon.ico` file.</p></FormItem>)} />
+                        <FormField control={form.control} name="appleTouchIconUrl" render={({ field }) => (<FormItem><FormLabel>Apple Touch Icon URL (.png)</FormLabel><FormControl><Input {...field} placeholder="https://storage.googleapis.com/.../apple-touch-icon.png" /></FormControl><FormMessage /><p className="text-xs text-muted-foreground">The public URL to your `apple-touch-icon.png` file (e.g., 180x180).</p></FormItem>)} />
+                    </CardContent>
+                    <CardFooter className="flex justify-end"><SubmitButton /></CardFooter>
+                </Card>
 
                 <Card>
                     <CardHeader><CardTitle className="flex items-center gap-2"><ListChecks className="h-6 w-6 text-primary" /> Skills Page SEO</CardTitle><CardDescription>Customize the meta title and description specifically for your Skills page.</CardDescription></CardHeader>
@@ -88,26 +103,6 @@ export default function SettingsAdminClientPage({ initialData }: { initialData: 
                 </Card>
             </form>
             </Form>
-            
-            <Card>
-              <CardHeader><CardTitle>Favicon Management</CardTitle><CardDescription>Information on managing your site's browser icon.</CardDescription></CardHeader>
-              <CardContent>
-                <Alert variant="default" className="mt-0">
-                  <Info className="h-4 w-4" />
-                  <AlertTitle>Favicon Management Instructions</AlertTitle>
-                  <AlertDescription>
-                    To change your site's favicon:
-                    <ol className="list-decimal list-inside mt-1 text-xs space-y-1">
-                      <li>Create `favicon.ico` (typically 32x32 or 16x16 pixels).</li>
-                      <li>Create `apple-touch-icon.png` (typically 180x180 pixels).</li>
-                      <li>Place both files in your project's `public/` directory, replacing any existing ones.</li>
-                      <li>Next.js automatically serves these. Clear browser cache and restart your development server to see changes.</li>
-                    </ol>
-                    <p className="mt-2 text-xs">direct uploade is not available now.</p>
-                  </AlertDescription>
-                </Alert>
-              </CardContent>
-            </Card>
         </div>
     );
 }
