@@ -1,109 +1,138 @@
 
-import { PageHeader } from '@/components/shared/page-header';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Briefcase, UserCircle, SettingsIcon, Inbox, FileQuestion, Award } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowRight, Briefcase, UserCircle, Settings, Inbox, Award, MessageSquare, PlusCircle, User, View } from 'lucide-react';
+import { getContactMessagesAction } from '@/actions/admin/messagesActions';
+import { getPortfolioItemsAction } from '@/actions/admin/portfolioActions';
+import { getSkillsAction } from '@/actions/admin/skillsActions';
+import { getAboutMeDataAction } from '@/actions/getAboutMeDataAction';
+import { getCertificationsAction } from '@/actions/admin/certificationsActions';
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
+  const [messages, portfolioItems, skills, aboutMe, certifications] = await Promise.all([
+    getContactMessagesAction(),
+    getPortfolioItemsAction(),
+    getSkillsAction(),
+    getAboutMeDataAction(),
+    getCertificationsAction(),
+  ]);
+
+  const stats = [
+    {
+      title: "Portfolio Projects",
+      count: portfolioItems.length,
+      icon: Briefcase,
+      href: "/admin/portfolio",
+      buttonLabel: "Manage Portfolio",
+    },
+    {
+      title: "Contact Messages",
+      count: messages.length,
+      icon: Inbox,
+      href: "/admin/messages",
+      buttonLabel: "View Messages",
+    },
+    {
+      title: "Total Skills",
+      count: skills.length,
+      icon: Award,
+      href: "/admin/skills",
+      buttonLabel: "Manage Skills",
+    },
+    {
+      title: "Certifications",
+      count: certifications.length,
+      icon: Award,
+      href: "/admin/certifications",
+      buttonLabel: "Manage Certifications",
+    },
+  ];
+
   return (
-    <div className="py-6">
-      <PageHeader title="Admin Dashboard" subtitle="Manage your website content from here." className="py-0 md:py-0 pb-8" />
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xl font-medium">
-              Manage Messages
-            </CardTitle>
-            <Inbox className="h-5 w-5 text-muted-foreground" />
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-primary font-headline">Welcome Back, {aboutMe.name.split(' ')[0]}!</h1>
+          <p className="text-muted-foreground mt-1">Here's a quick overview of your site. Ready to get started?</p>
+        </div>
+        <Button asChild>
+          <Link href="/admin/portfolio">
+            <PlusCircle className="mr-2 h-4 w-4" /> Add New Project
+          </Link>
+        </Button>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <Card key={stat.title} className="shadow-md hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+              <stat.icon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.count}</div>
+              <Button asChild variant="link" className="px-0 text-xs text-muted-foreground">
+                <Link href={stat.href}>
+                  {stat.buttonLabel} <ArrowRight className="ml-1 h-3 w-3" />
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="shadow-md">
+          <CardHeader>
+            <CardTitle>Manage Content</CardTitle>
+            <CardDescription>Update the core content pages of your website.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <CardDescription className="mb-4">View and delete contact form submissions.</CardDescription>
-            <Button asChild variant="outline">
-              <Link href="/admin/messages">
-                Go to Messages <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+          <CardContent className="grid gap-4">
+            <Link href="/admin/about" className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted transition-colors">
+              <div className="flex items-center gap-3">
+                <UserCircle className="h-5 w-5 text-primary" />
+                <span className="font-medium">About Page</span>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+            <Link href="/admin/settings" className="flex items-center justify-between rounded-lg border p-3 hover:bg-muted transition-colors">
+              <div className="flex items-center gap-3">
+                <Settings className="h-5 w-5 text-primary" />
+                <span className="font-medium">Site Settings & SEO</span>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xl font-medium">
-              Manage Portfolio
-            </CardTitle>
-            <Briefcase className="h-5 w-5 text-muted-foreground" />
+        <Card className="shadow-md">
+          <CardHeader>
+            <CardTitle>Recent Messages</CardTitle>
+            <CardDescription>A quick look at the latest contact form submissions.</CardDescription>
           </CardHeader>
           <CardContent>
-            <CardDescription className="mb-4">Add, edit, or remove portfolio projects.</CardDescription>
-            <Button asChild variant="outline">
-              <Link href="/admin/portfolio">
-                Go to Portfolio <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xl font-medium">
-              Manage Skills
-            </CardTitle>
-            <Award className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <CardDescription className="mb-4">Update your skills and proficiency levels.</CardDescription>
-            <Button asChild variant="outline">
-              <Link href="/admin/skills">
-                Go to Skills <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xl font-medium">
-              Manage Certifications
-            </CardTitle>
-            <Award className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <CardDescription className="mb-4">Add, edit, or remove your certifications.</CardDescription>
-            <Button asChild variant="outline">
-              <Link href="/admin/certifications">
-                Go to Certifications <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xl font-medium">
-              Manage About Page
-            </CardTitle>
-            <UserCircle className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <CardDescription className="mb-4">Edit your bio, experience, and education.</CardDescription>
-            <Button asChild variant="outline">
-              <Link href="/admin/about">
-                Go to About Page <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xl font-medium">
-              Site Settings
-            </CardTitle>
-            <SettingsIcon className="h-5 w-5 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <CardDescription className="mb-4">Configure site-wide settings and SEO.</CardDescription>
-            <Button asChild variant="outline">
-              <Link href="/admin/settings">
-                Manage Settings <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            {messages.length > 0 ? (
+              <div className="space-y-4">
+                {messages.slice(0, 2).map((msg) => (
+                  <div key={msg.id} className="flex items-start gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium leading-none">{msg.name}</p>
+                      <p className="text-sm text-muted-foreground truncate">{msg.message}</p>
+                    </div>
+                  </div>
+                ))}
+                {messages.length > 2 && (
+                    <Button asChild variant="secondary" className="w-full mt-4">
+                        <Link href="/admin/messages">View All Messages</Link>
+                    </Button>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center py-4">No messages yet.</p>
+            )}
           </CardContent>
         </Card>
       </div>
