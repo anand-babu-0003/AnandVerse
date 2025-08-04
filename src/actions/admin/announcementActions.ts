@@ -2,9 +2,9 @@
 "use server";
 
 import { z } from 'zod';
-import { firestore } from '@/lib/firebaseConfig';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { revalidatePath } from 'next/cache'; // Though not strictly needed for live updates, good practice
+import { adminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
+import { FieldValue } from 'firebase-admin/firestore';
+import { revalidatePath } from 'next/cache'; 
 
 const announcementSchema = z.object({
   message: z.string().min(5, { message: "Announcement message must be at least 5 characters long." }).max(500, { message: "Announcement cannot exceed 500 characters." }),
@@ -23,7 +23,13 @@ export async function submitAnnouncementAction(
   formData: FormData
 ): Promise<AnnouncementFormState> {
 
-  if (!firestore) {
+    try {
+        await getAuthenticatedUser();
+    } catch (authError) {
+        return { message: (authError as Error).message, status: 'error' };
+    }
+
+  if (!adminFirestore) {
     console.error("CRITICAL_ERROR: Firestore is not initialized in announcementActions.ts.");
     return {
       message: "System error: Database not configured. Please try again later.",
@@ -46,10 +52,10 @@ export async function submitAnnouncementAction(
   const { message } = validatedFields.data;
 
   try {
-    const announcementsCollection = collection(firestore, 'announcements');
-    await addDoc(announcementsCollection, {
+    const announcementsCollection = adminFirestore.collection('announcements');
+    await announcementsCollection.add({
       message,
-      createdAt: serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
       isActive: true, // Default to active
     });
 

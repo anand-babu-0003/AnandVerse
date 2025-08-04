@@ -1,35 +1,41 @@
 
 "use server";
 
-import { firestore } from '@/lib/firebaseConfig';
-import { collection, getDocs, doc, deleteDoc, query, orderBy, Timestamp } from 'firebase/firestore';
+import { adminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
 import { revalidatePath } from 'next/cache';
 import type { ContactMessage } from '@/lib/types';
+import { Timestamp } from 'firebase-admin/firestore';
 
 const messagesCollectionRef = () => {
-  if (!firestore) throw new Error("Firestore not initialized");
-  return collection(firestore, 'contactMessages');
+  if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
+  return adminFirestore.collection('contactMessages');
 }
 
 const messageDocRef = (id: string) => {
-  if (!firestore) throw new Error("Firestore not initialized");
-  return doc(firestore, 'contactMessages', id);
+  if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
+  return adminFirestore.collection('contactMessages').doc(id);
 }
 
 export async function getContactMessagesAction(): Promise<ContactMessage[]> {
-  if (!firestore) {
+  try {
+    await getAuthenticatedUser();
+  } catch (authError) {
+    console.error("Authentication error in getContactMessagesAction:", authError);
+    return []; // Return empty array if user is not authorized
+  }
+
+  if (!adminFirestore) {
     console.warn("Firestore not initialized in getContactMessagesAction. Returning empty array.");
     return [];
   }
+
   try {
-    const q = query(messagesCollectionRef(), orderBy('submittedAt', 'desc'));
-    const snapshot = await getDocs(q);
+    const snapshot = await messagesCollectionRef().orderBy('submittedAt', 'desc').get();
     if (snapshot.empty) {
       return [];
     }
     return snapshot.docs.map(docSnap => {
       const data = docSnap.data();
-      // Ensure submittedAt is always a string (ISO format)
       const submittedAt = data.submittedAt instanceof Timestamp 
                        ? data.submittedAt.toDate().toISOString() 
                        : (typeof data.submittedAt === 'string' ? data.submittedAt : new Date().toISOString()); 
@@ -53,14 +59,16 @@ export type DeleteMessageResult = {
 };
 
 export async function deleteContactMessageAction(messageId: string): Promise<DeleteMessageResult> {
+    try {
+        await getAuthenticatedUser();
+    } catch (authError) {
+        return { success: false, message: (authError as Error).message };
+    }
     if (!messageId) {
         return { success: false, message: "No message ID provided for deletion." };
     }
-    if (!firestore) {
-      return { success: false, message: "Firestore not initialized. Cannot delete message." };
-    }
     try {
-        await deleteDoc(messageDocRef(messageId));
+        await messageDocRef(messageId).delete();
         revalidatePath('/admin/messages');
         return { success: true, message: `Message (ID: ${messageId}) deleted successfully!` };
     } catch (error) {
@@ -68,6 +76,3 @@ export async function deleteContactMessageAction(messageId: string): Promise<Del
         return { success: false, message: "Failed to delete message due to a server error." };
     }
 }
-
-
-    

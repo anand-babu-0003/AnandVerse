@@ -1,31 +1,30 @@
 
 "use server";
 
-import { firestore } from '@/lib/firebaseConfig';
-import { collection, getDocs, doc, setDoc, deleteDoc, query, orderBy, Timestamp } from 'firebase/firestore';
+import { adminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
+import { revalidatePath } from 'next/cache';
 import type { Skill as LibSkillType } from '@/lib/types';
 import { skillAdminSchema, type SkillAdminFormData } from '@/lib/adminSchemas';
-import { revalidatePath } from 'next/cache';
 import { defaultSkillsDataForClient, lucideIconsMap } from '@/lib/data'; 
+import { Timestamp } from 'firebase-admin/firestore';
 
 const skillsCollectionRef = () => {
-  if (!firestore) throw new Error("Firestore not initialized");
-  return collection(firestore, 'skills');
+  if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
+  return adminFirestore.collection('skills');
 }
 
 const skillDocRef = (id: string) => {
-  if (!firestore) throw new Error("Firestore not initialized");
-  return doc(firestore, 'skills', id);
+  if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
+  return adminFirestore.collection('skills').doc(id);
 }
 
 export async function getSkillsAction(): Promise<LibSkillType[]> {
-  if (!firestore) {
+  if (!adminFirestore) {
     console.warn("Firestore not initialized in getSkillsAction. Returning default client skills.");
     return JSON.parse(JSON.stringify(defaultSkillsDataForClient)); 
   }
   try {
-    const q = query(skillsCollectionRef(), orderBy('category', 'asc'), orderBy('name', 'asc'));
-    const snapshot = await getDocs(q);
+    const snapshot = await skillsCollectionRef().orderBy('category', 'asc').orderBy('name', 'asc').get();
 
     if (snapshot.empty) {
       return [];
@@ -41,29 +40,11 @@ export async function getSkillsAction(): Promise<LibSkillType[]> {
       } as LibSkillType;
     });
   } catch (error) {
-    if (error instanceof Error && error.message.includes("query requires an index")) {
-        const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
-        if (projectId) {
-          const indexCreationLink = `https://console.firebase.google.com/project/${projectId}/firestore/indexes/composite/create?collectionId=skills&field[0]=category,ASCENDING&field[1]=name,ASCENDING`;
-          console.error("--- FIRESTORE INDEX REQUIRED ---");
-          console.error("A query in `getSkillsAction` requires a composite index that has not been created in your Firestore database.");
-          console.error("Please create the index by clicking the link below or by manually creating it in your Firebase console:");
-          console.error(`Link: ${indexCreationLink}`);
-          console.error("Index Details: Collection='skills', Fields: [ { fieldPath: 'category', order: 'ASCENDING' }, { fieldPath: 'name', order: 'ASCENDING' } ]");
-          console.error("--- END FIRESTORE INDEX REQUIRED ---");
-        } else {
-           console.error("Firebase Firestore: The query for skills requires a composite index. Please ensure it is created and active in your Firebase console. (Project ID not found in environment variables to create link).");
-           console.error("Required index: Collection 'skills', Fields: 'category' (Ascending), 'name' (Ascending).");
-        }
-    } else {
-      console.error("Error fetching skills from Firestore:", error);
-    }
-    
-    // Return default data to prevent the app from crashing on the client
+    console.error("Error fetching skills from Firestore:", error);
+    // You might still want to return default data to prevent the client from crashing
     return JSON.parse(JSON.stringify(defaultSkillsDataForClient)); 
   }
 }
-
 
 export type SkillFormState = {
   message: string;
@@ -77,18 +58,11 @@ export async function saveSkillAction(
   prevState: SkillFormState,
   formData: FormData
 ): Promise<SkillFormState> {
-  if (!firestore) {
-    return { 
-      message: "Firestore is not initialized. Cannot save skill.", 
-      status: 'error', 
-      formDataOnError: {
-        id: formData.get('id') as string || undefined,
-        name: String(formData.get('name') || ''),
-        category: String(formData.get('category') || 'Other') as LibSkillType['category'],
-        proficiency: formData.get('proficiency') ? Number(formData.get('proficiency')) : undefined,
-      }
-    };
-  }
+    try {
+        await getAuthenticatedUser();
+    } catch (authError) {
+        return { message: (authError as Error).message, status: 'error' };
+    }
   
   const idFromForm = formData.get('id');
   const rawData: SkillAdminFormData = {
@@ -111,12 +85,8 @@ export async function saveSkillAction(
 
   const data = validatedFields.data; 
   let skillId = data.id; 
-  if (!skillId) { 
-      skillId = `skill_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-  }
   
   const determinedIconName = lucideIconsMap[data.name] ? data.name : 'Package';
-
 
   const skillToSave: Omit<LibSkillType, 'id'> = {
     name: data.name,
@@ -126,7 +96,13 @@ export async function saveSkillAction(
   };
 
   try {
-    await setDoc(skillDocRef(skillId), skillToSave, { merge: true });
+    if (skillId) {
+        await skillDocRef(skillId).update(skillToSave);
+    } else {
+        // For new skills, let Firestore generate the ID
+        const newDocRef = await skillsCollectionRef().add(skillToSave);
+        skillId = newDocRef.id;
+    }
     
     const savedSkillData: LibSkillType = {
       id: skillId,
@@ -145,43 +121,9 @@ export async function saveSkillAction(
     };
 
   } catch (error) {
-    let specificErrorMessage = "An unknown server error occurred during save.";
-    let errorDetailsForClient = "";
-
-    if (error instanceof Error) {
-        specificErrorMessage = error.message;
-        errorDetailsForClient = `Message: ${error.message}`;
-        if ((error as any).code) { // Check if error has a 'code' property (common in Firebase errors)
-            specificErrorMessage = `Firebase Error (${(error as any).code}): ${error.message}`;
-            errorDetailsForClient += ` Code: ${(error as any).code}`;
-        }
-        // Log stack on server, don't send to client
-        if (error.stack) {
-            console.error("Full error stack (server-side):", error.stack);
-        }
-    } else if (typeof error === 'string') {
-        specificErrorMessage = error;
-        errorDetailsForClient = `Details: ${error}`;
-    } else if (error && typeof error === 'object') {
-        specificErrorMessage = "Object-based error occurred. See server logs.";
-        try {
-          errorDetailsForClient = `Object Error: ${JSON.stringify(error)}`;
-        } catch (e) {
-          errorDetailsForClient = `Object Error: Could not stringify error object.`;
-        }
-    }
-
-    console.error("--- Error Saving Skill to Firestore (Server-Side) ---");
-    console.error("Timestamp:", new Date().toISOString());
-    console.error("Raw Data Received by Action (before Zod):", Object.fromEntries(formData.entries()));
-    console.error("Data after Zod validation (data variable):", data);
-    console.error("Skill ID used/generated:", skillId);
-    console.error("Data Prepared for Firestore (skillToSave variable):", skillToSave);
-    console.error("Actual Error Object:", error);
-    console.error("--- End Error Report ---");
-
+    console.error("Error saving skill to Firestore:", error);
     return {
-      message: `Save failed. Server: ${specificErrorMessage}. ${errorDetailsForClient ? `Client Hint: ${errorDetailsForClient}` : ''}`,
+      message: "An unexpected server error occurred while saving the skill.",
       status: 'error',
       errors: {}, 
       formDataOnError: rawData,
@@ -195,14 +137,16 @@ export type DeleteSkillResult = {
 };
 
 export async function deleteSkillAction(itemId: string): Promise<DeleteSkillResult> {
+    try {
+        await getAuthenticatedUser();
+    } catch (authError) {
+        return { success: false, message: (authError as Error).message };
+    }
     if (!itemId) {
         return { success: false, message: "No skill ID provided for deletion." };
     }
-    if (!firestore) {
-      return { success: false, message: "Firestore not initialized. Cannot delete skill." };
-    }
     try {
-        await deleteDoc(skillDocRef(itemId));
+        await skillDocRef(itemId).delete();
         revalidatePath('/skills');
         revalidatePath('/admin/skills');
         revalidatePath('/');

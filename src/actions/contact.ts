@@ -2,8 +2,8 @@
 "use server";
 
 import { z } from 'zod';
-import { firestore } from '@/lib/firebaseConfig';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { adminFirestore } from '@/lib/firebaseAdminConfig'; // Use admin SDK
+import { FieldValue } from 'firebase-admin/firestore';
 import type { ContactMessage } from '@/lib/types';
 
 const contactFormSchema = z.object({
@@ -26,7 +26,7 @@ export async function submitContactForm(
   prevState: ContactFormState,
   formData: FormData
 ): Promise<ContactFormState> {
-  if (!firestore) {
+  if (!adminFirestore) {
     return {
       message: "System error: Database not configured. Please try again later.",
       status: 'error',
@@ -50,15 +50,15 @@ export async function submitContactForm(
   const { name, email, message } = validatedFields.data;
 
   try {
-    const messagesCollection = collection(firestore, 'contactMessages');
+    const messagesCollection = adminFirestore.collection('contactMessages');
     const newMessageData = {
       name,
       email,
       message,
-      submittedAt: serverTimestamp(), // Use Firestore server timestamp
+      submittedAt: FieldValue.serverTimestamp(), // Use admin server timestamp
     };
 
-    await addDoc(messagesCollection, newMessageData);
+    await messagesCollection.add(newMessageData);
 
     return {
       message: "Your message has been sent successfully! I'll get back to you soon.",

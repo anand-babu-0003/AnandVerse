@@ -10,18 +10,21 @@ import { Home, LogOut } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu } from "lucide-react"
 import { AdminSidebarContent } from './admin-sidebar'; 
+import { useToast } from '@/hooks/use-toast';
 
 export function AdminHeader() {
   const router = useRouter();
   const auth = getAuth(firebaseApp);
+  const { toast } = useToast();
 
   const handleLogout = async () => {
     try {
         await signOut(auth);
+        toast({ title: "Logged Out", description: "You have been successfully logged out." });
     } catch (error) {
         console.error('Logout Error:', error);
+        toast({ title: "Logout Error", description: "An error occurred during logout. Please try again.", variant: "destructive" });
     } finally {
-        // Always attempt to clear local session state and redirect
         localStorage.removeItem('isAdminLoggedIn');
         router.push('/admin/login');
     }
