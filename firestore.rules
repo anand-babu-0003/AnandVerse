@@ -1,35 +1,50 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Default: Allow public read-only access to most collections
-    match /{document=**} {
+    // --- ADMIN-WRITABLE COLLECTIONS ---
+    // The admin panel's server actions are authenticated.
+    // These rules allow any authenticated user to write to these collections.
+    // Public read access is maintained for website content.
+
+    match /app_config/{docId} {
       allow read: if true;
-      allow write: if false; // Deny writes by default
+      allow write: if request.auth != null; // Admin-only writes
     }
-    
-    // Allow authenticated admins to write to specific collections
     match /portfolioItems/{itemId} {
-      allow write: if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null; // Admin-only writes
     }
     match /skills/{skillId} {
-      allow write: if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null; // Admin-only writes
     }
     match /certifications/{certId} {
-      allow write: if request.auth != null;
+      allow read: if true;
+      allow write: if request.auth != null; // Admin-only writes
     }
-    match /app_config/{configId} {
-      allow write: if request.auth != null;
-    }
-    match /announcements/{announcementId} {
-        allow write: if request.auth != null;
-    }
+    
+    // --- SPECIALIZED COLLECTIONS ---
 
-    // Contact messages: Allow public to create, but only admins can read/delete
+    // CONTACT MESSAGES: Anyone can create (submit the form), but only admins can see or delete.
     match /contactMessages/{messageId} {
       allow create: if true;
-      allow read, write, delete: if request.auth != null;
+      allow read, delete: if request.auth != null;
+    }
+    
+    // ANNOUNCEMENTS: Anyone can read, but only admins can create or update.
+    match /announcements/{announcementId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null;
+    }
+
+    // --- DEFAULT RULE ---
+    // Deny all other reads/writes by default for security.
+    // This rule does not apply to the paths defined above.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
