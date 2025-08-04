@@ -1,11 +1,11 @@
 
 "use server";
 
-import { firestore } from '@/lib/firebaseConfig';
-import { collection, getDocs, doc, getDoc, setDoc, addDoc, deleteDoc, query, where, serverTimestamp, orderBy, Timestamp, writeBatch } from 'firebase/firestore';
+import { adminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
+import { FieldValue, Timestamp } from 'firebase-admin/firestore';
+import { revalidatePath } from 'next/cache';
 import type { PortfolioItem as LibPortfolioItemType } from '@/lib/types';
 import { portfolioItemAdminSchema, type PortfolioAdminFormData } from '@/lib/adminSchemas';
-import { revalidatePath } from 'next/cache';
 import { defaultPortfolioItemsDataForClient } from '@/lib/data'; 
 
 const defaultPortfolioItemStructure: Omit<LibPortfolioItemType, 'id' | 'createdAt' | 'updatedAt'> = {
@@ -22,24 +22,24 @@ const defaultPortfolioItemStructure: Omit<LibPortfolioItemType, 'id' | 'createdA
 };
 
 const portfolioCollectionRef = () => {
-  if (!firestore) throw new Error("Firestore not initialized");
-  return collection(firestore, 'portfolioItems');
+  if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
+  return adminFirestore.collection('portfolioItems');
 }
 
 const portfolioDocRef = (id: string) => {
-  if (!firestore) throw new Error("Firestore not initialized");
-  return doc(firestore, 'portfolioItems', id);
+  if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
+  return adminFirestore.collection('portfolioItems').doc(id);
 }
 
 // Action to get all portfolio items
 export async function getPortfolioItemsAction(): Promise<LibPortfolioItemType[]> {
-  if (!firestore) {
+  if (!adminFirestore) {
     console.warn("Firestore not initialized in getPortfolioItemsAction. Returning default client items.");
     return JSON.parse(JSON.stringify(defaultPortfolioItemsDataForClient)); // Deep clone
   }
   try {
-    const q = query(portfolioCollectionRef(), orderBy('createdAt', 'desc'));
-    const snapshot = await getDocs(q);
+    const q = portfolioCollectionRef().orderBy('createdAt', 'desc');
+    const snapshot = await q.get();
 
     if (snapshot.empty) {
       return [];
@@ -78,13 +78,13 @@ export async function getPortfolioItemBySlugAction(slug: string): Promise<LibPor
     console.warn("getPortfolioItemBySlugAction: Invalid or empty slug provided.");
     return null;
   }
-  if (!firestore) {
+  if (!adminFirestore) {
     console.warn(`Firestore not initialized in getPortfolioItemBySlugAction for slug: ${slug}. Returning null.`);
     return null;
   }
   try {
-    const q = query(portfolioCollectionRef(), where("slug", "==", slug));
-    const snapshot = await getDocs(q);
+    const q = portfolioCollectionRef().where("slug", "==", slug);
+    const snapshot = await q.get();
 
     if (snapshot.empty) {
       console.warn(`No portfolio item found with slug: ${slug}`);
@@ -130,12 +130,18 @@ export async function savePortfolioItemAction(
   prevState: PortfolioFormState,
   formData: FormData
 ): Promise<PortfolioFormState> {
-  if (!firestore) {
+  if (!adminFirestore) {
     return { 
       message: "Firestore is not initialized. Cannot save project.", 
       status: 'error', 
       formDataOnError: Object.fromEntries(formData.entries()) as unknown as PortfolioAdminFormData 
     };
+  }
+  
+  try {
+    await getAuthenticatedUser();
+  } catch (authError) {
+    return { message: (authError as Error).message, status: 'error' };
   }
 
   const rawData: PortfolioAdminFormData = {
@@ -170,8 +176,6 @@ export async function savePortfolioItemAction(
   if (data.image1 && data.image1.trim() !== '') imagesFromForm.push(data.image1);
   if (data.image2 && data.image2.trim() !== '') imagesFromForm.push(data.image2);
   
-  // Use default images only if it's a new project AND no images were provided from the form.
-  // For existing projects, if user clears images, respect that (empty array).
   const finalImages = (imagesFromForm.length > 0)
     ? imagesFromForm
     : (!data.id ? [...defaultPortfolioItemStructure.images] : []);
@@ -182,14 +186,13 @@ export async function savePortfolioItemAction(
   let projectId = data.id;
 
   try {
-    // Check for slug uniqueness
-    const slugCheckQuery = query(portfolioCollectionRef(), where("slug", "==", data.slug));
-    const slugSnapshot = await getDocs(slugCheckQuery);
+    const slugCheckQuery = portfolioCollectionRef().where("slug", "==", data.slug);
+    const slugSnapshot = await slugCheckQuery.get();
     let slugIsTaken = false;
     if (!slugSnapshot.empty) {
-      if (projectId) { // Editing existing project
+      if (projectId) {
         slugIsTaken = slugSnapshot.docs.some(doc => doc.id !== projectId);
-      } else { // Adding new project
+      } else {
         slugIsTaken = true;
       }
     }
@@ -204,10 +207,9 @@ export async function savePortfolioItemAction(
     }
 
     if (projectId) {
-      // Logic for UPDATING an existing project
       const docRef = portfolioDocRef(projectId);
-      const docSnap = await getDoc(docRef);
-      if (!docSnap.exists()) throw new Error("Trying to update a project that does not exist.");
+      const docSnap = await docRef.get();
+      if (!docSnap.exists) throw new Error("Trying to update a project that does not exist.");
 
       const existingData = docSnap.data();
       const projectDataForFirestore: Omit<LibPortfolioItemType, 'id' | 'createdAt' | 'updatedAt'> & { updatedAt: any, createdAt: any } = {
@@ -221,12 +223,11 @@ export async function savePortfolioItemAction(
         slug: data.slug,
         dataAiHint: data.dataAiHint || defaultPortfolioItemStructure.dataAiHint,
         readmeContent: data.readmeContent || defaultPortfolioItemStructure.readmeContent,
-        updatedAt: serverTimestamp(),
-        createdAt: existingData.createdAt, // Preserve original creation timestamp
+        updatedAt: FieldValue.serverTimestamp(),
+        createdAt: existingData?.createdAt || FieldValue.serverTimestamp(),
       };
-      await setDoc(docRef, projectDataForFirestore, { merge: true });
+      await docRef.update(projectDataForFirestore);
     } else {
-      // Logic for CREATING a new project
       const projectDataForFirestore: Omit<LibPortfolioItemType, 'id'> & { createdAt?: any, updatedAt?: any } = {
         title: data.title,
         description: data.description,
@@ -238,14 +239,14 @@ export async function savePortfolioItemAction(
         slug: data.slug,
         dataAiHint: data.dataAiHint || defaultPortfolioItemStructure.dataAiHint,
         readmeContent: data.readmeContent || defaultPortfolioItemStructure.readmeContent,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
       };
-      const newProjectRef = await addDoc(portfolioCollectionRef(), projectDataForFirestore);
+      const newProjectRef = await portfolioCollectionRef().add(projectDataForFirestore);
       projectId = newProjectRef.id;
     }
     
-    const savedDoc = await getDoc(portfolioDocRef(projectId!));
+    const savedDoc = await portfolioDocRef(projectId!).get();
     if (!savedDoc.exists()) {
         throw new Error("Failed to retrieve saved project from Firestore after save operation.");
     }
@@ -300,19 +301,24 @@ export type DeletePortfolioItemResult = {
 };
 
 export async function deletePortfolioItemAction(itemId: string): Promise<DeletePortfolioItemResult> {
+    try {
+        await getAuthenticatedUser();
+    } catch (authError) {
+        return { success: false, message: (authError as Error).message };
+    }
     if (!itemId) {
         return { success: false, message: "No item ID provided for deletion." };
     }
-    if (!firestore) {
+    if (!adminFirestore) {
       return { success: false, message: "Firestore not initialized. Cannot delete project." };
     }
     try {
-        const projectDocSnap = await getDoc(portfolioDocRef(itemId));
+        const projectDocSnap = await portfolioDocRef(itemId).get();
         if (!projectDocSnap.exists()) {
              return { success: false, message: `Project (ID: ${itemId}) not found for deletion.` };
         }
         const projectToDeleteData = projectDocSnap.data();
-        await deleteDoc(portfolioDocRef(itemId));
+        await portfolioDocRef(itemId).delete();
 
         revalidatePath('/portfolio');
         revalidatePath('/'); 
@@ -327,6 +333,3 @@ export async function deletePortfolioItemAction(itemId: string): Promise<DeleteP
         return { success: false, message: "Failed to delete project due to a server error." };
     }
 }
-
-
-    
