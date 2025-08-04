@@ -1,23 +1,26 @@
 
-import { firestore } from '@/lib/firebaseConfig';
-import { doc, getDoc, Timestamp } from 'firebase/firestore'; // Added Timestamp
+"use server";
+
+import { adminFirestore } from '@/lib/firebaseAdminConfig';
+import { Timestamp } from 'firebase-admin/firestore';
 import type { AboutMeData } from '@/lib/types';
-import { defaultAboutMeDataForClient } from '@/lib/data'; 
+import { defaultAboutMeDataForClient } from '@/lib/data';
 
 const aboutMeDocRef = () => {
-  if (!firestore) throw new Error("Firestore not initialized");
-  return doc(firestore, 'app_config', 'aboutMeDoc');
+  if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
+  return adminFirestore.collection('app_config').doc('aboutMeDoc');
 }
 
 export async function getAboutMeDataAction(): Promise<AboutMeData> {
-  if (!firestore) {
-    console.warn("Firestore not initialized in getAboutMeDataAction. Returning default data.");
+  if (!adminFirestore) {
+    console.warn("Firestore Admin SDK not initialized in getAboutMeDataAction. Returning default data.");
     return JSON.parse(JSON.stringify(defaultAboutMeDataForClient)); // Return a deep clone
   }
+
   try {
-    const docSnap = await getDoc(aboutMeDocRef());
-    if (docSnap.exists()) {
-      const data = docSnap.data() as Partial<AboutMeData>; 
+    const docSnap = await aboutMeDocRef().get();
+    if (docSnap.exists) {
+      const data = docSnap.data() as Partial<AboutMeData>;
       const defaultData = defaultAboutMeDataForClient;
       
       return {
@@ -34,7 +37,7 @@ export async function getAboutMeDataAction(): Promise<AboutMeData> {
             ...edu, 
             id: edu.id || `edu_fetch_${Date.now()}_${Math.random().toString(36).substring(2, 7)}` 
         })),
-        certifications: [], // Certifications are now managed separately
+        certifications: [], // Certifications are managed separately
         email: data.email || defaultData.email,
         linkedinUrl: data.linkedinUrl || defaultData.linkedinUrl,
         githubUrl: data.githubUrl || defaultData.githubUrl,
