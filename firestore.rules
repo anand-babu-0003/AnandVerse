@@ -1,50 +1,51 @@
-
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- ADMIN-WRITABLE COLLECTIONS ---
-    // The admin panel's server actions are authenticated.
-    // These rules allow any authenticated user to write to these collections.
-    // Public read access is maintained for website content.
-
-    match /app_config/{docId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Admin-only writes
+    // Helper function to check if a user is authenticated
+    function isAdmin() {
+      return request.auth != null;
     }
+
+    // Collection for individual portfolio projects
     match /portfolioItems/{itemId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Admin-only writes
+      allow read: if true; // Publicly readable
+      allow write: if isAdmin(); // Only admins can create, update, delete
     }
+
+    // Collection for individual skills
     match /skills/{skillId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Admin-only writes
-    }
-    match /certifications/{certId} {
-      allow read: if true;
-      allow write: if request.auth != null; // Admin-only writes
+      allow read: if true; // Publicly readable
+      allow write: if isAdmin(); // Only admins can create, update, delete
     }
     
-    // --- SPECIALIZED COLLECTIONS ---
+    // Collection for individual certifications
+    match /certifications/{certificationId} {
+      allow read: if true; // Publicly readable
+      allow write: if isAdmin(); // Only admins can create, update, delete
+    }
 
-    // CONTACT MESSAGES: Anyone can create (submit the form), but only admins can see or delete.
+    // Collection for submitted contact messages
     match /contactMessages/{messageId} {
-      allow create: if true;
-      allow read, delete: if request.auth != null;
+      allow create: if true; // Anyone can submit the contact form
+      allow read, delete: if isAdmin(); // Only admins can read or delete messages
+      allow update: if false; // Messages should not be editable
     }
     
-    // ANNOUNCEMENTS: Anyone can read, but only admins can create or update.
+    // Collection for site-wide announcements
     match /announcements/{announcementId} {
-      allow read: if true;
-      allow create, update, delete: if request.auth != null;
+        allow read: if true; // Publicly readable for the banner
+        allow write: if isAdmin(); // Only admins can create, update, delete
     }
 
-    // --- DEFAULT RULE ---
-    // Deny all other reads/writes by default for security.
-    // This rule does not apply to the paths defined above.
-    match /{document=**} {
-      allow read, write: if false;
+    // Collection for storing single-document configurations
+    match /app_config/{docId} {
+      // Allow read for anyone on specific configuration documents needed by the public site
+      allow read: if docId in ['siteSettingsDoc', 'aboutMeDoc', 'notFoundPageDoc'];
+      
+      // Allow write access only for authenticated admins for all config documents
+      allow write: if isAdmin(); 
     }
   }
 }
