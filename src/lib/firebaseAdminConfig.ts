@@ -36,8 +36,12 @@ if (missingAdminKeys.length > 0) {
   }
 
   if (adminApp) {
-    adminAuth = getAuth(adminApp);
-    adminFirestore = getFirestore(adminApp);
+    try {
+      adminAuth = getAuth(adminApp);
+      adminFirestore = getFirestore(adminApp);
+    } catch (error) {
+      console.error("FIREBASE ADMIN CRITICAL ERROR: Failed to get Auth/Firestore instances:", error);
+    }
   } else {
     console.warn("Firebase Admin app object is undefined after initialization attempt. Admin Firestore/Auth cannot be initialized.");
   }
