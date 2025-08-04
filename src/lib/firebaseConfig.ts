@@ -14,6 +14,7 @@ const firebaseConfig: FirebaseOptions = {
 
 let app;
 let firestoreInstance: Firestore | null = null;
+let authInstance;
 
 const IS_SERVER = typeof window === 'undefined';
 const logPrefix = IS_SERVER ? "[SERVER FirebaseConfig]" : "[CLIENT FirebaseConfig]";
@@ -40,21 +41,21 @@ if (missingKeys.length > 0) {
   if (app) {
     try {
       firestoreInstance = getFirestore(app);
+      authInstance = getAuth(app);
     } catch (error) {
-      console.error(`${logPrefix} FIREBASE CRITICAL ERROR: Failed to get Firestore instance:`, error);
+      console.error(`${logPrefix} FIREBASE CRITICAL ERROR: Failed to get Firestore or Auth instance:`, error);
       firestoreInstance = null;
+      authInstance = null;
     }
   } else {
-     console.warn(`${logPrefix} Firebase app object is undefined after initialization attempt. Firestore cannot be initialized.`);
+     console.warn(`${logPrefix} Firebase app object is undefined after initialization attempt. Firebase services cannot be initialized.`);
      firestoreInstance = null;
+     authInstance = null;
   }
 }
 
-if (!firestoreInstance) {
-    console.error(`${logPrefix} Firebase & Firestore ARE NOT CONFIGURED or available. App functionality will be severely limited.`);
+if (!firestoreInstance || !authInstance) {
+    console.error(`${logPrefix} Firebase & its services ARE NOT CONFIGURED or available. App functionality will be severely limited.`);
 }
 
-// Export auth instance
-const auth = getAuth(app);
-
-export { firestoreInstance as firestore, firebaseConfig, app as firebaseApp, auth };
+export { firestoreInstance as firestore, firebaseConfig, app as firebaseApp, authInstance as auth };
