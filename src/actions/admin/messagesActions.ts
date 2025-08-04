@@ -21,7 +21,9 @@ export async function getContactMessagesAction(): Promise<ContactMessage[]> {
     await getAuthenticatedUser();
   } catch (authError) {
     console.error("Authentication error in getContactMessagesAction:", authError);
-    return []; // Return empty array if user is not authorized
+    // Instead of returning empty, rethrow or handle as a critical error if needed.
+    // For now, returning empty is safe for the UI.
+    return []; 
   }
 
   if (!adminFirestore) {
@@ -66,6 +68,9 @@ export async function deleteContactMessageAction(messageId: string): Promise<Del
     }
     if (!messageId) {
         return { success: false, message: "No message ID provided for deletion." };
+    }
+    if (!adminFirestore) {
+      return { success: false, message: "Firestore not initialized." };
     }
     try {
         await messageDocRef(messageId).delete();

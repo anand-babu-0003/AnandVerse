@@ -5,46 +5,43 @@ import { getFirestore, type Firestore, FieldValue, Timestamp } from 'firebase-ad
 import { getAuth, type Auth } from 'firebase-admin/auth';
 import { headers } from 'next/headers';
 
-let adminApp: App | null = null;
-let adminAuth: Auth | null = null;
-let adminFirestore: Firestore | null = null;
+// This self-invoking function initializes Firebase Admin and returns the services.
+const { adminApp, adminAuth, adminFirestore } = (() => {
+  const serviceAccount = {
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+  };
 
-function initializeFirebaseAdmin() {
-  if (getApps().find(app => app.name === 'admin')) {
-      adminApp = getApp('admin');
+  const requiredConfigKeys = ['projectId', 'clientEmail', 'privateKey'];
+  const missingAdminKeys = requiredConfigKeys.filter(key => !serviceAccount[key as keyof typeof serviceAccount]);
+
+  if (missingAdminKeys.length > 0) {
+    console.error(`FIREBASE ADMIN CRITICAL ERROR: Missing env vars: ${missingAdminKeys.join(', ')}`);
+    return { adminApp: null, adminAuth: null, adminFirestore: null };
+  }
+  
+  const appName = 'admin';
+  let app: App;
+
+  if (getApps().some(existingApp => existingApp.name === appName)) {
+    app = getApp(appName);
   } else {
-    const serviceAccount = {
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-    };
-
-    const requiredConfigKeys = ['projectId', 'clientEmail', 'privateKey'];
-    const missingAdminKeys = requiredConfigKeys.filter(key => !serviceAccount[key as keyof typeof serviceAccount]);
-    
-    if (missingAdminKeys.length > 0) {
-      console.error(
-        `FIREBASE ADMIN CRITICAL ERROR: Cannot initialize. Missing env vars: ${missingAdminKeys.join(', ')}`
-      );
-      return; 
-    }
-    
     try {
-       adminApp = initializeApp({
-          credential: cert(serviceAccount),
-       }, 'admin');
+      app = initializeApp({
+        credential: cert(serviceAccount),
+      }, appName);
     } catch (error) {
-       console.error("FIREBASE ADMIN CRITICAL ERROR: Failed to initialize Firebase Admin app:", error);
-       return;
+      console.error("FIREBASE ADMIN CRITICAL ERROR: Failed to initialize Firebase Admin app:", error);
+      return { adminApp: null, adminAuth: null, adminFirestore: null };
     }
   }
 
-  adminAuth = getAuth(adminApp);
-  adminFirestore = getFirestore(adminApp);
-}
+  const auth = getAuth(app);
+  const firestore = getFirestore(app);
 
-// Call initialization once
-initializeFirebaseAdmin();
+  return { adminApp: app, adminAuth: auth, adminFirestore: firestore };
+})();
 
 /**
  * Verifies the user's Firebase Authentication token from the request headers.
