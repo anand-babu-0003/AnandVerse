@@ -1,51 +1,43 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if a user is authenticated
-    function isAdmin() {
-      return request.auth != null;
-    }
-
-    // Collection for individual portfolio projects
+    // --- PUBLIC READ, ADMIN WRITE COLLECTIONS ---
+    // These collections are displayed on the public site but managed only by admins.
     match /portfolioItems/{itemId} {
-      allow read: if true; // Publicly readable
-      allow write: if isAdmin(); // Only admins can create, update, delete
+      allow read: if true;
+      allow write: if request.auth != null; // Covers create, update, delete
     }
 
-    // Collection for individual skills
     match /skills/{skillId} {
-      allow read: if true; // Publicly readable
-      allow write: if isAdmin(); // Only admins can create, update, delete
-    }
-    
-    // Collection for individual certifications
-    match /certifications/{certificationId} {
-      allow read: if true; // Publicly readable
-      allow write: if isAdmin(); // Only admins can create, update, delete
+      allow read: if true;
+      allow write: if request.auth != null;
     }
 
-    // Collection for submitted contact messages
-    match /contactMessages/{messageId} {
-      allow create: if true; // Anyone can submit the contact form
-      allow read, delete: if isAdmin(); // Only admins can read or delete messages
-      allow update: if false; // Messages should not be editable
+    match /certifications/{certId} {
+      allow read: if true;
+      allow write: if request.auth != null;
     }
-    
-    // Collection for site-wide announcements
+
     match /announcements/{announcementId} {
-        allow read: if true; // Publicly readable for the banner
-        allow write: if isAdmin(); // Only admins can create, update, delete
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // --- ADMIN-ONLY READ/WRITE COLLECTIONS ---
+    // Config documents that are only read via authenticated server actions.
+    match /app_config/{docId} {
+      allow read, write: if request.auth != null;
     }
 
-    // Collection for storing single-document configurations
-    match /app_config/{docId} {
-      // Allow read for anyone on specific configuration documents needed by the public site
-      allow read: if docId in ['siteSettingsDoc', 'aboutMeDoc', 'notFoundPageDoc'];
-      
-      // Allow write access only for authenticated admins for all config documents
-      allow write: if isAdmin(); 
+    // --- CONTACT MESSAGES ---
+    // Public can create, only admin can read/delete.
+    match /contactMessages/{messageId} {
+      allow create: if true;
+      allow read, delete: if request.auth != null;
+      allow update: if false; // Messages should not be updatable.
     }
   }
 }
