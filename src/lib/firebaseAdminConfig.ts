@@ -1,5 +1,6 @@
-// src/lib/firebaseAdminConfig.ts
 
+// src/lib/firebaseAdminConfig.ts
+import 'dotenv/config'; // Load environment variables from .env
 import { initializeApp, getApps, getApp, cert, type App } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { getAuth, type Auth } from 'firebase-admin/auth';
