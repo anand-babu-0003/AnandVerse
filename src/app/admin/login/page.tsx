@@ -84,4 +84,8 @@ export default function AdminLoginPage() {
               <Home className="mr-2 h-4 w-4" /> View Live Site
             </Link>
           </Button>
-        </CardFooter
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
