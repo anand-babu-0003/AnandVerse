@@ -1,5 +1,4 @@
-
-import { initializeApp, getApps, getApp, cert, type App } from 'firebase-admin/app';
+import { initializeApp, getApps, getApp, cert, type App, type ServiceAccount } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { getAuth, type Auth } from 'firebase-admin/auth';
 import { headers } from 'next/headers';
@@ -19,25 +18,27 @@ function initializeAdminApp(): App {
     return adminApp;
   }
 
-  const serviceAccount = {
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
-  };
+  const serviceAccountJsonBase64 = process.env.FIREBASE_SERVICE_ACCOUNT_JSON_BASE64;
 
-  const requiredConfigKeys = ['projectId', 'clientEmail', 'privateKey'];
-  const missingAdminKeys = requiredConfigKeys.filter(key => !serviceAccount[key as keyof typeof serviceAccount]);
-
-  if (missingAdminKeys.length > 0 || !serviceAccount.privateKey) {
-    throw new Error(`FIREBASE ADMIN CRITICAL ERROR: Missing env vars for Admin SDK: ${missingAdminKeys.join(', ')}`);
+  if (!serviceAccountJsonBase64) {
+    throw new Error(
+      'FIREBASE_SERVICE_ACCOUNT_JSON_BASE64 environment variable is not set. ' +
+      'Please base64 encode your service account JSON file and set it in your .env file.'
+    );
   }
 
   try {
+    const decodedJson = Buffer.from(serviceAccountJsonBase64, 'base64').toString('utf-8');
+    const serviceAccount = JSON.parse(decodedJson) as ServiceAccount;
+
     adminApp = initializeApp({
       credential: cert(serviceAccount),
     }, appName);
+
     return adminApp;
+
   } catch (error: any) {
+    console.error("Failed to parse or use the service account JSON:", error.message);
     throw new Error(`Failed to initialize Firebase Admin SDK: "${error.message}"`);
   }
 }
