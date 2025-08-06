@@ -3,11 +3,31 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // WARNING: These rules are completely public and insecure.
-    // Anyone can read, write, and delete any data in your database.
-    // This should only be used for initial development and debugging.
+  
+    // Default to locked down. All data access should go through the server
+    // which uses the Admin SDK and bypasses these rules.
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
-  }
-}
+    
+    // PUBLIC: Allow anyone to read data needed for the public site.
+    // This includes portfolio, skills, about me info, and site settings.
+    match /portfolioItems/{itemId} {
+      allow read: if true;
+    }
+    match /skills/{skillId} {
+      allow read: if true;
+    }
+    match /certifications/{certId} {
+        allow read: if true;
+    }
+    match /app_config/{docId} {
+      allow read: if true;
+    }
+
+    // Allow anyone to submit a message to the contact form.
+    match /contactMessages/{messageId} {
+        allow create: if true;
+    }
+
+    // Allow

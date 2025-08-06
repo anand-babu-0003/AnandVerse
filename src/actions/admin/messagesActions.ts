@@ -2,13 +2,10 @@
 "use server";
 
 import { getAdminFirestore } from '@/lib/firebaseAdmin';
-import { firestore } from '@/lib/firebaseConfig';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc, Timestamp } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 import type { ContactMessage } from '@/lib/types';
-import { Timestamp } from 'firebase-admin/firestore';
 
-// Use Admin SDK for server-side data fetching
 export async function getContactMessagesAction(): Promise<ContactMessage[]> {
   try {
     const adminDb = getAdminFirestore();
@@ -40,18 +37,13 @@ export type DeleteMessageResult = {
     message: string;
 };
 
-// Use Client SDK for write operations from the browser (as an authenticated user)
 export async function deleteContactMessageAction(messageId: string): Promise<DeleteMessageResult> {
-    if (!firestore) return { success: false, message: "Client Firestore not initialized." };
     if (!messageId) return { success: false, message: "No message ID provided." };
     
     try {
-        const docRef = doc(firestore, 'contactMessages', messageId);
+        const adminDb = getAdminFirestore();
+        const docRef = adminDb.collection('contactMessages').doc(messageId);
         await deleteDoc(docRef);
         revalidatePath('/admin/messages');
         return { success: true, message: `Message deleted successfully!` };
     } catch (error) {
-        console.error("Error deleting contact message from Firestore:", error);
-        return { success: false, message: "Failed to delete message. This could be due to Firestore rules." };
-    }
-}

@@ -2,31 +2,22 @@
 "use server";
 
 import type { z } from 'zod';
-import { firestore } from '@/lib/firebaseConfig';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebaseAdmin';
+import { doc, getDoc, setDoc } from 'firebase-admin/firestore';
 import type { NotFoundPageData } from '@/lib/types';
 import { notFoundPageAdminSchema, type NotFoundPageAdminFormData } from '@/lib/adminSchemas';
 import { revalidatePath } from 'next/cache';
 import { defaultNotFoundPageDataForClient } from '@/lib/data';
 
-const criticalErrorLog = "CRITICAL_ERROR: Firestore is not initialized in notFoundActions.ts.";
-if (!firestore) {
-  console.error(criticalErrorLog);
-}
-
 const notFoundPageDocRef = () => {
-  if (!firestore) throw new Error("Firestore not initialized for notFoundPageDocRef().");
-  return doc(firestore, 'app_config', 'notFoundPageDoc');
+  const adminDb = getAdminFirestore();
+  return adminDb.collection('app_config').doc('notFoundPageDoc');
 }
 
 export async function getNotFoundPageDataAction(): Promise<NotFoundPageData> {
-  if (!firestore) {
-    console.warn("Firestore not initialized in getNotFoundPageDataAction. Returning default data.");
-    return JSON.parse(JSON.stringify(defaultNotFoundPageDataForClient));
-  }
   try {
-    const docSnap = await getDoc(notFoundPageDocRef());
-    if (docSnap.exists()) {
+    const docSnap = await notFoundPageDocRef().get();
+    if (docSnap.exists) {
       const data = docSnap.data();
       return {
         imageSrc: data.imageSrc || defaultNotFoundPageDataForClient.imageSrc,
@@ -56,21 +47,6 @@ export async function updateNotFoundPageDataAction(
   prevState: UpdateNotFoundPageDataFormState,
   formData: FormData
 ): Promise<UpdateNotFoundPageDataFormState> {
-  if (!firestore) {
-    return {
-      message: criticalErrorLog,
-      status: 'error',
-      errors: {},
-      data: {
-        imageSrc: String(formData.get('imageSrc') || defaultNotFoundPageDataForClient.imageSrc),
-        dataAiHint: String(formData.get('dataAiHint') || defaultNotFoundPageDataForClient.dataAiHint),
-        heading: String(formData.get('heading') || defaultNotFoundPageDataForClient.heading),
-        message: String(formData.get('message') || defaultNotFoundPageDataForClient.message),
-        buttonText: String(formData.get('buttonText') || defaultNotFoundPageDataForClient.buttonText),
-      }
-    };
-  }
-
   let currentData: NotFoundPageData;
   try {
     currentData = await getNotFoundPageDataAction();
@@ -93,7 +69,6 @@ export async function updateNotFoundPageDataAction(
 
     if (!validatedFields.success) {
       const fieldErrors = validatedFields.error.flatten().fieldErrors;
-      console.warn("Admin 404 Page Action: Zod validation failed. Errors:", JSON.stringify(fieldErrors));
       return {
         message: "Failed to update 404 page settings. Please check errors.",
         status: 'error',
@@ -112,12 +87,6 @@ export async function updateNotFoundPageDataAction(
 
     await setDoc(notFoundPageDocRef(), dataToSave, { merge: true });
 
-    // Revalidate the not-found path or any path that might render it.
-    // For Next.js App Router, notFound() is special, revalidating '/' might be a general approach
-    // or specific revalidation if you have a custom /404 page route.
-    // However, notFound() typically relies on data at build/request time if not dynamically fetched.
-    // If the not-found.tsx page itself fetches this data, revalidating paths that could *lead* to a 404
-    // or the root layout might be necessary. For now, let's revalidate the root.
     revalidatePath('/', 'layout');
     revalidatePath('/admin/not-found-settings');
 
@@ -144,9 +113,4 @@ export async function updateNotFoundPageDataAction(
 
     return {
       message: `An unexpected server error occurred while updating 404 page settings: ${errorMessage}`,
-      status: 'error',
-      errors: {},
-      data: errorResponseData,
-    };
-  }
-}
+      status: '

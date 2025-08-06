@@ -1,9 +1,8 @@
 
 "use server";
 
-import { firestore } from '@/lib/firebaseConfig';
 import { getAdminFirestore } from '@/lib/firebaseAdmin';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, Timestamp } from 'firebase-admin/firestore';
 import type { AboutMeData } from '@/lib/types';
 import { 
   aboutMeSchema, 
@@ -17,7 +16,6 @@ import type { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { defaultAboutMeDataForClient } from '@/lib/data'; 
 
-// Use Admin SDK for server-side data fetching
 async function readAboutMeDataFromFirestore(): Promise<AboutMeData> {
   try {
     const adminDb = getAdminFirestore();
@@ -41,25 +39,23 @@ async function readAboutMeDataFromFirestore(): Promise<AboutMeData> {
             ...edu, 
             id: edu.id || `edu_fb_${Date.now()}_${Math.random().toString(36).substring(2, 7)}` 
         })),
-        certifications: [], // Certifications are now managed separately
+        certifications: [],
         email: data.email || defaultData.email,
         linkedinUrl: data.linkedinUrl || defaultData.linkedinUrl,
         githubUrl: data.githubUrl || defaultData.githubUrl,
         twitterUrl: data.twitterUrl || defaultData.twitterUrl,
       };
     }
-    console.warn("AboutMe document not found in Firestore. Returning default data.");
-    return JSON.parse(JSON.stringify(defaultAboutMeDataForClient)); // Deep clone
+    return JSON.parse(JSON.stringify(defaultAboutMeDataForClient));
   } catch (error) {
     console.error("Error reading AboutMeData from Admin Firestore:", error);
-    return JSON.parse(JSON.stringify(defaultAboutMeDataForClient)); // Deep clone
+    return JSON.parse(JSON.stringify(defaultAboutMeDataForClient));
   }
 }
 
-// Use Client SDK for write operations from the browser (as an authenticated user)
 async function writeAboutMeDataToFirestore(data: AboutMeData): Promise<void> {
-  if (!firestore) throw new Error("Client Firestore not initialized. Cannot write AboutMeData.");
-  const aboutMeDocRef = doc(firestore, 'app_config', 'aboutMeDoc');
+  const adminDb = getAdminFirestore();
+  const aboutMeDocRef = adminDb.collection('app_config').doc('aboutMeDoc');
   const dataToSave: AboutMeData = {
     ...data,
     experience: data.experience.map(exp => ({
@@ -103,8 +99,6 @@ export type UpdateEducationDataFormState = {
   data?: EducationSectionData;
 };
 
-
-// Server Action for Profile & Bio section
 export async function updateProfileBioDataAction(
   prevState: UpdateProfileBioDataFormState,
   formData: FormData
@@ -117,9 +111,6 @@ export async function updateProfileBioDataAction(
     return { message: "Failed to read current settings. Update aborted.", status: 'error', data: Object.fromEntries(formData.entries()) as ProfileBioData };
   }
 
-  if (!firestore) {
-    return { message: "Firestore not initialized.", status: 'error', data: Object.fromEntries(formData.entries()) as ProfileBioData };
-  }
   let rawData: ProfileBioData | undefined = undefined;
   try {
     rawData = {
@@ -148,12 +139,12 @@ export async function updateProfileBioDataAction(
       name: dataToSave.name,
       title: dataToSave.title,
       bio: dataToSave.bio,
-      profileImage: dataToSave.profileImage || defaultAboutMeDataForClient.profileImage, // Ensure fallback if cleared
-      dataAiHint: dataToSave.dataAiHint || defaultAboutMeDataForClient.dataAiHint,     // Ensure fallback if cleared
+      profileImage: dataToSave.profileImage || defaultAboutMeDataForClient.profileImage,
+      dataAiHint: dataToSave.dataAiHint || defaultAboutMeDataForClient.dataAiHint,
     };
     await writeAboutMeDataToFirestore(updatedAboutMeData);
 
-    revalidatePath('/', 'layout'); // Revalidate layout as Footer/Navbar might use this data
+    revalidatePath('/', 'layout');
     revalidatePath('/about');
     revalidatePath('/'); 
     revalidatePath('/contact'); 
@@ -184,7 +175,6 @@ export async function updateProfileBioDataAction(
   }
 }
 
-// Server Action for Experience section
 export async function updateExperienceDataAction(
   prevState: UpdateExperienceDataFormState,
   formData: FormData
@@ -195,9 +185,6 @@ export async function updateExperienceDataAction(
   } catch (e) {
     console.error("Failed to read current About Me data before update:", e);
     return { message: "Failed to read current settings. Update aborted.", status: 'error', data: { experience: [] } };
-  }
-  if (!firestore) {
-    return { message: "Firestore not initialized.", status: 'error', data: { experience: [] } };
   }
   let rawDataForZod: ExperienceSectionData | undefined = undefined;
   try {
@@ -268,7 +255,6 @@ export async function updateExperienceDataAction(
   }
 }
 
-// Server Action for Education section
 export async function updateEducationDataAction(
   prevState: UpdateEducationDataFormState,
   formData: FormData
@@ -279,9 +265,6 @@ export async function updateEducationDataAction(
   } catch (e) {
     console.error("Failed to read current About Me data before update:", e);
      return { message: "Failed to read current settings. Update aborted.", status: 'error', data: { education: [] } };
-  }
-  if (!firestore) {
-    return { message: "Firestore not initialized.", status: 'error', data: { education: [] } };
   }
   let rawDataForZod: EducationSectionData | undefined = undefined;
   try {
@@ -350,8 +333,7 @@ export async function updateEducationDataAction(
   }
 }
 
-// Server Action for Contact & Socials
-export async function updateAboutDataAction( // This action name implies updating the whole AboutMeData
+export async function updateAboutDataAction(
   prevState: UpdateAboutDataFormState,
   formData: FormData
 ): Promise<UpdateAboutDataFormState> {
@@ -361,10 +343,6 @@ export async function updateAboutDataAction( // This action name implies updatin
   } catch (e) {
     console.error("Failed to read current About Me data before update:", e);
     return { message: "Failed to read current settings. Update aborted.", status: 'error', data: defaultAboutMeDataForClient };
-  }
-
-  if (!firestore) {
-    return { message: "Firestore not initialized.", status: 'error', data: currentAboutMeData };
   }
   
   let rawDataForValidation: Partial<AboutMeData> | undefined = undefined;
@@ -392,7 +370,7 @@ export async function updateAboutDataAction( // This action name implies updatin
 
     const dataToSave: AboutMeData = {
         ...currentAboutMeData,
-        email: validatedFields.data.email || '', // Ensure empty string if undefined from Zod
+        email: validatedFields.data.email || '',
         linkedinUrl: validatedFields.data.linkedinUrl || '',
         githubUrl: validatedFields.data.githubUrl || '',
         twitterUrl: validatedFields.data.twitterUrl || '',
@@ -400,7 +378,7 @@ export async function updateAboutDataAction( // This action name implies updatin
       
     await writeAboutMeDataToFirestore(dataToSave);
 
-    revalidatePath('/', 'layout'); // Revalidate layout as Footer/Navbar might use this data
+    revalidatePath('/', 'layout');
     revalidatePath('/contact'); 
     revalidatePath('/about'); 
     revalidatePath('/');    
@@ -420,7 +398,4 @@ export async function updateAboutDataAction( // This action name implies updatin
       message: "An unexpected server error occurred (Contact/Socials action).",
       status: 'error',
       errors: {}, 
-      data: fallbackData,
-    };
-  }
-}
+      data:

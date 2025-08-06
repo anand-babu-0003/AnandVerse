@@ -2,22 +2,20 @@
 "use server";
 
 import type { z } from 'zod';
-import { firestore } from '@/lib/firebaseConfig';
 import { getAdminFirestore } from '@/lib/firebaseAdmin';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase-admin/firestore';
 import type { SiteSettings } from '@/lib/types';
 import { siteSettingsAdminSchema, type SiteSettingsAdminFormData } from '@/lib/adminSchemas';
 import { revalidatePath } from 'next/cache';
 import { defaultSiteSettingsForClient } from '@/lib/data';
 
-// Use Admin SDK for server-side data fetching
 export async function getSiteSettingsAction(): Promise<SiteSettings> {
   try {
     const adminDb = getAdminFirestore();
     const docRef = adminDb.collection('app_config').doc('siteSettingsDoc');
     const docSnap = await docRef.get();
 
-    if (docSnap.exists()) {
+    if (docSnap.exists) {
       const data = docSnap.data();
       return {
         siteName: data?.siteName || defaultSiteSettingsForClient.siteName,
@@ -47,20 +45,10 @@ export type UpdateSiteSettingsFormState = {
   data?: SiteSettingsAdminFormData;
 };
 
-// Use Client SDK for write operations from the browser (as an authenticated user)
 export async function updateSiteSettingsAction(
   prevState: UpdateSiteSettingsFormState,
   formData: FormData
 ): Promise<UpdateSiteSettingsFormState> {
-  if (!firestore) {
-    return {
-      message: "Client Firestore not initialized.",
-      status: 'error',
-      errors: {},
-      data: Object.fromEntries(formData.entries()) as unknown as SiteSettingsAdminFormData,
-    };
-  }
-
   let currentSettings: SiteSettings;
   try {
     currentSettings = await getSiteSettingsAction(); 
@@ -87,7 +75,6 @@ export async function updateSiteSettingsAction(
 
     if (!validatedFields.success) {
       const fieldErrors = validatedFields.error.flatten().fieldErrors;
-      console.warn("Admin SiteSettings Action: Zod validation failed. Errors:", JSON.stringify(fieldErrors));
       return {
         message: "Failed to update site settings. Please check errors.",
         status: 'error',
@@ -108,7 +95,8 @@ export async function updateSiteSettingsAction(
       appleTouchIconUrl: validatedFields.data.appleTouchIconUrl || defaultSiteSettingsForClient.appleTouchIconUrl,
     };
     
-    const siteSettingsDocRef = doc(firestore, 'app_config', 'siteSettingsDoc');
+    const adminDb = getAdminFirestore();
+    const siteSettingsDocRef = adminDb.collection('app_config').doc('siteSettingsDoc');
     await setDoc(siteSettingsDocRef, dataToSave, { merge: true });
 
     revalidatePath('/', 'layout'); 
@@ -116,7 +104,7 @@ export async function updateSiteSettingsAction(
     revalidatePath('/about');
     revalidatePath('/portfolio');
     revalidatePath('/portfolio/[slug]', 'page');
-    revalidatePath('/skills'); // Ensure skills page is revalidated
+    revalidatePath('/skills');
     revalidatePath('/contact');
     revalidatePath('/admin/settings');
 
@@ -140,5 +128,4 @@ export async function updateSiteSettingsAction(
       errors: {},
       data: errorResponseData,
     };
-  }
-}
+  

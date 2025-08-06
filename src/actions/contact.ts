@@ -1,9 +1,8 @@
-
 "use server";
 
 import { z } from 'zod';
-import { firestore } from '@/lib/firebaseConfig';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getAdminFirestore } from '@/lib/firebaseAdmin';
+import { collection, addDoc, serverTimestamp } from 'firebase-admin/firestore';
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -25,13 +24,6 @@ export async function submitContactForm(
   prevState: ContactFormState,
   formData: FormData
 ): Promise<ContactFormState> {
-  if (!firestore) {
-    return {
-      message: "An unexpected server error occurred. Please try again later.",
-      status: 'error',
-    };
-  }
-
   const validatedFields = contactFormSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
@@ -49,7 +41,8 @@ export async function submitContactForm(
   const { name, email, message } = validatedFields.data;
 
   try {
-    const messagesCollection = collection(firestore, 'contactMessages');
+    const adminDb = getAdminFirestore();
+    const messagesCollection = adminDb.collection('contactMessages');
     await addDoc(messagesCollection, {
       name,
       email,

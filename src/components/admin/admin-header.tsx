@@ -2,34 +2,14 @@
 "use client";
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { getAuth, signOut } from 'firebase/auth';
-import { firebaseApp } from '@/lib/firebaseConfig';
-import { Button } from '@/components/ui/button';
 import { Home, LogOut } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Menu } from "lucide-react"
 import { AdminSidebarContent } from './admin-sidebar'; 
-import { useToast } from '@/hooks/use-toast';
+import { logoutAction } from '@/actions/admin/authActions';
+import { Button } from '@/components/ui/button';
 
 export function AdminHeader() {
-  const router = useRouter();
-  const auth = getAuth(firebaseApp);
-  const { toast } = useToast();
-
-  const handleLogout = async () => {
-    try {
-        await signOut(auth);
-        toast({ title: "Logged Out", description: "You have been successfully logged out." });
-    } catch (error) {
-        console.error('Logout Error:', error);
-        toast({ title: "Logout Error", description: "An error occurred during logout. Please try again.", variant: "destructive" });
-    } finally {
-        localStorage.removeItem('isAdminLoggedIn');
-        router.push('/admin/login');
-    }
-  };
-
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 py-4">
       <Sheet>
@@ -51,11 +31,8 @@ export function AdminHeader() {
             View Site
           </Link>
         </Button>
-        <Button variant="outline" size="sm" onClick={handleLogout}>
-          <LogOut className="h-4 w-4 mr-2" />
-          Logout
-        </Button>
-      </div>
-    </header>
-  );
-}
+        <form action={logoutAction}>
+            <Button variant="outline" size="sm" type="submit">
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+            </

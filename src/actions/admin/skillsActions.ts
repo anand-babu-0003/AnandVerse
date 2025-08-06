@@ -1,24 +1,26 @@
 
 "use server";
 
-import { firestore } from '@/lib/firebaseConfig';
 import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { 
   collection, 
   doc, 
   setDoc, 
-  deleteDoc 
-} from 'firebase/firestore';
+  deleteDoc,
+  getDocs,
+  query,
+  orderBy,
+} from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 import type { Skill as LibSkillType } from '@/lib/types';
 import { skillAdminSchema, type SkillAdminFormData } from '@/lib/adminSchemas';
 import { defaultSkillsDataForClient, lucideIconsMap } from '@/lib/data';
 
-// Use Admin SDK for server-side data fetching
 export async function getSkillsAction(): Promise<LibSkillType[]> {
   try {
     const adminDb = getAdminFirestore();
-    const snapshot = await adminDb.collection('skills').orderBy('category', 'asc').orderBy('name', 'asc').get();
+    const q = query(adminDb.collection('skills'), orderBy('category', 'asc'), orderBy('name', 'asc'));
+    const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
       return [];
@@ -47,12 +49,11 @@ export type SkillFormState = {
   savedSkill?: LibSkillType;
 };
 
-// Use Client SDK for write operations from the browser (as an authenticated user)
 export async function saveSkillAction(
   prevState: SkillFormState,
   formData: FormData
 ): Promise<SkillFormState> {
-  if (!firestore) return { message: "Client Firestore not initialized.", status: 'error' };
+  const adminDb = getAdminFirestore();
   
   const idFromForm = formData.get('id');
   const rawData: SkillAdminFormData = {
@@ -86,7 +87,7 @@ export async function saveSkillAction(
   };
 
   try {
-    const docRef = skillId ? doc(firestore, 'skills', skillId) : doc(collection(firestore, 'skills'));
+    const docRef = skillId ? adminDb.collection('skills').doc(skillId) : doc(adminDb.collection('skills'));
     if (!skillId) {
       skillId = docRef.id;
     }
@@ -111,7 +112,7 @@ export async function saveSkillAction(
   } catch (error) {
     console.error("Error saving skill to Firestore:", error);
     return {
-      message: "An unexpected server error occurred. This could be due to Firestore rules.",
+      message: "An unexpected server error occurred.",
       status: 'error',
       errors: {}, 
       formDataOnError: rawData,
@@ -125,11 +126,11 @@ export type DeleteSkillResult = {
 };
 
 export async function deleteSkillAction(itemId: string): Promise<DeleteSkillResult> {
-    if (!firestore) return { success: false, message: "Client Firestore not initialized." };
     if (!itemId) return { success: false, message: "No skill ID provided for deletion." };
     
     try {
-        const docRef = doc(firestore, 'skills', itemId);
+        const adminDb = getAdminFirestore();
+        const docRef = adminDb.collection('skills').doc(itemId);
         await deleteDoc(docRef);
         revalidatePath('/skills');
         revalidatePath('/admin/skills');
@@ -137,6 +138,5 @@ export async function deleteSkillAction(itemId: string): Promise<DeleteSkillResu
         return { success: true, message: `Skill (ID: ${itemId}) deleted successfully!` };
     } catch (error) {
         console.error("Error deleting skill from Firestore:", error);
-        return { success: false, message: "Failed to delete skill. This could be due to Firestore rules." };
+        return { success: false, message: "Failed to delete skill." };
     }
-}

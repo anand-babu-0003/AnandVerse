@@ -1,7 +1,6 @@
 
 "use server";
 
-import { firestore } from '@/lib/firebaseConfig';
 import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { 
   collection, 
@@ -11,19 +10,15 @@ import {
   addDoc, 
   deleteDoc, 
   updateDoc, 
-  query, 
-  orderBy, 
   getDoc,
   serverTimestamp,
-  Timestamp as ClientTimestamp,
-} from 'firebase/firestore';
-import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
+  Timestamp,
+} from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 import type { Certification as LibCertificationType } from '@/lib/types';
 import { certificationAdminSchema, type CertificationAdminFormData } from '@/lib/adminSchemas';
 import { defaultCertificationsDataForClient } from '@/lib/data';
 
-// Use Admin SDK for server-side data fetching
 export async function getCertificationsAction(): Promise<LibCertificationType[]> {
   try {
     const adminDb = getAdminFirestore();
@@ -36,8 +31,8 @@ export async function getCertificationsAction(): Promise<LibCertificationType[]>
 
     return snapshot.docs.map(docSnap => {
       const data = docSnap.data();
-      const createdAt = (data.createdAt as AdminTimestamp)?.toDate().toISOString() || new Date(0).toISOString();
-      const updatedAt = (data.updatedAt as AdminTimestamp)?.toDate().toISOString() || createdAt;
+      const createdAt = (data.createdAt as Timestamp)?.toDate().toISOString() || new Date(0).toISOString();
+      const updatedAt = (data.updatedAt as Timestamp)?.toDate().toISOString() || createdAt;
 
       return {
         id: docSnap.id,
@@ -65,14 +60,11 @@ export type CertificationFormState = {
     savedCertification?: LibCertificationType;
 };
 
-// Use Client SDK for write operations from the browser (as an authenticated user)
 export async function saveCertificationAction(
     prevState: CertificationFormState,
     formData: FormData
 ): Promise<CertificationFormState> {
-    if (!firestore) {
-      return { message: "Client Firestore not initialized.", status: 'error' };
-    }
+    const adminDb = getAdminFirestore();
     
     const idFromForm = formData.get('id');
     const rawData: CertificationAdminFormData = {
@@ -113,10 +105,10 @@ export async function saveCertificationAction(
 
         if (certId) {
             finalCertId = certId;
-            const certRef = doc(firestore, 'certifications', finalCertId);
+            const certRef = adminDb.collection('certifications').doc(finalCertId);
             await updateDoc(certRef, dataToSave);
         } else {
-            const collectionRef = collection(firestore, 'certifications');
+            const collectionRef = adminDb.collection('certifications');
             const newDocRef = await addDoc(collectionRef, {
                 ...dataToSave,
                 createdAt: serverTimestamp(),
@@ -127,7 +119,7 @@ export async function saveCertificationAction(
         revalidatePath('/certifications');
         revalidatePath('/admin/certifications');
 
-        const savedDocRef = doc(firestore, 'certifications', finalCertId);
+        const savedDocRef = adminDb.collection('certifications').doc(finalCertId);
         const savedDoc = await getDoc(savedDocRef);
         const savedData = savedDoc.data();
 
@@ -143,8 +135,8 @@ export async function saveCertificationAction(
             imageUrl: savedData.imageUrl,
             credentialId: savedData.credentialId,
             credentialUrl: savedData.credentialUrl,
-            createdAt: (savedData.createdAt as ClientTimestamp)?.toDate().toISOString(),
-            updatedAt: (savedData.updatedAt as ClientTimestamp)?.toDate().toISOString(),
+            createdAt: (savedData.createdAt as Timestamp)?.toDate().toISOString(),
+            updatedAt: (savedData.updatedAt as Timestamp)?.toDate().toISOString(),
         };
 
         return {
@@ -156,7 +148,7 @@ export async function saveCertificationAction(
     } catch (error) {
         console.error("Error saving certification to Firestore:", error);
         return {
-            message: "An unexpected server error occurred while saving. This could be due to Firestore rules.",
+            message: "An unexpected server error occurred while saving.",
             status: 'error',
             errors: {},
             formDataOnError: rawData,
@@ -170,17 +162,15 @@ export type DeleteCertificationResult = {
 };
 
 export async function deleteCertificationAction(itemId: string): Promise<DeleteCertificationResult> {
-    if (!firestore) return { success: false, message: "Client Firestore not initialized." };
     if (!itemId) return { success: false, message: "No certification ID provided for deletion." };
     
     try {
-        const certRef = doc(firestore, 'certifications', itemId);
+        const adminDb = getAdminFirestore();
+        const certRef = adminDb.collection('certifications').doc(itemId);
         await deleteDoc(certRef);
         revalidatePath('/certifications');
         revalidatePath('/admin/certifications');
         return { success: true, message: `Certification (ID: ${itemId}) deleted successfully!` };
     } catch (error) {
         console.error("Error deleting certification from Firestore:", error);
-        return { success: false, message: "Failed to delete certification due to a server error or permissions issue." };
-    }
-}
+        return { success: false, message: "Failed to delete certification due to a server error." };

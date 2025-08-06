@@ -1,7 +1,6 @@
 
 "use server";
 
-import { firestore } from '@/lib/firebaseConfig';
 import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { 
   collection, 
@@ -10,10 +9,12 @@ import {
   updateDoc,
   deleteDoc,
   getDoc,
+  getDocs,
+  query,
+  where,
   serverTimestamp,
-  Timestamp as ClientTimestamp,
-} from 'firebase/firestore';
-import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
+  Timestamp,
+} from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 import type { PortfolioItem as LibPortfolioItemType } from '@/lib/types';
 import { portfolioItemAdminSchema, type PortfolioAdminFormData } from '@/lib/adminSchemas';
@@ -32,7 +33,6 @@ const defaultPortfolioItemStructure: Omit<LibPortfolioItemType, 'id' | 'createdA
   repoUrl: '',
 };
 
-// Use Admin SDK for server-side data fetching
 export async function getPortfolioItemsAction(): Promise<LibPortfolioItemType[]> {
   try {
     const adminDb = getAdminFirestore();
@@ -44,8 +44,8 @@ export async function getPortfolioItemsAction(): Promise<LibPortfolioItemType[]>
 
     return snapshot.docs.map(docSnap => {
       const data = docSnap.data();
-      const createdAt = (data.createdAt as AdminTimestamp)?.toDate().toISOString() || new Date(0).toISOString();
-      const updatedAt = (data.updatedAt as AdminTimestamp)?.toDate().toISOString() || createdAt;
+      const createdAt = (data.createdAt as Timestamp)?.toDate().toISOString() || new Date(0).toISOString();
+      const updatedAt = (data.updatedAt as Timestamp)?.toDate().toISOString() || createdAt;
       
       return {
         id: docSnap.id,
@@ -69,7 +69,6 @@ export async function getPortfolioItemsAction(): Promise<LibPortfolioItemType[]>
   }
 }
 
-// Use Admin SDK for server-side data fetching
 export async function getPortfolioItemBySlugAction(slug: string): Promise<LibPortfolioItemType | null> {
   if (!slug || typeof slug !== 'string' || slug.trim() === '') {
     return null;
@@ -87,8 +86,8 @@ export async function getPortfolioItemBySlugAction(slug: string): Promise<LibPor
     
     const docSnap = snapshot.docs[0]; 
     const data = docSnap.data();
-    const createdAt = (data.createdAt as AdminTimestamp)?.toDate().toISOString() || new Date(0).toISOString();
-    const updatedAt = (data.updatedAt as AdminTimestamp)?.toDate().toISOString() || createdAt;
+    const createdAt = (data.createdAt as Timestamp)?.toDate().toISOString() || new Date(0).toISOString();
+    const updatedAt = (data.updatedAt as Timestamp)?.toDate().toISOString() || createdAt;
 
     return {
       id: docSnap.id,
@@ -119,13 +118,11 @@ export type PortfolioFormState = {
   savedProject?: LibPortfolioItemType;
 };
 
-// Use Client SDK for write operations from the browser (as an authenticated user)
 export async function savePortfolioItemAction(
   prevState: PortfolioFormState,
   formData: FormData
 ): Promise<PortfolioFormState> {
-  if (!firestore) return { message: "Client Firestore not initialized.", status: 'error' };
-
+  const adminDb = getAdminFirestore();
   const rawData: PortfolioAdminFormData = {
     id: formData.get('id') as string || undefined,
     title: String(formData.get('title') || ''),
@@ -167,9 +164,9 @@ export async function savePortfolioItemAction(
   let projectId = data.id;
 
   try {
-    const collRef = collection(firestore, 'portfolioItems');
-    const slugCheckQuery = (await import('firebase/firestore')).query(collRef, (await import('firebase/firestore')).where("slug", "==", data.slug));
-    const slugSnapshot = await (await import('firebase/firestore')).getDocs(slugCheckQuery);
+    const collRef = adminDb.collection('portfolioItems');
+    const slugCheckQuery = query(collRef, where("slug", "==", data.slug));
+    const slugSnapshot = await getDocs(slugCheckQuery);
     let slugIsTaken = false;
     if (!slugSnapshot.empty) {
       if (projectId) {
@@ -203,20 +200,20 @@ export async function savePortfolioItemAction(
     };
 
     if (projectId) {
-      const docRef = doc(firestore, 'portfolioItems', projectId);
+      const docRef = adminDb.collection('portfolioItems').doc(projectId);
       await updateDoc(docRef, projectData);
     } else {
       const newProjectRef = await addDoc(collRef, { ...projectData, createdAt: serverTimestamp() });
       projectId = newProjectRef.id;
     }
     
-    const savedDocRef = doc(firestore, 'portfolioItems', projectId!);
+    const savedDocRef = adminDb.collection('portfolioItems').doc(projectId!);
     const savedDoc = await getDoc(savedDocRef);
-    if (!savedDoc.exists()) throw new Error("Failed to retrieve saved project from Firestore.");
+    if (!savedDoc.exists) throw new Error("Failed to retrieve saved project from Firestore.");
 
     const savedData = savedDoc.data()!;
-    const createdAt = (savedData.createdAt as ClientTimestamp)?.toDate().toISOString();
-    const updatedAt = (savedData.updatedAt as ClientTimestamp)?.toDate().toISOString();
+    const createdAt = (savedData.createdAt as Timestamp)?.toDate().toISOString();
+    const updatedAt = (savedData.updatedAt as Timestamp)?.toDate().toISOString();
 
     const finalSavedProject: LibPortfolioItemType = { ...savedData, id: projectId!, createdAt, updatedAt } as LibPortfolioItemType;
 
@@ -235,7 +232,7 @@ export async function savePortfolioItemAction(
   } catch (error) {
     console.error("Error saving portfolio project to Firestore:", error);
     return {
-      message: "An unexpected server error occurred. This could be due to Firestore rules.",
+      message: "An unexpected server error occurred.",
       status: 'error',
       errors: {},
       formDataOnError: rawData,
@@ -249,11 +246,11 @@ export type DeletePortfolioItemResult = {
 };
 
 export async function deletePortfolioItemAction(itemId: string): Promise<DeletePortfolioItemResult> {
-    if (!firestore) return { success: false, message: "Client Firestore not initialized." };
     if (!itemId) return { success: false, message: "No item ID provided." };
 
     try {
-        const docRef = doc(firestore, 'portfolioItems', itemId);
+        const adminDb = getAdminFirestore();
+        const docRef = adminDb.collection('portfolioItems').doc(itemId);
         await deleteDoc(docRef);
 
         revalidatePath('/portfolio');
@@ -264,6 +261,4 @@ export async function deletePortfolioItemAction(itemId: string): Promise<DeleteP
         
     } catch (error) {
         console.error("Error deleting portfolio item from Firestore:", error);
-        return { success: false, message: "Failed to delete project due to a server error or permissions issue." };
-    }
-}
+        return { success: false, message: "Failed to delete project due to a server error."

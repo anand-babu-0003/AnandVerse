@@ -1,13 +1,15 @@
-
 "use server";
 
 import { z } from 'zod';
-import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { firebaseApp } from '@/lib/firebaseConfig'; // Ensure firebaseApp is exported
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+
+const SESSION_COOKIE_NAME = 'admin_session';
+const MAX_AGE = 60 * 60 * 24 * 7; // 7 days
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }), // Firebase has a min password length
+  password: z.string().min(1, { message: "Password is required." }),
 });
 
 export type LoginFormState = {
@@ -16,18 +18,11 @@ export type LoginFormState = {
   errors?: z.inferFlattenedErrors<typeof loginSchema>['fieldErrors'];
 };
 
-// This function is no longer a server action called by a form's `action` prop.
-// It will be called from a client-side function.
-// However, keeping 'use server' is fine and doesn't hurt.
-export async function loginWithFirebase(
+export async function loginAction(
   prevState: LoginFormState,
   formData: FormData
 ): Promise<LoginFormState> {
-
-  const validatedFields = loginSchema.safeParse({
-    email: formData.get('email'),
-    password: formData.get('password'),
-  });
+  const validatedFields = loginSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!validatedFields.success) {
     return {
@@ -38,41 +33,27 @@ export async function loginWithFirebase(
   }
   
   const { email, password } = validatedFields.data;
-  const auth = getAuth(firebaseApp);
-
-  try {
-    // This function can only be used on the client, so this server action
-    // is not a pattern we can use. We need to do this on the client.
-    // The logic will be moved to the login page component.
-    // This file is now effectively deprecated for the login flow but is kept
-    // to avoid breaking imports until the refactor is complete.
-    // We will return a success to not block anything, but the real logic is client-side.
-     return {
-      message: "This action is deprecated. Login logic moved to client.",
-      status: 'error',
-    };
-    
-  } catch (error: any) {
-    let errorMessage = "An unknown error occurred during login.";
-    switch (error.code) {
-        case 'auth/invalid-credential':
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-            errorMessage = "Invalid email or password. Please try again.";
-            break;
-        case 'auth/invalid-email':
-            errorMessage = "The email address is not valid.";
-            break;
-        case 'auth/user-disabled':
-            errorMessage = "This user account has been disabled.";
-            break;
-        default:
-            console.error("Firebase Auth Error:", error);
-            break;
-    }
+  
+  // Basic authentication check against environment variables
+  if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+    // Set a session cookie
+    cookies().set(SESSION_COOKIE_NAME, 'true', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: MAX_AGE,
+      path: '/',
+    });
+    // Redirect to dashboard on successful login
+    redirect('/admin/dashboard');
+  } else {
     return {
-      message: errorMessage,
+      message: "Invalid email or password.",
       status: 'error',
     };
   }
+}
+
+export async function logoutAction() {
+    cookies().set(SESSION_COOKIE_NAME, '', { expires: new Date(0) });
+    redirect('/admin/login');
 }
