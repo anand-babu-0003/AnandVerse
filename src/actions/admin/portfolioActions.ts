@@ -261,4 +261,6 @@ export async function deletePortfolioItemAction(itemId: string): Promise<DeleteP
         
     } catch (error) {
         console.error("Error deleting portfolio item from Firestore:", error);
-        return { success: false, message: "Failed to delete project due to a server error."
+        return { success: false, message: "Failed to delete project due to a server error." };
+    }
+}

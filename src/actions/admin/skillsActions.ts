@@ -140,3 +140,4 @@ export async function deleteSkillAction(itemId: string): Promise<DeleteSkillResu
         console.error("Error deleting skill from Firestore:", error);
         return { success: false, message: "Failed to delete skill." };
     }
+}
