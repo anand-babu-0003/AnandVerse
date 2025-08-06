@@ -5,16 +5,15 @@ const SESSION_COOKIE_NAME = 'admin_session';
 
 export function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME);
-
   const { pathname } = request.nextUrl;
 
-  // If trying to access a protected admin page without a session, redirect to login
-  if (!sessionCookie && pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
+  // If trying to access any admin page (except login) without a session, redirect to login
+  if (!sessionCookie && pathname.startsWith('/admin') && pathname !== '/admin/login') {
     return NextResponse.redirect(new URL('/admin/login', request.url));
   }
 
   // If logged in and trying to access the login page, redirect to the dashboard
-  if (sessionCookie && pathname.startsWith('/admin/login')) {
+  if (sessionCookie && pathname === '/admin/login') {
     return NextResponse.redirect(new URL('/admin/dashboard', request.url));
   }
 
