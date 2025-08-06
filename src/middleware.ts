@@ -1,5 +1,13 @@
 
 // This file is intentionally left blank.
-// The middleware was used for the basic .env authentication system, which has been removed.
-// We are now using Firebase's built-in authentication, and route protection
-// will be handled within the client components in the admin layout.
+// A middleware file must exist and export a default function to satisfy Next.js,
+// but no middleware logic is currently required for this application.
+import type { NextRequest } from 'next/server';
+
+export default function middleware(request: NextRequest) {
+  // No-op
+}
+
+export const config = {
+  matcher: '/admin/:path*',
+};
