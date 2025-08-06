@@ -1,23 +1,22 @@
 
 "use server";
 
-import { getAdminFirestore } from '@/lib/firebaseAdminConfig';
-import { Timestamp } from 'firebase-admin/firestore';
+import { firestore } from '@/lib/firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 import type { AboutMeData } from '@/lib/types';
 import { defaultAboutMeDataForClient } from '@/lib/data';
 
-const aboutMeDocRef = () => {
-  return getAdminFirestore().collection('app_config').doc('aboutMeDoc');
-}
-
 export async function getAboutMeDataAction(): Promise<AboutMeData> {
-  const adminFirestore = getAdminFirestore();
+  if (!firestore) {
+    console.warn("Firestore not initialized in getAboutMeDataAction. Returning default data.");
+    return JSON.parse(JSON.stringify(defaultAboutMeDataForClient));
+  }
 
   try {
-    const docRef = aboutMeDocRef();
-    const docSnap = await docRef.get();
+    const docRef = doc(firestore, 'app_config', 'aboutMeDoc');
+    const docSnap = await getDoc(docRef);
     
-    if (docSnap.exists) {
+    if (docSnap.exists()) {
       const data = docSnap.data() as Partial<AboutMeData>;
       const defaultData = defaultAboutMeDataForClient;
       

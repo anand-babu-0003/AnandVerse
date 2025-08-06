@@ -2,9 +2,8 @@
 "use server";
 
 import { z } from 'zod';
-import { getAdminFirestore } from '@/lib/firebaseAdminConfig'; // Use admin SDK
-import { FieldValue } from 'firebase-admin/firestore';
-import type { ContactMessage } from '@/lib/types';
+import { firestore } from '@/lib/firebaseConfig';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -26,7 +25,12 @@ export async function submitContactForm(
   prevState: ContactFormState,
   formData: FormData
 ): Promise<ContactFormState> {
-  const adminFirestore = getAdminFirestore();
+  if (!firestore) {
+    return {
+      message: "An unexpected server error occurred. Please try again later.",
+      status: 'error',
+    };
+  }
 
   const validatedFields = contactFormSchema.safeParse({
     name: formData.get('name'),
@@ -45,15 +49,13 @@ export async function submitContactForm(
   const { name, email, message } = validatedFields.data;
 
   try {
-    const messagesCollection = adminFirestore.collection('contactMessages');
-    const newMessageData = {
+    const messagesCollection = collection(firestore, 'contactMessages');
+    await addDoc(messagesCollection, {
       name,
       email,
       message,
-      submittedAt: FieldValue.serverTimestamp(), // Use admin server timestamp
-    };
-
-    await messagesCollection.add(newMessageData);
+      submittedAt: serverTimestamp(),
+    });
 
     return {
       message: "Your message has been sent successfully! I'll get back to you soon.",
@@ -61,7 +63,7 @@ export async function submitContactForm(
     };
 
   } catch (error) {
-    console.error("Error submitting contact form or saving message to Firestore:", error);
+    console.error("Error submitting contact form to Firestore:", error);
     return {
       message: "An unexpected error occurred while sending your message. Please try again later.",
       status: 'error',

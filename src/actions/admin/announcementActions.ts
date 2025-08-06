@@ -2,9 +2,13 @@
 "use server";
 
 import { z } from 'zod';
-import { getAdminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
-import { FieldValue } from 'firebase-admin/firestore';
+import { firestore } from '@/lib/firebaseConfig';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache'; 
+
+// Note: With this setup, Firestore rules must allow write access 
+// for authenticated users on the 'announcements' collection.
+// Authentication state is managed on the client in the admin layout.
 
 const announcementSchema = z.object({
   message: z.string().min(5, { message: "Announcement message must be at least 5 characters long." }).max(500, { message: "Announcement cannot exceed 500 characters." }),
@@ -23,13 +27,9 @@ export async function submitAnnouncementAction(
   formData: FormData
 ): Promise<AnnouncementFormState> {
 
-    try {
-        await getAuthenticatedUser();
-    } catch (authError) {
-        return { message: (authError as Error).message, status: 'error' };
-    }
-  
-  const adminFirestore = getAdminFirestore();
+  if (!firestore) {
+    return { message: "Firestore not initialized.", status: 'error' };
+  }
 
   const validatedFields = announcementSchema.safeParse({
     message: formData.get('message'),
@@ -46,15 +46,14 @@ export async function submitAnnouncementAction(
   const { message } = validatedFields.data;
 
   try {
-    const announcementsCollection = adminFirestore.collection('announcements');
-    await announcementsCollection.add({
+    const announcementsCollection = collection(firestore, 'announcements');
+    await addDoc(announcementsCollection, {
       message,
-      createdAt: FieldValue.serverTimestamp(),
+      createdAt: serverTimestamp(),
       isActive: true, // Default to active
     });
 
-    // Revalidate relevant paths if needed, though onSnapshot handles client updates
-    // revalidatePath('/'); 
+    revalidatePath('/admin/announcements'); 
 
     return {
       message: "Announcement published successfully!",
@@ -64,7 +63,7 @@ export async function submitAnnouncementAction(
   } catch (error) {
     console.error("Error publishing announcement to Firestore:", error);
     return {
-      message: "An unexpected error occurred while publishing the announcement. Please try again later.",
+      message: "An unexpected error occurred while publishing the announcement. This could be due to Firestore rules. Please try again later.",
       status: 'error',
     };
   }

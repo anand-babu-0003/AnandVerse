@@ -1,52 +1,61 @@
 
 "use server";
 
-import { getAdminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
+import { firestore } from '@/lib/firebaseConfig';
+import { 
+  collection, 
+  doc, 
+  getDocs, 
+  setDoc, 
+  addDoc, 
+  deleteDoc, 
+  updateDoc, 
+  query, 
+  orderBy, 
+  getDoc,
+  serverTimestamp
+} from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 import type { Certification as LibCertificationType } from '@/lib/types';
 import { certificationAdminSchema, type CertificationAdminFormData } from '@/lib/adminSchemas';
 import { defaultCertificationsDataForClient } from '@/lib/data';
-import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 
-const certificationsCollectionRef = () => {
-    return getAdminFirestore().collection('certifications');
-};
-
-const certificationDocRef = (id: string) => {
-    return getAdminFirestore().collection('certifications').doc(id);
-};
+// Note: With this setup, Firestore rules must allow read/write access 
+// for authenticated users on the 'certifications' collection.
+// Authentication state is managed on the client in the admin layout.
 
 export async function getCertificationsAction(): Promise<LibCertificationType[]> {
-    const adminFirestore = getAdminFirestore();
-    try {
-        const collectionRef = certificationsCollectionRef();
-        const snapshot = await collectionRef.orderBy('date', 'desc').get();
+  if (!firestore) return JSON.parse(JSON.stringify(defaultCertificationsDataForClient || []));
 
-        if (snapshot.empty) {
-            return [];
-        }
+  try {
+    const q = query(collection(firestore, 'certifications'), orderBy('date', 'desc'));
+    const snapshot = await getDocs(q);
 
-        return snapshot.docs.map(docSnap => {
-            const data = docSnap.data();
-            const createdAt = data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : new Date(0).toISOString();
-            const updatedAt = data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : createdAt;
-
-            return {
-                id: docSnap.id,
-                name: data.name || 'Untitled Certification',
-                issuingBody: data.issuingBody || 'Unknown Body',
-                date: data.date || 'N/A',
-                imageUrl: data.imageUrl || '',
-                credentialId: data.credentialId || '',
-                credentialUrl: data.credentialUrl || '',
-                createdAt: createdAt,
-                updatedAt: updatedAt
-            } as LibCertificationType;
-        });
-    } catch (error) {
-        console.error("Error fetching certifications from Firestore:", error);
-        return JSON.parse(JSON.stringify(defaultCertificationsDataForClient || []));
+    if (snapshot.empty) {
+      return [];
     }
+
+    return snapshot.docs.map(docSnap => {
+      const data = docSnap.data();
+      const createdAt = data.createdAt?.toDate().toISOString() || new Date(0).toISOString();
+      const updatedAt = data.updatedAt?.toDate().toISOString() || createdAt;
+
+      return {
+        id: docSnap.id,
+        name: data.name || 'Untitled Certification',
+        issuingBody: data.issuingBody || 'Unknown Body',
+        date: data.date || 'N/A',
+        imageUrl: data.imageUrl || '',
+        credentialId: data.credentialId || '',
+        credentialUrl: data.credentialUrl || '',
+        createdAt,
+        updatedAt
+      } as LibCertificationType;
+    });
+  } catch (error) {
+    console.error("Error fetching certifications from Firestore:", error);
+    return JSON.parse(JSON.stringify(defaultCertificationsDataForClient || []));
+  }
 }
 
 export type CertificationFormState = {
@@ -61,14 +70,10 @@ export async function saveCertificationAction(
     prevState: CertificationFormState,
     formData: FormData
 ): Promise<CertificationFormState> {
-    try {
-        await getAuthenticatedUser();
-    } catch (authError) {
-        return { message: (authError as Error).message, status: 'error' };
+    if (!firestore) {
+      return { message: "Firestore not initialized.", status: 'error' };
     }
     
-    const adminFirestore = getAdminFirestore();
-
     const idFromForm = formData.get('id');
     const rawData: CertificationAdminFormData = {
         id: (idFromForm && typeof idFromForm === 'string' && idFromForm.trim() !== '') ? idFromForm.trim() : undefined,
@@ -93,66 +98,53 @@ export async function saveCertificationAction(
 
     const data = validatedFields.data;
     const certId = data.id;
+    let finalCertId: string;
 
     try {
-        let finalCertId: string;
-        
+        const dataToSave = {
+            name: data.name,
+            issuingBody: data.issuingBody,
+            date: data.date,
+            imageUrl: data.imageUrl || '',
+            credentialId: data.credentialId || '',
+            credentialUrl: data.credentialUrl || '',
+            updatedAt: serverTimestamp(),
+        };
+
         if (certId) {
             finalCertId = certId;
-            const certRef = certificationDocRef(finalCertId);
-            const docSnap = await certRef.get();
-            if (!docSnap.exists) {
-                throw new Error("Attempted to update a certification that does not exist.");
-            }
-            const certDataToUpdate = {
-                name: data.name,
-                issuingBody: data.issuingBody,
-                date: data.date,
-                imageUrl: data.imageUrl || '',
-                credentialId: data.credentialId || '',
-                credentialUrl: data.credentialUrl || '',
-                updatedAt: FieldValue.serverTimestamp(),
-            };
-            await certRef.update(certDataToUpdate);
+            const certRef = doc(firestore, 'certifications', finalCertId);
+            await updateDoc(certRef, dataToSave);
         } else {
-            const collectionRef = certificationsCollectionRef();
-            const certDataToCreate = {
-                name: data.name,
-                issuingBody: data.issuingBody,
-                date: data.date,
-                imageUrl: data.imageUrl || '',
-                credentialId: data.credentialId || '',
-                credentialUrl: data.credentialUrl || '',
-                createdAt: FieldValue.serverTimestamp(),
-                updatedAt: FieldValue.serverTimestamp(),
-            };
-            const newDocRef = await collectionRef.add(certDataToCreate);
+            const collectionRef = collection(firestore, 'certifications');
+            const newDocRef = await addDoc(collectionRef, {
+                ...dataToSave,
+                createdAt: serverTimestamp(),
+            });
             finalCertId = newDocRef.id;
         }
 
         revalidatePath('/certifications');
         revalidatePath('/admin/certifications');
 
-        const savedDocRef = certificationDocRef(finalCertId);
-        const savedDoc = await savedDocRef.get();
-        if (!savedDoc.exists) {
-             throw new Error("Failed to retrieve saved certification from Firestore after save operation.");
+        const savedDocRef = doc(firestore, 'certifications', finalCertId);
+        const savedDoc = await getDoc(savedDocRef);
+        const savedData = savedDoc.data();
+
+        if (!savedData) {
+          throw new Error("Failed to retrieve saved certification.");
         }
-        
-        const finalData = savedDoc.data()!;
-        const createdAt = finalData.createdAt instanceof Timestamp ? finalData.createdAt.toDate().toISOString() : new Date().toISOString();
-        const updatedAt = finalData.updatedAt instanceof Timestamp ? finalData.updatedAt.toDate().toISOString() : new Date().toISOString();
-        
+
         const finalSavedCertification: LibCertificationType = {
             id: finalCertId,
-            name: finalData.name,
-            issuingBody: finalData.issuingBody,
-            date: finalData.date,
-            imageUrl: finalData.imageUrl,
-            credentialId: finalData.credentialId,
-            credentialUrl: finalData.credentialUrl,
-            createdAt: createdAt,
-            updatedAt: updatedAt,
+            name: savedData.name,
+            issuingBody: savedData.issuingBody,
+            date: savedData.date,
+            imageUrl: savedData.imageUrl,
+            credentialId: savedData.credentialId,
+            credentialUrl: savedData.credentialUrl,
+            createdAt: savedData.createdAt?.toDate().toISOString(),
+            updatedAt: savedData.updatedAt?.toDate().toISOString(),
         };
 
         return {
@@ -164,7 +156,7 @@ export async function saveCertificationAction(
     } catch (error) {
         console.error("Error saving certification to Firestore:", error);
         return {
-            message: "An unexpected server error occurred while saving the certification.",
+            message: "An unexpected server error occurred while saving. This could be due to Firestore rules.",
             status: 'error',
             errors: {},
             formDataOnError: rawData,
@@ -178,22 +170,17 @@ export type DeleteCertificationResult = {
 };
 
 export async function deleteCertificationAction(itemId: string): Promise<DeleteCertificationResult> {
+    if (!firestore) return { success: false, message: "Firestore not initialized." };
+    if (!itemId) return { success: false, message: "No certification ID provided for deletion." };
+    
     try {
-        await getAuthenticatedUser();
-    } catch (authError) {
-        return { success: false, message: (authError as Error).message };
-    }
-    if (!itemId) {
-        return { success: false, message: "No certification ID provided for deletion." };
-    }
-    try {
-        const certRef = certificationDocRef(itemId);
-        await certRef.delete();
+        const certRef = doc(firestore, 'certifications', itemId);
+        await deleteDoc(certRef);
         revalidatePath('/certifications');
         revalidatePath('/admin/certifications');
         return { success: true, message: `Certification (ID: ${itemId}) deleted successfully!` };
     } catch (error) {
         console.error("Error deleting certification from Firestore:", error);
-        return { success: false, message: "Failed to delete certification due to a server error." };
+        return { success: false, message: "Failed to delete certification due to a server error or permissions issue." };
     }
 }
