@@ -1,13 +1,23 @@
 
-// This file is intentionally left blank.
-// A middleware file must exist and export a default function to satisfy Next.js,
-// but no middleware logic is currently required for this application.
-import type { NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
+import { cookies } from 'next/headers';
 
-export default function middleware(request: NextRequest) {
-  // No-op
+const SESSION_COOKIE_NAME = 'admin_session';
+
+export function middleware(request: NextRequest) {
+  const cookie = cookies().get(SESSION_COOKIE_NAME);
+
+  if (!cookie && request.nextUrl.pathname.startsWith('/admin') && request.nextUrl.pathname !== '/admin/login') {
+    return NextResponse.redirect(new URL('/admin/login', request.url));
+  }
+
+  if (cookie && request.nextUrl.pathname === '/admin/login') {
+    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+  }
+  
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: '/admin/:path*',
+  matcher: ['/admin/:path*'],
 };
