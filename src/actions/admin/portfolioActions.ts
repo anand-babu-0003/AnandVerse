@@ -2,19 +2,18 @@
 "use server";
 
 import { firestore } from '@/lib/firebaseConfig';
+import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { 
   collection, 
-  query, 
-  orderBy, 
-  getDocs, 
-  where,
   doc,
   addDoc,
   updateDoc,
   deleteDoc,
   getDoc,
-  serverTimestamp
+  serverTimestamp,
+  Timestamp as ClientTimestamp,
 } from 'firebase/firestore';
+import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 import type { PortfolioItem as LibPortfolioItemType } from '@/lib/types';
 import { portfolioItemAdminSchema, type PortfolioAdminFormData } from '@/lib/adminSchemas';
@@ -33,12 +32,11 @@ const defaultPortfolioItemStructure: Omit<LibPortfolioItemType, 'id' | 'createdA
   repoUrl: '',
 };
 
+// Use Admin SDK for server-side data fetching
 export async function getPortfolioItemsAction(): Promise<LibPortfolioItemType[]> {
-  if (!firestore) return JSON.parse(JSON.stringify(defaultPortfolioItemsDataForClient));
-
   try {
-    const q = query(collection(firestore, 'portfolioItems'), orderBy('createdAt', 'desc'));
-    const snapshot = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const snapshot = await adminDb.collection('portfolioItems').orderBy('createdAt', 'desc').get();
 
     if (snapshot.empty) {
       return [];
@@ -46,8 +44,8 @@ export async function getPortfolioItemsAction(): Promise<LibPortfolioItemType[]>
 
     return snapshot.docs.map(docSnap => {
       const data = docSnap.data();
-      const createdAt = data.createdAt?.toDate().toISOString() || new Date(0).toISOString();
-      const updatedAt = data.updatedAt?.toDate().toISOString() || createdAt;
+      const createdAt = (data.createdAt as AdminTimestamp)?.toDate().toISOString() || new Date(0).toISOString();
+      const updatedAt = (data.updatedAt as AdminTimestamp)?.toDate().toISOString() || createdAt;
       
       return {
         id: docSnap.id,
@@ -66,19 +64,21 @@ export async function getPortfolioItemsAction(): Promise<LibPortfolioItemType[]>
       } as LibPortfolioItemType;
     });
   } catch (error) {
-    console.error("Error fetching portfolio items from Firestore:", error);
+    console.error("Error fetching portfolio items from Admin Firestore:", error);
     return JSON.parse(JSON.stringify(defaultPortfolioItemsDataForClient));
   }
 }
 
+// Use Admin SDK for server-side data fetching
 export async function getPortfolioItemBySlugAction(slug: string): Promise<LibPortfolioItemType | null> {
-  if (!firestore || !slug || typeof slug !== 'string' || slug.trim() === '') {
+  if (!slug || typeof slug !== 'string' || slug.trim() === '') {
     return null;
   }
   
   try {
-    const q = query(collection(firestore, 'portfolioItems'), where("slug", "==", slug));
-    const snapshot = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const q = adminDb.collection('portfolioItems').where("slug", "==", slug);
+    const snapshot = await q.get();
 
     if (snapshot.empty) {
       console.warn(`No portfolio item found with slug: ${slug}`);
@@ -87,8 +87,8 @@ export async function getPortfolioItemBySlugAction(slug: string): Promise<LibPor
     
     const docSnap = snapshot.docs[0]; 
     const data = docSnap.data();
-    const createdAt = data.createdAt?.toDate().toISOString() || new Date(0).toISOString();
-    const updatedAt = data.updatedAt?.toDate().toISOString() || createdAt;
+    const createdAt = (data.createdAt as AdminTimestamp)?.toDate().toISOString() || new Date(0).toISOString();
+    const updatedAt = (data.updatedAt as AdminTimestamp)?.toDate().toISOString() || createdAt;
 
     return {
       id: docSnap.id,
@@ -106,7 +106,7 @@ export async function getPortfolioItemBySlugAction(slug: string): Promise<LibPor
       updatedAt: updatedAt,
     } as LibPortfolioItemType;
   } catch (error) {
-    console.error(`Error fetching portfolio item by slug ${slug}:`, error);
+    console.error(`Error fetching portfolio item by slug ${slug} from Admin Firestore:`, error);
     return null;
   }
 }
@@ -119,11 +119,12 @@ export type PortfolioFormState = {
   savedProject?: LibPortfolioItemType;
 };
 
+// Use Client SDK for write operations from the browser (as an authenticated user)
 export async function savePortfolioItemAction(
   prevState: PortfolioFormState,
   formData: FormData
 ): Promise<PortfolioFormState> {
-  if (!firestore) return { message: "Firestore not initialized.", status: 'error' };
+  if (!firestore) return { message: "Client Firestore not initialized.", status: 'error' };
 
   const rawData: PortfolioAdminFormData = {
     id: formData.get('id') as string || undefined,
@@ -167,8 +168,8 @@ export async function savePortfolioItemAction(
 
   try {
     const collRef = collection(firestore, 'portfolioItems');
-    const slugCheckQuery = query(collRef, where("slug", "==", data.slug));
-    const slugSnapshot = await getDocs(slugCheckQuery);
+    const slugCheckQuery = (await import('firebase/firestore')).query(collRef, (await import('firebase/firestore')).where("slug", "==", data.slug));
+    const slugSnapshot = await (await import('firebase/firestore')).getDocs(slugCheckQuery);
     let slugIsTaken = false;
     if (!slugSnapshot.empty) {
       if (projectId) {
@@ -214,8 +215,8 @@ export async function savePortfolioItemAction(
     if (!savedDoc.exists()) throw new Error("Failed to retrieve saved project from Firestore.");
 
     const savedData = savedDoc.data()!;
-    const createdAt = savedData.createdAt?.toDate().toISOString();
-    const updatedAt = savedData.updatedAt?.toDate().toISOString();
+    const createdAt = (savedData.createdAt as ClientTimestamp)?.toDate().toISOString();
+    const updatedAt = (savedData.updatedAt as ClientTimestamp)?.toDate().toISOString();
 
     const finalSavedProject: LibPortfolioItemType = { ...savedData, id: projectId!, createdAt, updatedAt } as LibPortfolioItemType;
 
@@ -248,7 +249,7 @@ export type DeletePortfolioItemResult = {
 };
 
 export async function deletePortfolioItemAction(itemId: string): Promise<DeletePortfolioItemResult> {
-    if (!firestore) return { success: false, message: "Firestore not initialized." };
+    if (!firestore) return { success: false, message: "Client Firestore not initialized." };
     if (!itemId) return { success: false, message: "No item ID provided." };
 
     try {

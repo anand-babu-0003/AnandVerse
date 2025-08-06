@@ -2,11 +2,9 @@
 "use server";
 
 import { firestore } from '@/lib/firebaseConfig';
+import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { 
   collection, 
-  query, 
-  orderBy, 
-  getDocs, 
   doc, 
   setDoc, 
   deleteDoc 
@@ -16,16 +14,11 @@ import type { Skill as LibSkillType } from '@/lib/types';
 import { skillAdminSchema, type SkillAdminFormData } from '@/lib/adminSchemas';
 import { defaultSkillsDataForClient, lucideIconsMap } from '@/lib/data';
 
-// Note: With this setup, Firestore rules must allow read/write access 
-// for authenticated users on the 'skills' collection.
-// Authentication state is managed on the client in the admin layout.
-
+// Use Admin SDK for server-side data fetching
 export async function getSkillsAction(): Promise<LibSkillType[]> {
-  if (!firestore) return JSON.parse(JSON.stringify(defaultSkillsDataForClient));
-
   try {
-    const q = query(collection(firestore, 'skills'), orderBy('category', 'asc'), orderBy('name', 'asc'));
-    const snapshot = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const snapshot = await adminDb.collection('skills').orderBy('category', 'asc').orderBy('name', 'asc').get();
 
     if (snapshot.empty) {
       return [];
@@ -41,7 +34,7 @@ export async function getSkillsAction(): Promise<LibSkillType[]> {
       } as LibSkillType;
     });
   } catch (error) {
-    console.error("Error fetching skills from Firestore:", error);
+    console.error("Error fetching skills from Admin Firestore:", error);
     return JSON.parse(JSON.stringify(defaultSkillsDataForClient)); 
   }
 }
@@ -54,11 +47,12 @@ export type SkillFormState = {
   savedSkill?: LibSkillType;
 };
 
+// Use Client SDK for write operations from the browser (as an authenticated user)
 export async function saveSkillAction(
   prevState: SkillFormState,
   formData: FormData
 ): Promise<SkillFormState> {
-  if (!firestore) return { message: "Firestore not initialized.", status: 'error' };
+  if (!firestore) return { message: "Client Firestore not initialized.", status: 'error' };
   
   const idFromForm = formData.get('id');
   const rawData: SkillAdminFormData = {
@@ -131,7 +125,7 @@ export type DeleteSkillResult = {
 };
 
 export async function deleteSkillAction(itemId: string): Promise<DeleteSkillResult> {
-    if (!firestore) return { success: false, message: "Firestore not initialized." };
+    if (!firestore) return { success: false, message: "Client Firestore not initialized." };
     if (!itemId) return { success: false, message: "No skill ID provided for deletion." };
     
     try {

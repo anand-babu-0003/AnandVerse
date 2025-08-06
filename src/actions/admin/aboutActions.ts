@@ -2,8 +2,9 @@
 "use server";
 
 import { firestore } from '@/lib/firebaseConfig';
+import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import type { AboutMeData, Experience as LibExperienceType, Education as LibEducationType } from '@/lib/types';
+import type { AboutMeData } from '@/lib/types';
 import { 
   aboutMeSchema, 
   profileBioSchema, type ProfileBioData,
@@ -16,19 +17,14 @@ import type { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { defaultAboutMeDataForClient } from '@/lib/data'; 
 
-const aboutMeDocRef = () => {
-  if (!firestore) throw new Error("Firestore not initialized");
-  return doc(firestore, 'app_config', 'aboutMeDoc');
-}
-
+// Use Admin SDK for server-side data fetching
 async function readAboutMeDataFromFirestore(): Promise<AboutMeData> {
-  if (!firestore) {
-    console.warn("Firestore not initialized in readAboutMeDataFromFirestore. Returning default data.");
-    return JSON.parse(JSON.stringify(defaultAboutMeDataForClient)); // Deep clone
-  }
   try {
-    const docSnap = await getDoc(aboutMeDocRef());
-    if (docSnap.exists()) {
+    const adminDb = getAdminFirestore();
+    const docRef = adminDb.collection('app_config').doc('aboutMeDoc');
+    const docSnap = await docRef.get();
+    
+    if (docSnap.exists) {
       const data = docSnap.data() as Partial<AboutMeData>;
       const defaultData = defaultAboutMeDataForClient;
       return {
@@ -55,14 +51,15 @@ async function readAboutMeDataFromFirestore(): Promise<AboutMeData> {
     console.warn("AboutMe document not found in Firestore. Returning default data.");
     return JSON.parse(JSON.stringify(defaultAboutMeDataForClient)); // Deep clone
   } catch (error) {
-    console.error("Error reading AboutMeData from Firestore:", error);
+    console.error("Error reading AboutMeData from Admin Firestore:", error);
     return JSON.parse(JSON.stringify(defaultAboutMeDataForClient)); // Deep clone
   }
 }
 
+// Use Client SDK for write operations from the browser (as an authenticated user)
 async function writeAboutMeDataToFirestore(data: AboutMeData): Promise<void> {
-  if (!firestore) throw new Error("Firestore not initialized. Cannot write AboutMeData.");
-  // Ensure experience, education and certifications items have IDs before writing
+  if (!firestore) throw new Error("Client Firestore not initialized. Cannot write AboutMeData.");
+  const aboutMeDocRef = doc(firestore, 'app_config', 'aboutMeDoc');
   const dataToSave: AboutMeData = {
     ...data,
     experience: data.experience.map(exp => ({
@@ -73,11 +70,10 @@ async function writeAboutMeDataToFirestore(data: AboutMeData): Promise<void> {
       ...edu,
       id: edu.id || `edu_fs_write_${Date.now()}_${Math.random().toString(36).substring(2,7)}`
     })),
-    certifications: [], // Certifications are now managed separately
+    certifications: [],
   };
-  await setDoc(aboutMeDocRef(), dataToSave, { merge: true });
+  await setDoc(aboutMeDocRef, dataToSave, { merge: true });
 }
-
 
 export type UpdateAboutDataFormState = {
   message: string;

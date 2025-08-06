@@ -2,6 +2,7 @@
 "use server";
 
 import { firestore } from '@/lib/firebaseConfig';
+import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { 
   collection, 
   doc, 
@@ -13,23 +14,21 @@ import {
   query, 
   orderBy, 
   getDoc,
-  serverTimestamp
+  serverTimestamp,
+  Timestamp as ClientTimestamp,
 } from 'firebase/firestore';
+import { Timestamp as AdminTimestamp } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 import type { Certification as LibCertificationType } from '@/lib/types';
 import { certificationAdminSchema, type CertificationAdminFormData } from '@/lib/adminSchemas';
 import { defaultCertificationsDataForClient } from '@/lib/data';
 
-// Note: With this setup, Firestore rules must allow read/write access 
-// for authenticated users on the 'certifications' collection.
-// Authentication state is managed on the client in the admin layout.
-
+// Use Admin SDK for server-side data fetching
 export async function getCertificationsAction(): Promise<LibCertificationType[]> {
-  if (!firestore) return JSON.parse(JSON.stringify(defaultCertificationsDataForClient || []));
-
   try {
-    const q = query(collection(firestore, 'certifications'), orderBy('date', 'desc'));
-    const snapshot = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const q = adminDb.collection('certifications').orderBy('date', 'desc');
+    const snapshot = await q.get();
 
     if (snapshot.empty) {
       return [];
@@ -37,8 +36,8 @@ export async function getCertificationsAction(): Promise<LibCertificationType[]>
 
     return snapshot.docs.map(docSnap => {
       const data = docSnap.data();
-      const createdAt = data.createdAt?.toDate().toISOString() || new Date(0).toISOString();
-      const updatedAt = data.updatedAt?.toDate().toISOString() || createdAt;
+      const createdAt = (data.createdAt as AdminTimestamp)?.toDate().toISOString() || new Date(0).toISOString();
+      const updatedAt = (data.updatedAt as AdminTimestamp)?.toDate().toISOString() || createdAt;
 
       return {
         id: docSnap.id,
@@ -53,7 +52,7 @@ export async function getCertificationsAction(): Promise<LibCertificationType[]>
       } as LibCertificationType;
     });
   } catch (error) {
-    console.error("Error fetching certifications from Firestore:", error);
+    console.error("Error fetching certifications from Admin Firestore:", error);
     return JSON.parse(JSON.stringify(defaultCertificationsDataForClient || []));
   }
 }
@@ -66,12 +65,13 @@ export type CertificationFormState = {
     savedCertification?: LibCertificationType;
 };
 
+// Use Client SDK for write operations from the browser (as an authenticated user)
 export async function saveCertificationAction(
     prevState: CertificationFormState,
     formData: FormData
 ): Promise<CertificationFormState> {
     if (!firestore) {
-      return { message: "Firestore not initialized.", status: 'error' };
+      return { message: "Client Firestore not initialized.", status: 'error' };
     }
     
     const idFromForm = formData.get('id');
@@ -143,8 +143,8 @@ export async function saveCertificationAction(
             imageUrl: savedData.imageUrl,
             credentialId: savedData.credentialId,
             credentialUrl: savedData.credentialUrl,
-            createdAt: savedData.createdAt?.toDate().toISOString(),
-            updatedAt: savedData.updatedAt?.toDate().toISOString(),
+            createdAt: (savedData.createdAt as ClientTimestamp)?.toDate().toISOString(),
+            updatedAt: (savedData.updatedAt as ClientTimestamp)?.toDate().toISOString(),
         };
 
         return {
@@ -170,7 +170,7 @@ export type DeleteCertificationResult = {
 };
 
 export async function deleteCertificationAction(itemId: string): Promise<DeleteCertificationResult> {
-    if (!firestore) return { success: false, message: "Firestore not initialized." };
+    if (!firestore) return { success: false, message: "Client Firestore not initialized." };
     if (!itemId) return { success: false, message: "No certification ID provided for deletion." };
     
     try {

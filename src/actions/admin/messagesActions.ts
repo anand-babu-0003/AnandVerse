@@ -1,28 +1,25 @@
 
 "use server";
 
+import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { firestore } from '@/lib/firebaseConfig';
-import { collection, query, orderBy, getDocs, doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 import type { ContactMessage } from '@/lib/types';
+import { Timestamp } from 'firebase-admin/firestore';
 
-// Note: With this setup, Firestore rules must allow read/delete access 
-// for authenticated users on the 'contactMessages' collection.
-// Authentication state is managed on the client in the admin layout.
-
+// Use Admin SDK for server-side data fetching
 export async function getContactMessagesAction(): Promise<ContactMessage[]> {
-  if (!firestore) return [];
-
   try {
-    const q = query(collection(firestore, 'contactMessages'), orderBy('submittedAt', 'desc'));
-    const snapshot = await getDocs(q);
+    const adminDb = getAdminFirestore();
+    const snapshot = await adminDb.collection('contactMessages').orderBy('submittedAt', 'desc').get();
     
     if (snapshot.empty) {
       return [];
     }
     return snapshot.docs.map(docSnap => {
       const data = docSnap.data();
-      const submittedAt = data.submittedAt?.toDate().toISOString() 
+      const submittedAt = (data.submittedAt as Timestamp)?.toDate().toISOString() 
                        || new Date().toISOString();
       return {
         id: docSnap.id,
@@ -33,7 +30,7 @@ export async function getContactMessagesAction(): Promise<ContactMessage[]> {
       } as ContactMessage;
     });
   } catch (error) {
-    console.error("Error fetching contact messages from Firestore:", error);
+    console.error("Error fetching contact messages from Admin Firestore:", error);
     return []; 
   }
 }
@@ -43,8 +40,9 @@ export type DeleteMessageResult = {
     message: string;
 };
 
+// Use Client SDK for write operations from the browser (as an authenticated user)
 export async function deleteContactMessageAction(messageId: string): Promise<DeleteMessageResult> {
-    if (!firestore) return { success: false, message: "Firestore not initialized." };
+    if (!firestore) return { success: false, message: "Client Firestore not initialized." };
     if (!messageId) return { success: false, message: "No message ID provided." };
     
     try {

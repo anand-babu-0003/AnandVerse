@@ -3,49 +3,39 @@
 
 import type { z } from 'zod';
 import { firestore } from '@/lib/firebaseConfig';
+import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import type { SiteSettings } from '@/lib/types';
 import { siteSettingsAdminSchema, type SiteSettingsAdminFormData } from '@/lib/adminSchemas';
 import { revalidatePath } from 'next/cache';
 import { defaultSiteSettingsForClient } from '@/lib/data';
 
-
-const criticalErrorLog = "CRITICAL_ERROR: Firestore is not initialized in settingsActions.ts. Admin operations will fail.";
-if (!firestore) {
-  console.error(criticalErrorLog);
-}
-
-const siteSettingsDocRef = () => {
-  if (!firestore) throw new Error("Firestore not initialized for siteSettingsDocRef().");
-  return doc(firestore, 'app_config', 'siteSettingsDoc');
-}
-
+// Use Admin SDK for server-side data fetching
 export async function getSiteSettingsAction(): Promise<SiteSettings> {
-  if (!firestore) {
-    console.warn("Firestore not initialized in getSiteSettingsAction. Returning default settings.");
-    return JSON.parse(JSON.stringify(defaultSiteSettingsForClient));
-  }
   try {
-    const docSnap = await getDoc(siteSettingsDocRef());
+    const adminDb = getAdminFirestore();
+    const docRef = adminDb.collection('app_config').doc('siteSettingsDoc');
+    const docSnap = await docRef.get();
+
     if (docSnap.exists()) {
       const data = docSnap.data();
       return {
-        siteName: data.siteName || defaultSiteSettingsForClient.siteName,
-        defaultMetaDescription: data.defaultMetaDescription || defaultSiteSettingsForClient.defaultMetaDescription,
-        defaultMetaKeywords: data.defaultMetaKeywords || defaultSiteSettingsForClient.defaultMetaKeywords,
-        siteOgImageUrl: data.siteOgImageUrl || defaultSiteSettingsForClient.siteOgImageUrl,
-        maintenanceMode: typeof data.maintenanceMode === 'boolean' ? data.maintenanceMode : defaultSiteSettingsForClient.maintenanceMode,
-        skillsPageMetaTitle: data.skillsPageMetaTitle || defaultSiteSettingsForClient.skillsPageMetaTitle, 
-        skillsPageMetaDescription: data.skillsPageMetaDescription || defaultSiteSettingsForClient.skillsPageMetaDescription,
-        faviconUrl: data.faviconUrl || defaultSiteSettingsForClient.faviconUrl,
-        appleTouchIconUrl: data.appleTouchIconUrl || defaultSiteSettingsForClient.appleTouchIconUrl,
+        siteName: data?.siteName || defaultSiteSettingsForClient.siteName,
+        defaultMetaDescription: data?.defaultMetaDescription || defaultSiteSettingsForClient.defaultMetaDescription,
+        defaultMetaKeywords: data?.defaultMetaKeywords || defaultSiteSettingsForClient.defaultMetaKeywords,
+        siteOgImageUrl: data?.siteOgImageUrl || defaultSiteSettingsForClient.siteOgImageUrl,
+        maintenanceMode: typeof data?.maintenanceMode === 'boolean' ? data.maintenanceMode : defaultSiteSettingsForClient.maintenanceMode,
+        skillsPageMetaTitle: data?.skillsPageMetaTitle || defaultSiteSettingsForClient.skillsPageMetaTitle, 
+        skillsPageMetaDescription: data?.skillsPageMetaDescription || defaultSiteSettingsForClient.skillsPageMetaDescription,
+        faviconUrl: data?.faviconUrl || defaultSiteSettingsForClient.faviconUrl,
+        appleTouchIconUrl: data?.appleTouchIconUrl || defaultSiteSettingsForClient.appleTouchIconUrl,
       };
     } else {
       console.warn("Site settings document not found in Firestore. Returning default settings.");
       return JSON.parse(JSON.stringify(defaultSiteSettingsForClient));
     }
   } catch (error) {
-    console.error("Error fetching site settings from Firestore:", error);
+    console.error("Error fetching site settings from Admin Firestore:", error);
     return JSON.parse(JSON.stringify(defaultSiteSettingsForClient));
   }
 }
@@ -57,13 +47,14 @@ export type UpdateSiteSettingsFormState = {
   data?: SiteSettingsAdminFormData;
 };
 
+// Use Client SDK for write operations from the browser (as an authenticated user)
 export async function updateSiteSettingsAction(
   prevState: UpdateSiteSettingsFormState,
   formData: FormData
 ): Promise<UpdateSiteSettingsFormState> {
   if (!firestore) {
     return {
-      message: criticalErrorLog,
+      message: "Client Firestore not initialized.",
       status: 'error',
       errors: {},
       data: Object.fromEntries(formData.entries()) as unknown as SiteSettingsAdminFormData,
@@ -116,8 +107,9 @@ export async function updateSiteSettingsAction(
       faviconUrl: validatedFields.data.faviconUrl || defaultSiteSettingsForClient.faviconUrl,
       appleTouchIconUrl: validatedFields.data.appleTouchIconUrl || defaultSiteSettingsForClient.appleTouchIconUrl,
     };
-
-    await setDoc(siteSettingsDocRef(), dataToSave, { merge: true });
+    
+    const siteSettingsDocRef = doc(firestore, 'app_config', 'siteSettingsDoc');
+    await setDoc(siteSettingsDocRef, dataToSave, { merge: true });
 
     revalidatePath('/', 'layout'); 
     revalidatePath('/'); 
