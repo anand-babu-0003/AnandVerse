@@ -28,16 +28,6 @@ export default async function Home() {
   const firstParagraphBio = fullBio.split('\n\n')[0];
   const bioSnippet = firstParagraphBio.length > 150 ? `${firstParagraphBio.substring(0, 150)}...` : firstParagraphBio;
 
-  const groupedSkills = highlightedSkills.reduce((acc, skill) => {
-    const category = skill.category || 'Other';
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(skill);
-    return acc;
-  }, {} as Record<string, Skill[]>);
-
-
   return (
     <div className="flex flex-col">
       <section className="relative w-full min-h-screen flex flex-col justify-center items-center py-20 md:py-32 bg-gradient-to-br from-primary/15 via-background to-accent/15 bg-animated-gradient overflow-hidden">
@@ -158,32 +148,15 @@ export default async function Home() {
               </h2>
             </ScrollAnimationWrapper>
 
-            {Object.keys(groupedSkills).length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-                {skillCategories.map((category, categoryIndex) => {
-                  const skillsInCategory = groupedSkills[category];
-                  if (!skillsInCategory || skillsInCategory.length === 0) {
-                    return null;
-                  }
+            {highlightedSkills.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                {highlightedSkills.map((skill: Skill, skillIndex: number) => {
+                  const IconComponent = lucideIconsMap[skill.iconName] || Package;
                   return (
-                    <ScrollAnimationWrapper key={category} delay={categoryIndex * 100}>
-                      <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 h-full">
-                        <CardHeader>
-                          <CardTitle className="font-headline text-2xl text-primary">{category}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ul className="space-y-4">
-                            {skillsInCategory.map((skill) => {
-                              const IconComponent = lucideIconsMap[skill.iconName] || Package;
-                              return (
-                                <li key={skill.id} className="flex items-center gap-4">
-                                  <IconComponent className="h-8 w-8 text-accent flex-shrink-0" />
-                                  <span className="text-lg text-foreground/80">{skill.name}</span>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </CardContent>
+                    <ScrollAnimationWrapper key={skill.id || `skill-${skillIndex}`} delay={skillIndex * 50} threshold={0.05}>
+                      <Card className="h-full flex flex-col items-center justify-center p-6 text-center shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <IconComponent className="h-10 w-10 text-primary mb-3" aria-hidden="true" />
+                        <h3 className="text-md font-semibold font-body text-foreground/90">{skill.name}</h3>
                       </Card>
                     </ScrollAnimationWrapper>
                   );
@@ -195,7 +168,7 @@ export default async function Home() {
                </ScrollAnimationWrapper>
             )}
             
-            <ScrollAnimationWrapper className="mt-12 text-center" delay={Object.keys(groupedSkills).length * 100}>
+            <ScrollAnimationWrapper className="mt-12 text-center" delay={highlightedSkills.length * 50}>
               <Button asChild size="lg" variant="outline" className="text-lg">
                 <Link href="/about#skills">
                   <span>
