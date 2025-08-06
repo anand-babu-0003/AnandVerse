@@ -49,13 +49,6 @@ export default function AdminLoginPage() {
           <CardDescription>Please log in to continue.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <Alert variant="default" className="border-blue-500/50 bg-blue-500/10 text-blue-700 dark:text-blue-300">
-            <AlertCircle className="h-4 w-4 !text-blue-500" />
-            <AlertTitle>Authentication Info</AlertTitle>
-            <AlertDescription>
-              Login with the credentials set in your environment variables.
-            </AlertDescription>
-          </Alert>
           <form action={formAction} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
