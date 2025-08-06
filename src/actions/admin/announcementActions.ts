@@ -2,8 +2,8 @@
 "use server";
 
 import { z } from 'zod';
-import { collection, addDoc, serverTimestamp } from 'firebase-admin/firestore';
-import { getAdminFirestore } from '@/lib/firebaseAdmin';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { firestore } from '@/lib/firebaseConfig';
 import { revalidatePath } from 'next/cache'; 
 
 const announcementSchema = z.object({
@@ -22,6 +22,12 @@ export async function submitAnnouncementAction(
   prevState: AnnouncementFormState,
   formData: FormData
 ): Promise<AnnouncementFormState> {
+  if (!firestore) {
+    return {
+        message: "Firestore is not initialized. Cannot publish announcement.",
+        status: 'error',
+    };
+  }
 
   const validatedFields = announcementSchema.safeParse({
     message: formData.get('message'),
@@ -38,8 +44,7 @@ export async function submitAnnouncementAction(
   const { message } = validatedFields.data;
 
   try {
-    const adminDb = getAdminFirestore();
-    const announcementsCollection = adminDb.collection('announcements');
+    const announcementsCollection = collection(firestore, 'announcements');
     await addDoc(announcementsCollection, {
       message,
       createdAt: serverTimestamp(),

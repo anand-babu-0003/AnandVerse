@@ -1,7 +1,6 @@
 
 "use server";
 
-import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { 
   collection, 
   doc, 
@@ -10,16 +9,20 @@ import {
   getDocs,
   query,
   orderBy,
-} from 'firebase-admin/firestore';
+} from 'firebase/firestore';
+import { firestore } from '@/lib/firebaseConfig';
 import { revalidatePath } from 'next/cache';
 import type { Skill as LibSkillType } from '@/lib/types';
 import { skillAdminSchema, type SkillAdminFormData } from '@/lib/adminSchemas';
 import { defaultSkillsDataForClient, lucideIconsMap } from '@/lib/data';
 
 export async function getSkillsAction(): Promise<LibSkillType[]> {
+  if (!firestore) {
+    console.error("Firestore not initialized. Returning default data.");
+    return JSON.parse(JSON.stringify(defaultSkillsDataForClient));
+  }
   try {
-    const adminDb = getAdminFirestore();
-    const q = query(adminDb.collection('skills'), orderBy('category', 'asc'), orderBy('name', 'asc'));
+    const q = query(collection(firestore, 'skills'), orderBy('category', 'asc'), orderBy('name', 'asc'));
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
@@ -36,7 +39,7 @@ export async function getSkillsAction(): Promise<LibSkillType[]> {
       } as LibSkillType;
     });
   } catch (error) {
-    console.error("Error fetching skills from Admin Firestore:", error);
+    console.error("Error fetching skills from Firestore:", error);
     return JSON.parse(JSON.stringify(defaultSkillsDataForClient)); 
   }
 }
@@ -53,7 +56,12 @@ export async function saveSkillAction(
   prevState: SkillFormState,
   formData: FormData
 ): Promise<SkillFormState> {
-  const adminDb = getAdminFirestore();
+  if (!firestore) {
+    return {
+      message: "Firestore not initialized. Cannot save skill.",
+      status: 'error'
+    };
+  }
   
   const idFromForm = formData.get('id');
   const rawData: SkillAdminFormData = {
@@ -87,7 +95,7 @@ export async function saveSkillAction(
   };
 
   try {
-    const docRef = skillId ? adminDb.collection('skills').doc(skillId) : doc(adminDb.collection('skills'));
+    const docRef = skillId ? doc(firestore, 'skills', skillId) : doc(collection(firestore, 'skills'));
     if (!skillId) {
       skillId = docRef.id;
     }
@@ -126,11 +134,13 @@ export type DeleteSkillResult = {
 };
 
 export async function deleteSkillAction(itemId: string): Promise<DeleteSkillResult> {
+    if (!firestore) {
+        return { success: false, message: "Firestore not initialized." };
+    }
     if (!itemId) return { success: false, message: "No skill ID provided for deletion." };
     
     try {
-        const adminDb = getAdminFirestore();
-        const docRef = adminDb.collection('skills').doc(itemId);
+        const docRef = doc(firestore, 'skills', itemId);
         await deleteDoc(docRef);
         revalidatePath('/skills');
         revalidatePath('/admin/skills');

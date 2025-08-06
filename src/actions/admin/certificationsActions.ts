@@ -1,7 +1,6 @@
 
 "use server";
 
-import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { 
   collection, 
   doc, 
@@ -15,16 +14,20 @@ import {
   Timestamp,
   orderBy,
   query
-} from 'firebase-admin/firestore';
+} from 'firebase/firestore';
+import { firestore } from '@/lib/firebaseConfig';
 import { revalidatePath } from 'next/cache';
 import type { Certification as LibCertificationType } from '@/lib/types';
 import { certificationAdminSchema, type CertificationAdminFormData } from '@/lib/adminSchemas';
 import { defaultCertificationsDataForClient } from '@/lib/data';
 
 export async function getCertificationsAction(): Promise<LibCertificationType[]> {
+  if (!firestore) {
+    console.error("Firestore is not initialized. Returning default data.");
+    return JSON.parse(JSON.stringify(defaultCertificationsDataForClient || []));
+  }
   try {
-    const adminDb = getAdminFirestore();
-    const q = query(adminDb.collection('certifications'), orderBy('date', 'desc'));
+    const q = query(collection(firestore, 'certifications'), orderBy('date', 'desc'));
     const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
@@ -49,7 +52,7 @@ export async function getCertificationsAction(): Promise<LibCertificationType[]>
       } as LibCertificationType;
     });
   } catch (error) {
-    console.error("Error fetching certifications from Admin Firestore:", error);
+    console.error("Error fetching certifications from Firestore:", error);
     return JSON.parse(JSON.stringify(defaultCertificationsDataForClient || []));
   }
 }
@@ -66,7 +69,12 @@ export async function saveCertificationAction(
     prevState: CertificationFormState,
     formData: FormData
 ): Promise<CertificationFormState> {
-    const adminDb = getAdminFirestore();
+    if (!firestore) {
+        return {
+            message: "Firestore not initialized. Cannot save certification.",
+            status: 'error',
+        };
+    }
     
     const idFromForm = formData.get('id');
     const rawData: CertificationAdminFormData = {
@@ -107,10 +115,10 @@ export async function saveCertificationAction(
 
         if (certId) {
             finalCertId = certId;
-            const certRef = adminDb.collection('certifications').doc(finalCertId);
+            const certRef = doc(firestore, 'certifications', finalCertId);
             await updateDoc(certRef, dataToSave);
         } else {
-            const collectionRef = adminDb.collection('certifications');
+            const collectionRef = collection(firestore, 'certifications');
             const newDocRef = await addDoc(collectionRef, {
                 ...dataToSave,
                 createdAt: serverTimestamp(),
@@ -121,7 +129,7 @@ export async function saveCertificationAction(
         revalidatePath('/certifications');
         revalidatePath('/admin/certifications');
 
-        const savedDocRef = adminDb.collection('certifications').doc(finalCertId);
+        const savedDocRef = doc(firestore, 'certifications', finalCertId);
         const savedDoc = await getDoc(savedDocRef);
         const savedData = savedDoc.data();
 
@@ -164,11 +172,13 @@ export type DeleteCertificationResult = {
 };
 
 export async function deleteCertificationAction(itemId: string): Promise<DeleteCertificationResult> {
+    if (!firestore) {
+        return { success: false, message: "Firestore not initialized." };
+    }
     if (!itemId) return { success: false, message: "No certification ID provided for deletion." };
     
     try {
-        const adminDb = getAdminFirestore();
-        const certRef = adminDb.collection('certifications').doc(itemId);
+        const certRef = doc(firestore, 'certifications', itemId);
         await deleteDoc(certRef);
         revalidatePath('/certifications');
         revalidatePath('/admin/certifications');

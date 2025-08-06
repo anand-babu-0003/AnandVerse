@@ -2,20 +2,23 @@
 "use server";
 
 import type { z } from 'zod';
-import { getAdminFirestore } from '@/lib/firebaseAdmin';
-import { doc, getDoc, setDoc } from 'firebase-admin/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { firestore } from '@/lib/firebaseConfig';
 import type { SiteSettings } from '@/lib/types';
 import { siteSettingsAdminSchema, type SiteSettingsAdminFormData } from '@/lib/adminSchemas';
 import { revalidatePath } from 'next/cache';
 import { defaultSiteSettingsForClient } from '@/lib/data';
 
 export async function getSiteSettingsAction(): Promise<SiteSettings> {
+  if (!firestore) {
+    console.error("Firestore not initialized. Returning default settings.");
+    return JSON.parse(JSON.stringify(defaultSiteSettingsForClient));
+  }
   try {
-    const adminDb = getAdminFirestore();
-    const docRef = adminDb.collection('app_config').doc('siteSettingsDoc');
-    const docSnap = await docRef.get();
+    const docRef = doc(firestore, 'app_config', 'siteSettingsDoc');
+    const docSnap = await getDoc(docRef);
 
-    if (docSnap.exists) {
+    if (docSnap.exists()) {
       const data = docSnap.data();
       return {
         siteName: data?.siteName || defaultSiteSettingsForClient.siteName,
@@ -33,7 +36,7 @@ export async function getSiteSettingsAction(): Promise<SiteSettings> {
       return JSON.parse(JSON.stringify(defaultSiteSettingsForClient));
     }
   } catch (error) {
-    console.error("Error fetching site settings from Admin Firestore:", error);
+    console.error("Error fetching site settings from Firestore:", error);
     return JSON.parse(JSON.stringify(defaultSiteSettingsForClient));
   }
 }
@@ -49,6 +52,9 @@ export async function updateSiteSettingsAction(
   prevState: UpdateSiteSettingsFormState,
   formData: FormData
 ): Promise<UpdateSiteSettingsFormState> {
+  if (!firestore) {
+    return { message: "Firestore not initialized. Cannot update settings.", status: 'error' };
+  }
   let currentSettings: SiteSettings;
   try {
     currentSettings = await getSiteSettingsAction(); 
@@ -95,8 +101,7 @@ export async function updateSiteSettingsAction(
       appleTouchIconUrl: validatedFields.data.appleTouchIconUrl || defaultSiteSettingsForClient.appleTouchIconUrl,
     };
     
-    const adminDb = getAdminFirestore();
-    const siteSettingsDocRef = adminDb.collection('app_config').doc('siteSettingsDoc');
+    const siteSettingsDocRef = doc(firestore, 'app_config', 'siteSettingsDoc');
     await setDoc(siteSettingsDocRef, dataToSave, { merge: true });
 
     revalidatePath('/', 'layout'); 

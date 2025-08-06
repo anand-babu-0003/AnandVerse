@@ -1,15 +1,18 @@
 
 "use server";
 
-import { getAdminFirestore } from '@/lib/firebaseAdmin';
-import { doc, deleteDoc, Timestamp, getDocs, query, collection, orderBy } from 'firebase-admin/firestore';
+import { doc, deleteDoc, Timestamp, getDocs, query, collection, orderBy } from 'firebase/firestore';
+import { firestore } from '@/lib/firebaseConfig';
 import { revalidatePath } from 'next/cache';
 import type { ContactMessage } from '@/lib/types';
 
 export async function getContactMessagesAction(): Promise<ContactMessage[]> {
+  if (!firestore) {
+    console.error("Firestore not initialized. Cannot fetch messages.");
+    return [];
+  }
   try {
-    const adminDb = getAdminFirestore();
-    const q = query(adminDb.collection('contactMessages'), orderBy('submittedAt', 'desc'));
+    const q = query(collection(firestore, 'contactMessages'), orderBy('submittedAt', 'desc'));
     const snapshot = await getDocs(q);
     
     if (snapshot.empty) {
@@ -28,7 +31,7 @@ export async function getContactMessagesAction(): Promise<ContactMessage[]> {
       } as ContactMessage;
     });
   } catch (error) {
-    console.error("Error fetching contact messages from Admin Firestore:", error);
+    console.error("Error fetching contact messages from Firestore:", error);
     return []; 
   }
 }
@@ -39,11 +42,13 @@ export type DeleteMessageResult = {
 };
 
 export async function deleteContactMessageAction(messageId: string): Promise<DeleteMessageResult> {
+    if (!firestore) {
+        return { success: false, message: "Firestore not initialized." };
+    }
     if (!messageId) return { success: false, message: "No message ID provided." };
     
     try {
-        const adminDb = getAdminFirestore();
-        const docRef = adminDb.collection('contactMessages').doc(messageId);
+        const docRef = doc(firestore, 'contactMessages', messageId);
         await deleteDoc(docRef);
         revalidatePath('/admin/messages');
         return { success: true, message: `Message deleted successfully!` };

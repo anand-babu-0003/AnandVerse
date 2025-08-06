@@ -2,22 +2,28 @@
 "use server";
 
 import type { z } from 'zod';
-import { getAdminFirestore } from '@/lib/firebaseAdmin';
-import { doc, getDoc, setDoc } from 'firebase-admin/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { firestore } from '@/lib/firebaseConfig';
 import type { NotFoundPageData } from '@/lib/types';
 import { notFoundPageAdminSchema, type NotFoundPageAdminFormData } from '@/lib/adminSchemas';
 import { revalidatePath } from 'next/cache';
 import { defaultNotFoundPageDataForClient } from '@/lib/data';
 
 const notFoundPageDocRef = () => {
-  const adminDb = getAdminFirestore();
-  return adminDb.collection('app_config').doc('notFoundPageDoc');
+  if (!firestore) {
+    throw new Error("Firestore is not initialized.");
+  }
+  return doc(firestore, 'app_config', 'notFoundPageDoc');
 }
 
 export async function getNotFoundPageDataAction(): Promise<NotFoundPageData> {
+  if (!firestore) {
+    console.error("Firestore not initialized. Returning default data.");
+    return JSON.parse(JSON.stringify(defaultNotFoundPageDataForClient));
+  }
   try {
-    const docSnap = await notFoundPageDocRef().get();
-    if (docSnap.exists) {
+    const docSnap = await getDoc(notFoundPageDocRef());
+    if (docSnap.exists()) {
       const data = docSnap.data();
       return {
         imageSrc: data?.imageSrc || defaultNotFoundPageDataForClient.imageSrc,

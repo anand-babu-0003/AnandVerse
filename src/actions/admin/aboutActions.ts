@@ -1,8 +1,8 @@
 
 "use server";
 
-import { getAdminFirestore } from '@/lib/firebaseAdmin';
-import { doc, getDoc, setDoc } from 'firebase-admin/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { firestore } from '@/lib/firebaseConfig';
 import type { AboutMeData } from '@/lib/types';
 import { 
   aboutMeSchema, 
@@ -17,12 +17,15 @@ import { revalidatePath } from 'next/cache';
 import { defaultAboutMeDataForClient } from '@/lib/data'; 
 
 async function readAboutMeDataFromFirestore(): Promise<AboutMeData> {
+  if (!firestore) {
+    console.error("Firestore not initialized. Returning default data.");
+    return JSON.parse(JSON.stringify(defaultAboutMeDataForClient));
+  }
   try {
-    const adminDb = getAdminFirestore();
-    const docRef = adminDb.collection('app_config').doc('aboutMeDoc');
-    const docSnap = await docRef.get();
+    const docRef = doc(firestore, 'app_config', 'aboutMeDoc');
+    const docSnap = await getDoc(docRef);
     
-    if (docSnap.exists) {
+    if (docSnap.exists()) {
       const data = docSnap.data() as Partial<AboutMeData>;
       const defaultData = defaultAboutMeDataForClient;
       return {
@@ -48,14 +51,16 @@ async function readAboutMeDataFromFirestore(): Promise<AboutMeData> {
     }
     return JSON.parse(JSON.stringify(defaultAboutMeDataForClient));
   } catch (error) {
-    console.error("Error reading AboutMeData from Admin Firestore:", error);
+    console.error("Error reading AboutMeData from Firestore:", error);
     return JSON.parse(JSON.stringify(defaultAboutMeDataForClient));
   }
 }
 
 async function writeAboutMeDataToFirestore(data: AboutMeData): Promise<void> {
-  const adminDb = getAdminFirestore();
-  const aboutMeDocRef = adminDb.collection('app_config').doc('aboutMeDoc');
+  if (!firestore) {
+    throw new Error("Firestore not initialized.");
+  }
+  const aboutMeDocRef = doc(firestore, 'app_config', 'aboutMeDoc');
   const dataToSave: AboutMeData = {
     ...data,
     experience: data.experience.map(exp => ({

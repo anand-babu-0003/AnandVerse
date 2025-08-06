@@ -1,7 +1,6 @@
 
 "use server";
 
-import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { 
   doc, 
   setDoc, 
@@ -10,7 +9,9 @@ import {
   getDocs, 
   serverTimestamp, 
   deleteDoc,
-} from 'firebase-admin/firestore';
+  query,
+} from 'firebase/firestore';
+import { firestore } from '@/lib/firebaseConfig';
 import { 
   defaultSiteSettingsForClient,
   defaultAboutMeDataForClient,
@@ -37,20 +38,34 @@ export interface SeedResult {
 }
 
 async function clearCollection(collectionPath: string): Promise<number> {
-  const adminDb = getAdminFirestore();
-  const collectionRef = adminDb.collection(collectionPath);
-  const snapshot = await getDocs(collectionRef);
+  if (!firestore) throw new Error("Firestore not initialized.");
+  const collectionRef = collection(firestore, collectionPath);
+  const q = query(collectionRef);
+  const snapshot = await getDocs(q);
   if (snapshot.empty) {
     return 0;
   }
-  const batch = adminDb.batch();
+  const batch = writeBatch(firestore);
   snapshot.docs.forEach(docSnap => batch.delete(docSnap.ref));
   await batch.commit();
   return snapshot.size;
 }
 
 export async function seedFirestoreWithMockDataAction(): Promise<SeedResult> {
-  const adminDb = getAdminFirestore();
+  if (!firestore) {
+    return {
+      success: false,
+      message: "Firestore is not initialized. Cannot seed data.",
+      details: {
+        siteSettings: { status: 'error', count: 0, message: "Firestore not initialized." },
+        aboutMe: { status: 'error', count: 0, message: "Firestore not initialized." },
+        skills: { status: 'error', deletedCount: 0, addedCount: 0, message: "Firestore not initialized." },
+        portfolioItems: { status: 'error', deletedCount: 0, addedCount: 0, message: "Firestore not initialized." },
+        notFoundPage: { status: 'error', count: 0, message: "Firestore not initialized." },
+      },
+    };
+  }
+
   const details: SeedDetails = {
     siteSettings: { status: 'error', count: 0 },
     aboutMe: { status: 'error', count: 0 },
@@ -62,7 +77,7 @@ export async function seedFirestoreWithMockDataAction(): Promise<SeedResult> {
   try {
     // 1. Seed Site Settings
     try {
-      const siteSettingsRef = adminDb.collection('app_config').doc('siteSettingsDoc');
+      const siteSettingsRef = doc(firestore, 'app_config', 'siteSettingsDoc');
       const settingsToSeed: SiteSettings = defaultSiteSettingsForClient;
       await setDoc(siteSettingsRef, settingsToSeed);
       details.siteSettings = { status: 'success', count: 1, message: "Site settings seeded." };
@@ -74,7 +89,7 @@ export async function seedFirestoreWithMockDataAction(): Promise<SeedResult> {
 
     // 2. Seed About Me Data
     try {
-      const aboutMeRef = adminDb.collection('app_config').doc('aboutMeDoc');
+      const aboutMeRef = doc(firestore, 'app_config', 'aboutMeDoc');
       const aboutMeDataToSeed: AboutMeData = {
         ...defaultAboutMeDataForClient,
         experience: defaultAboutMeDataForClient.experience.map((exp, i) => ({ ...exp, id: exp.id || `exp_seed_${i}` })),
@@ -93,10 +108,10 @@ export async function seedFirestoreWithMockDataAction(): Promise<SeedResult> {
     try {
       const deletedSkillsCount = await clearCollection('skills');
       details.skills.deletedCount = deletedSkillsCount;
-      const skillsBatch = adminDb.batch();
+      const skillsBatch = writeBatch(firestore);
       let addedSkillsCount = 0;
       defaultSkillsDataForClient.forEach(skill => {
-        const skillRef = adminDb.collection('skills').doc(skill.id);
+        const skillRef = doc(firestore, 'skills', skill.id);
         skillsBatch.set(skillRef, skill);
         addedSkillsCount++;
       });
@@ -112,10 +127,10 @@ export async function seedFirestoreWithMockDataAction(): Promise<SeedResult> {
     try {
       const deletedPortfolioCount = await clearCollection('portfolioItems');
       details.portfolioItems.deletedCount = deletedPortfolioCount;
-      const portfolioBatch = adminDb.batch();
+      const portfolioBatch = writeBatch(firestore);
       let addedPortfolioCount = 0;
       defaultPortfolioItemsDataForClient.forEach(item => {
-        const itemRef = adminDb.collection('portfolioItems').doc(item.id);
+        const itemRef = doc(firestore, 'portfolioItems', item.id);
         const itemToSeed = {
           ...item,
           createdAt: serverTimestamp(),
@@ -134,7 +149,7 @@ export async function seedFirestoreWithMockDataAction(): Promise<SeedResult> {
 
     // 5. Seed Not Found Page Data
     try {
-      const notFoundPageRef = adminDb.collection('app_config').doc('notFoundPageDoc');
+      const notFoundPageRef = doc(firestore, 'app_config', 'notFoundPageDoc');
       const notFoundDataToSeed: NotFoundPageData = defaultNotFoundPageDataForClient;
       await setDoc(notFoundPageRef, notFoundDataToSeed);
       details.notFoundPage = { status: 'success', count: 1, message: "404 Page data seeded." };

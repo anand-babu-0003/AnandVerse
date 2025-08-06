@@ -1,18 +1,22 @@
 
 "use server";
 
-import { getAdminFirestore } from '@/lib/firebaseAdmin';
+import { doc, getDoc } from 'firebase/firestore';
+import { firestore } from '@/lib/firebaseConfig';
 import type { AboutMeData } from '@/lib/types';
 import { defaultAboutMeDataForClient } from '@/lib/data';
 
-// This is a server-side only action, so it should use the Admin SDK.
 export async function getAboutMeDataAction(): Promise<AboutMeData> {
+  if (!firestore) {
+    console.error("Firestore not initialized in getAboutMeDataAction. Returning default data.");
+    return JSON.parse(JSON.stringify(defaultAboutMeDataForClient));
+  }
+  
   try {
-    const adminDb = getAdminFirestore();
-    const docRef = adminDb.collection('app_config').doc('aboutMeDoc');
-    const docSnap = await docRef.get();
+    const docRef = doc(firestore, 'app_config', 'aboutMeDoc');
+    const docSnap = await getDoc(docRef);
     
-    if (docSnap.exists) {
+    if (docSnap.exists()) {
       const data = docSnap.data() as Partial<AboutMeData>;
       const defaultData = defaultAboutMeDataForClient;
       
@@ -41,7 +45,7 @@ export async function getAboutMeDataAction(): Promise<AboutMeData> {
       return JSON.parse(JSON.stringify(defaultAboutMeDataForClient)); 
     }
   } catch (error) {
-    console.error("Error fetching About Me data from Admin Firestore:", error);
+    console.error("Error fetching About Me data from Firestore:", error);
     return JSON.parse(JSON.stringify(defaultAboutMeDataForClient)); 
   }
 }

@@ -1,7 +1,6 @@
 
 "use server";
 
-import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { 
   collection, 
   doc,
@@ -14,7 +13,9 @@ import {
   where,
   serverTimestamp,
   Timestamp,
-} from 'firebase-admin/firestore';
+  orderBy,
+} from 'firebase/firestore';
+import { firestore } from '@/lib/firebaseConfig';
 import { revalidatePath } from 'next/cache';
 import type { PortfolioItem as LibPortfolioItemType } from '@/lib/types';
 import { portfolioItemAdminSchema, type PortfolioAdminFormData } from '@/lib/adminSchemas';
@@ -34,9 +35,13 @@ const defaultPortfolioItemStructure: Omit<LibPortfolioItemType, 'id' | 'createdA
 };
 
 export async function getPortfolioItemsAction(): Promise<LibPortfolioItemType[]> {
+  if (!firestore) {
+    console.error("Firestore not initialized. Returning default data.");
+    return JSON.parse(JSON.stringify(defaultPortfolioItemsDataForClient));
+  }
   try {
-    const adminDb = getAdminFirestore();
-    const snapshot = await adminDb.collection('portfolioItems').orderBy('createdAt', 'desc').get();
+    const q = query(collection(firestore, 'portfolioItems'), orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
       return [];
@@ -64,20 +69,24 @@ export async function getPortfolioItemsAction(): Promise<LibPortfolioItemType[]>
       } as LibPortfolioItemType;
     });
   } catch (error) {
-    console.error("Error fetching portfolio items from Admin Firestore:", error);
+    console.error("Error fetching portfolio items from Firestore:", error);
     return JSON.parse(JSON.stringify(defaultPortfolioItemsDataForClient));
   }
 }
 
 export async function getPortfolioItemBySlugAction(slug: string): Promise<LibPortfolioItemType | null> {
+  if (!firestore) {
+    console.error("Firestore not initialized. Cannot fetch portfolio item.");
+    return null;
+  }
   if (!slug || typeof slug !== 'string' || slug.trim() === '') {
     return null;
   }
   
   try {
-    const adminDb = getAdminFirestore();
-    const q = adminDb.collection('portfolioItems').where("slug", "==", slug);
-    const snapshot = await q.get();
+    const collRef = collection(firestore, 'portfolioItems');
+    const q = query(collRef, where("slug", "==", slug));
+    const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
       console.warn(`No portfolio item found with slug: ${slug}`);
@@ -105,7 +114,7 @@ export async function getPortfolioItemBySlugAction(slug: string): Promise<LibPor
       updatedAt: updatedAt,
     } as LibPortfolioItemType;
   } catch (error) {
-    console.error(`Error fetching portfolio item by slug ${slug} from Admin Firestore:`, error);
+    console.error(`Error fetching portfolio item by slug ${slug} from Firestore:`, error);
     return null;
   }
 }
@@ -122,7 +131,12 @@ export async function savePortfolioItemAction(
   prevState: PortfolioFormState,
   formData: FormData
 ): Promise<PortfolioFormState> {
-  const adminDb = getAdminFirestore();
+  if (!firestore) {
+    return {
+      message: "Firestore not initialized. Cannot save project.",
+      status: 'error',
+    };
+  }
   const rawData: PortfolioAdminFormData = {
     id: formData.get('id') as string || undefined,
     title: String(formData.get('title') || ''),
@@ -164,7 +178,7 @@ export async function savePortfolioItemAction(
   let projectId = data.id;
 
   try {
-    const collRef = adminDb.collection('portfolioItems');
+    const collRef = collection(firestore, 'portfolioItems');
     const slugCheckQuery = query(collRef, where("slug", "==", data.slug));
     const slugSnapshot = await getDocs(slugCheckQuery);
     let slugIsTaken = false;
@@ -200,14 +214,14 @@ export async function savePortfolioItemAction(
     };
 
     if (projectId) {
-      const docRef = adminDb.collection('portfolioItems').doc(projectId);
+      const docRef = doc(firestore, 'portfolioItems', projectId);
       await updateDoc(docRef, projectData);
     } else {
       const newProjectRef = await addDoc(collRef, { ...projectData, createdAt: serverTimestamp() });
       projectId = newProjectRef.id;
     }
     
-    const savedDocRef = adminDb.collection('portfolioItems').doc(projectId!);
+    const savedDocRef = doc(firestore, 'portfolioItems', projectId!);
     const savedDoc = await getDoc(savedDocRef);
     if (!savedDoc.exists) throw new Error("Failed to retrieve saved project from Firestore.");
 
@@ -246,11 +260,13 @@ export type DeletePortfolioItemResult = {
 };
 
 export async function deletePortfolioItemAction(itemId: string): Promise<DeletePortfolioItemResult> {
+    if (!firestore) {
+        return { success: false, message: "Firestore not initialized." };
+    }
     if (!itemId) return { success: false, message: "No item ID provided." };
 
     try {
-        const adminDb = getAdminFirestore();
-        const docRef = adminDb.collection('portfolioItems').doc(itemId);
+        const docRef = doc(firestore, 'portfolioItems', itemId);
         await deleteDoc(docRef);
 
         revalidatePath('/portfolio');
