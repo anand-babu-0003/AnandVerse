@@ -1,59 +1,13 @@
+
 rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper function to check for authenticated admin user
-    function isAdmin() {
-      return request.auth != null;
-    }
-
-    // Configuration documents (site settings, about me, 404 page)
-    // Anyone can read, only admins can write.
-    match /app_config/{docId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Portfolio items
-    // Anyone can read, only admins can write.
-    match /portfolioItems/{itemId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Skills collection
-    // Anyone can read, only admins can write.
-    match /skills/{skillId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    // Certifications collection
-    // Anyone can read, only admins can write.
-    match /certifications/{certId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-    
-    // Announcements collection
-    // Anyone can read, only admins can write.
-    match /announcements/{announcementId} {
-      allow read: if true;
-      allow write: if isAdmin();
-    }
-
-    // Contact Messages
-    // Anyone can create (submit the form), but only admins can read or delete them.
-    match /contactMessages/{messageId} {
-      allow create: if true;
-      allow read, delete: if isAdmin();
-      allow update: if false; // Messages should not be updatable
-    }
-
-    // Disallow any other random collections/documents
+    // WARNING: These rules are completely public and insecure.
+    // Anyone can read, write, and delete any data in your database.
+    // This should only be used for initial development and debugging.
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if true;
     }
   }
 }
