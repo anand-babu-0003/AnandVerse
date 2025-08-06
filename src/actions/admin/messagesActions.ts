@@ -47,3 +47,7 @@ export async function deleteContactMessageAction(messageId: string): Promise<Del
         revalidatePath('/admin/messages');
         return { success: true, message: `Message deleted successfully!` };
     } catch (error) {
+        console.error("Error deleting contact message from Firestore:", error);
+        return { success: false, message: "Failed to delete message due to a server error." };
+    }
+}

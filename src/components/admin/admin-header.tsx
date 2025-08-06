@@ -35,4 +35,9 @@ export function AdminHeader() {
             <Button variant="outline" size="sm" type="submit">
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
-            </
+            </Button>
+        </form>
+      </div>
+    </header>
+  );
+}

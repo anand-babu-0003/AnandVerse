@@ -398,4 +398,7 @@ export async function updateAboutDataAction(
       message: "An unexpected server error occurred (Contact/Socials action).",
       status: 'error',
       errors: {}, 
-      data:
+      data: fallbackData,
+    };
+  }
+}

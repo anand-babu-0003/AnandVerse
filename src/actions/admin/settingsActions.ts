@@ -128,4 +128,5 @@ export async function updateSiteSettingsAction(
       errors: {},
       data: errorResponseData,
     };
-  
+  }
+}

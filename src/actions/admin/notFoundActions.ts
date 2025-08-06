@@ -20,11 +20,11 @@ export async function getNotFoundPageDataAction(): Promise<NotFoundPageData> {
     if (docSnap.exists) {
       const data = docSnap.data();
       return {
-        imageSrc: data.imageSrc || defaultNotFoundPageDataForClient.imageSrc,
-        dataAiHint: data.dataAiHint || defaultNotFoundPageDataForClient.dataAiHint,
-        heading: data.heading || defaultNotFoundPageDataForClient.heading,
-        message: data.message || defaultNotFoundPageDataForClient.message,
-        buttonText: data.buttonText || defaultNotFoundPageDataForClient.buttonText,
+        imageSrc: data?.imageSrc || defaultNotFoundPageDataForClient.imageSrc,
+        dataAiHint: data?.dataAiHint || defaultNotFoundPageDataForClient.dataAiHint,
+        heading: data?.heading || defaultNotFoundPageDataForClient.heading,
+        message: data?.message || defaultNotFoundPageDataForClient.message,
+        buttonText: data?.buttonText || defaultNotFoundPageDataForClient.buttonText,
       };
     } else {
       console.warn("Not Found Page document not found in Firestore. Returning default data.");
@@ -113,4 +113,9 @@ export async function updateNotFoundPageDataAction(
 
     return {
       message: `An unexpected server error occurred while updating 404 page settings: ${errorMessage}`,
-      status: '
+      status: 'error',
+      errors: {},
+      data: errorResponseData,
+    };
+  }
+}

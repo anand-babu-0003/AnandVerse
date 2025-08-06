@@ -56,4 +56,8 @@ export async function submitAnnouncementAction(
   } catch (error) {
     console.error("Error publishing announcement to Firestore:", error);
     return {
-      message: "An
+      message: "An unexpected server error occurred while publishing the announcement.",
+      status: 'error',
+    };
+  }
+}
