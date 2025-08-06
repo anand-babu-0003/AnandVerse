@@ -1,26 +1,13 @@
-
 import type React from 'react';
-import { AdminHeader } from '@/components/admin/admin-header';
-import { AdminSidebar } from '@/components/admin/admin-sidebar';
-import { Toaster } from '@/components/ui/toaster';
 
-// No longer a client component, simplifying the layout.
-// The middleware will handle authentication checks.
-export default function AdminLayout({
+// This root layout for the /admin section is now very simple.
+// It just passes children through.
+// The actual admin panel layout with sidebars is in /(authenticated)/layout.tsx
+// The login page has its own layout in /login/layout.tsx
+export default function AdminRootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="flex h-screen bg-muted/10">
-      <AdminSidebar />
-      <div className="flex flex-col flex-1">
-        <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto">
-          {children}
-        </main>
-      </div>
-      <Toaster />
-    </div>
-  );
+  return <>{children}</>;
 }
