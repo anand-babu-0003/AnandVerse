@@ -1,30 +1,26 @@
 
 "use server";
 
-import { adminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
+import { getAdminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
 import { revalidatePath } from 'next/cache';
 import type { Skill as LibSkillType } from '@/lib/types';
 import { skillAdminSchema, type SkillAdminFormData } from '@/lib/adminSchemas';
 import { defaultSkillsDataForClient, lucideIconsMap } from '@/lib/data'; 
 import { Timestamp } from 'firebase-admin/firestore';
 
-const skillsCollectionRef = () => {
-  if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
-  return adminFirestore.collection('skills');
+const skillsCollectionRef = async () => {
+  return (await getAdminFirestore()).collection('skills');
 }
 
-const skillDocRef = (id: string) => {
-  if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
-  return adminFirestore.collection('skills').doc(id);
+const skillDocRef = async (id: string) => {
+  return (await getAdminFirestore()).collection('skills').doc(id);
 }
 
 export async function getSkillsAction(): Promise<LibSkillType[]> {
-  if (!adminFirestore) {
-    console.warn("Firestore not initialized in getSkillsAction. Returning default client skills.");
-    return JSON.parse(JSON.stringify(defaultSkillsDataForClient)); 
-  }
+  const adminFirestore = await getAdminFirestore();
   try {
-    const snapshot = await skillsCollectionRef().orderBy('category', 'asc').orderBy('name', 'asc').get();
+    const collectionRef = await skillsCollectionRef();
+    const snapshot = await collectionRef.orderBy('category', 'asc').orderBy('name', 'asc').get();
 
     if (snapshot.empty) {
       return [];
@@ -96,13 +92,11 @@ export async function saveSkillAction(
   };
 
   try {
-    if (skillId) {
-        await skillDocRef(skillId).update(skillToSave);
-    } else {
-        // For new skills, let Firestore generate the ID
-        const newDocRef = await skillsCollectionRef().add(skillToSave);
-        skillId = newDocRef.id;
+    const docRef = skillId ? await skillDocRef(skillId) : (await skillsCollectionRef()).doc();
+    if (!skillId) {
+      skillId = docRef.id;
     }
+    await docRef.set(skillToSave, { merge: true }); // Use set with merge to handle both create and update
     
     const savedSkillData: LibSkillType = {
       id: skillId,
@@ -146,7 +140,8 @@ export async function deleteSkillAction(itemId: string): Promise<DeleteSkillResu
         return { success: false, message: "No skill ID provided for deletion." };
     }
     try {
-        await skillDocRef(itemId).delete();
+        const docRef = await skillDocRef(itemId);
+        await docRef.delete();
         revalidatePath('/skills');
         revalidatePath('/admin/skills');
         revalidatePath('/');

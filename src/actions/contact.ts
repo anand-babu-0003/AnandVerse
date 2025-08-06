@@ -2,7 +2,7 @@
 "use server";
 
 import { z } from 'zod';
-import { adminFirestore } from '@/lib/firebaseAdminConfig'; // Use admin SDK
+import { getAdminFirestore } from '@/lib/firebaseAdminConfig'; // Use admin SDK
 import { FieldValue } from 'firebase-admin/firestore';
 import type { ContactMessage } from '@/lib/types';
 
@@ -26,12 +26,7 @@ export async function submitContactForm(
   prevState: ContactFormState,
   formData: FormData
 ): Promise<ContactFormState> {
-  if (!adminFirestore) {
-    return {
-      message: "System error: Database not configured. Please try again later.",
-      status: 'error',
-    };
-  }
+  const adminFirestore = await getAdminFirestore();
 
   const validatedFields = contactFormSchema.safeParse({
     name: formData.get('name'),

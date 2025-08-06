@@ -2,7 +2,7 @@
 "use server";
 
 import { z } from 'zod';
-import { adminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
+import { getAdminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
 import { FieldValue } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache'; 
 
@@ -28,14 +28,8 @@ export async function submitAnnouncementAction(
     } catch (authError) {
         return { message: (authError as Error).message, status: 'error' };
     }
-
-  if (!adminFirestore) {
-    console.error("CRITICAL_ERROR: Firestore is not initialized in announcementActions.ts.");
-    return {
-      message: "System error: Database not configured. Please try again later.",
-      status: 'error',
-    };
-  }
+  
+  const adminFirestore = await getAdminFirestore();
 
   const validatedFields = announcementSchema.safeParse({
     message: formData.get('message'),

@@ -1,16 +1,24 @@
 
+'use server';
+
 import { initializeApp, getApps, getApp, cert, type App } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { getAuth, type Auth } from 'firebase-admin/auth';
 import { headers } from 'next/headers';
 import 'dotenv/config';
 
-// This function ensures the Firebase Admin app is initialized only once.
-const initializeAdminApp = (): App => {
+let adminApp: App | null = null;
+
+function initializeAdminApp(): App {
+  if (adminApp) {
+    return adminApp;
+  }
+
   const appName = 'firebase-admin-app-my-portfolio';
   const existingApp = getApps().find(app => app.name === appName);
   if (existingApp) {
-    return existingApp;
+    adminApp = existingApp;
+    return adminApp;
   }
 
   const serviceAccount = {
@@ -18,7 +26,7 @@ const initializeAdminApp = (): App => {
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
     privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
   };
-  
+
   const requiredConfigKeys = ['projectId', 'clientEmail', 'privateKey'];
   const missingAdminKeys = requiredConfigKeys.filter(key => !serviceAccount[key as keyof typeof serviceAccount]);
 
@@ -26,34 +34,29 @@ const initializeAdminApp = (): App => {
     throw new Error(`FIREBASE ADMIN CRITICAL ERROR: Missing env vars for Admin SDK: ${missingAdminKeys.join(', ')}`);
   }
 
-  return initializeApp({
-    credential: cert(serviceAccount),
-  }, appName);
-};
+  try {
+    adminApp = initializeApp({
+      credential: cert(serviceAccount),
+    }, appName);
+    return adminApp;
+  } catch (error: any) {
+    throw new Error(`Failed to initialize Firebase Admin SDK: "${error.message}"`);
+  }
+}
 
-let adminApp: App | null = null;
-let adminAuth: Auth | null = null;
-let adminFirestore: Firestore | null = null;
+export async function getAdminAuth(): Promise<Auth> {
+  const app = initializeAdminApp();
+  return getAuth(app);
+}
 
-try {
-  adminApp = initializeAdminApp();
-  adminAuth = getAuth(adminApp);
-  adminFirestore = getFirestore(adminApp);
-} catch (error) {
-  console.error("Failed to initialize Firebase Admin SDK:", (error as Error).message);
-  // Keep services as null if initialization fails
+export async function getAdminFirestore(): Promise<Firestore> {
+  const app = initializeAdminApp();
+  return getFirestore(app);
 }
 
 
-/**
- * Verifies the user's Firebase Authentication token from the request headers.
- * @returns {Promise<{uid: string}>} The decoded user token containing the UID.
- * @throws {Error} If the user is not authenticated or the token is invalid.
- */
 export async function getAuthenticatedUser() {
-    if (!adminAuth) {
-        throw new Error("Firebase Admin Auth is not initialized. Cannot authenticate user.");
-    }
+    const adminAuth = await getAdminAuth();
     const authorization = headers().get('Authorization');
     if (authorization?.startsWith('Bearer ')) {
         const idToken = authorization.split('Bearer ')[1];
@@ -67,5 +70,3 @@ export async function getAuthenticatedUser() {
     }
     throw new Error('User is not authenticated. Authorization header is missing or invalid.');
 }
-
-export { adminApp, adminAuth, adminFirestore };

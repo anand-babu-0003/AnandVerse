@@ -1,30 +1,26 @@
 
 "use server";
 
-import { adminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
+import { getAdminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
 import { revalidatePath } from 'next/cache';
 import type { Certification as LibCertificationType } from '@/lib/types';
 import { certificationAdminSchema, type CertificationAdminFormData } from '@/lib/adminSchemas';
 import { defaultCertificationsDataForClient } from '@/lib/data';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 
-const certificationsCollectionRef = () => {
-    if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
-    return adminFirestore.collection('certifications');
+const certificationsCollectionRef = async () => {
+    return (await getAdminFirestore()).collection('certifications');
 };
 
-const certificationDocRef = (id: string) => {
-    if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
-    return adminFirestore.collection('certifications').doc(id);
+const certificationDocRef = async (id: string) => {
+    return (await getAdminFirestore()).collection('certifications').doc(id);
 };
 
 export async function getCertificationsAction(): Promise<LibCertificationType[]> {
-    if (!adminFirestore) {
-        console.warn("Firestore not initialized in getCertificationsAction. Returning default client data.");
-        return JSON.parse(JSON.stringify(defaultCertificationsDataForClient || []));
-    }
+    const adminFirestore = await getAdminFirestore();
     try {
-        const snapshot = await certificationsCollectionRef().orderBy('date', 'desc').get();
+        const collectionRef = await certificationsCollectionRef();
+        const snapshot = await collectionRef.orderBy('date', 'desc').get();
 
         if (snapshot.empty) {
             return [];
@@ -70,13 +66,8 @@ export async function saveCertificationAction(
     } catch (authError) {
         return { message: (authError as Error).message, status: 'error' };
     }
-    if (!adminFirestore) {
-        return { 
-            message: "Firestore is not initialized.", 
-            status: 'error', 
-            formDataOnError: Object.fromEntries(formData.entries()) as unknown as CertificationAdminFormData
-        };
-    }
+    
+    const adminFirestore = await getAdminFirestore();
 
     const idFromForm = formData.get('id');
     const rawData: CertificationAdminFormData = {
@@ -108,7 +99,7 @@ export async function saveCertificationAction(
         
         if (certId) {
             finalCertId = certId;
-            const certRef = certificationDocRef(finalCertId);
+            const certRef = await certificationDocRef(finalCertId);
             const docSnap = await certRef.get();
             if (!docSnap.exists) {
                 throw new Error("Attempted to update a certification that does not exist.");
@@ -124,7 +115,7 @@ export async function saveCertificationAction(
             };
             await certRef.update(certDataToUpdate);
         } else {
-            const collectionRef = certificationsCollectionRef();
+            const collectionRef = await certificationsCollectionRef();
             const certDataToCreate = {
                 name: data.name,
                 issuingBody: data.issuingBody,
@@ -142,7 +133,8 @@ export async function saveCertificationAction(
         revalidatePath('/certifications');
         revalidatePath('/admin/certifications');
 
-        const savedDoc = await certificationDocRef(finalCertId).get();
+        const savedDocRef = await certificationDocRef(finalCertId);
+        const savedDoc = await savedDocRef.get();
         if (!savedDoc.exists) {
              throw new Error("Failed to retrieve saved certification from Firestore after save operation.");
         }
@@ -194,11 +186,9 @@ export async function deleteCertificationAction(itemId: string): Promise<DeleteC
     if (!itemId) {
         return { success: false, message: "No certification ID provided for deletion." };
     }
-    if (!adminFirestore) {
-      return { success: false, message: "Firestore not initialized." };
-    }
     try {
-        await certificationDocRef(itemId).delete();
+        const certRef = await certificationDocRef(itemId);
+        await certRef.delete();
         revalidatePath('/certifications');
         revalidatePath('/admin/certifications');
         return { success: true, message: `Certification (ID: ${itemId}) deleted successfully!` };

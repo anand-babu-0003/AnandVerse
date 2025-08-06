@@ -1,19 +1,17 @@
 
 "use server";
 
-import { adminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
+import { getAdminFirestore, getAuthenticatedUser } from '@/lib/firebaseAdminConfig';
 import { revalidatePath } from 'next/cache';
 import type { ContactMessage } from '@/lib/types';
 import { Timestamp } from 'firebase-admin/firestore';
 
-const messagesCollectionRef = () => {
-  if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
-  return adminFirestore.collection('contactMessages');
+const messagesCollectionRef = async () => {
+  return (await getAdminFirestore()).collection('contactMessages');
 }
 
-const messageDocRef = (id: string) => {
-  if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
-  return adminFirestore.collection('contactMessages').doc(id);
+const messageDocRef = async (id: string) => {
+  return (await getAdminFirestore()).collection('contactMessages').doc(id);
 }
 
 export async function getContactMessagesAction(): Promise<ContactMessage[]> {
@@ -21,18 +19,14 @@ export async function getContactMessagesAction(): Promise<ContactMessage[]> {
     await getAuthenticatedUser();
   } catch (authError) {
     console.error("Authentication error in getContactMessagesAction:", authError);
-    // Instead of returning empty, rethrow or handle as a critical error if needed.
-    // For now, returning empty is safe for the UI.
     return []; 
   }
 
-  if (!adminFirestore) {
-    console.warn("Firestore not initialized in getContactMessagesAction. Returning empty array.");
-    return [];
-  }
-
+  const adminFirestore = await getAdminFirestore();
+  
   try {
-    const snapshot = await messagesCollectionRef().orderBy('submittedAt', 'desc').get();
+    const collectionRef = await messagesCollectionRef();
+    const snapshot = await collectionRef.orderBy('submittedAt', 'desc').get();
     if (snapshot.empty) {
       return [];
     }
@@ -69,11 +63,10 @@ export async function deleteContactMessageAction(messageId: string): Promise<Del
     if (!messageId) {
         return { success: false, message: "No message ID provided for deletion." };
     }
-    if (!adminFirestore) {
-      return { success: false, message: "Firestore not initialized." };
-    }
+    
     try {
-        await messageDocRef(messageId).delete();
+        const docRef = await messageDocRef(messageId);
+        await docRef.delete();
         revalidatePath('/admin/messages');
         return { success: true, message: `Message (ID: ${messageId}) deleted successfully!` };
     } catch (error) {

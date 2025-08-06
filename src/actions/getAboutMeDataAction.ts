@@ -1,24 +1,22 @@
 
 "use server";
 
-import { adminFirestore } from '@/lib/firebaseAdminConfig';
+import { getAdminFirestore } from '@/lib/firebaseAdminConfig';
 import { Timestamp } from 'firebase-admin/firestore';
 import type { AboutMeData } from '@/lib/types';
 import { defaultAboutMeDataForClient } from '@/lib/data';
 
-const aboutMeDocRef = () => {
-  if (!adminFirestore) throw new Error("Firestore Admin SDK not initialized");
-  return adminFirestore.collection('app_config').doc('aboutMeDoc');
+const aboutMeDocRef = async () => {
+  return (await getAdminFirestore()).collection('app_config').doc('aboutMeDoc');
 }
 
 export async function getAboutMeDataAction(): Promise<AboutMeData> {
-  if (!adminFirestore) {
-    console.warn("Firestore Admin SDK not initialized in getAboutMeDataAction. Returning default data.");
-    return JSON.parse(JSON.stringify(defaultAboutMeDataForClient)); // Return a deep clone
-  }
+  const adminFirestore = await getAdminFirestore();
 
   try {
-    const docSnap = await aboutMeDocRef().get();
+    const docRef = await aboutMeDocRef();
+    const docSnap = await docRef.get();
+    
     if (docSnap.exists) {
       const data = docSnap.data() as Partial<AboutMeData>;
       const defaultData = defaultAboutMeDataForClient;
