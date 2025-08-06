@@ -178,12 +178,14 @@ body {
   flex-direction: column; 
   justify-content: center;
   align-items: center;
-  background-color: hsl(var(--background) / 0.9); 
+  background-color: #f0f0f0; /* Fallback light color */
+  background-color: hsl(var(--background)); /* Use theme variable */
   z-index: 9999;
 }
 
 .dark .fullscreen-loader-container {
-  background-color: hsl(0 0% 0%); /* Solid black background for dark theme */
+  background-color: #0a0a0a; /* Fallback dark color */
+  background-color: hsl(var(--background)); /* Use theme variable */
 }
 
 

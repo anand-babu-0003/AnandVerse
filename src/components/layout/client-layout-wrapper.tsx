@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/components/layout/navbar';
-import { ThemeProvider } from '@/components/layout/theme-provider';
 import type { SiteSettings } from '@/lib/types';
 import { defaultSiteSettingsForClient } from '@/lib/data';
 import { AlertTriangle } from 'lucide-react';
@@ -71,14 +70,18 @@ export function ClientLayoutWrapper({
     };
   }, [isAdminRoute]);
 
-  // A simple loading state until settings are fetched on the client for the first time.
-  // This prevents seeing default content flash before the real content loads for banners etc.
+  if (!isMounted) {
+    return <FullScreenLoader />;
+  }
+  
+  // This check is now primarily for the maintenance banner, 
+  // as the initial theme flash is handled by the inline script.
   if (currentSiteSettings === null) {
       return <FullScreenLoader />;
   }
   
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+    <>
       {isMounted && !isAdminRoute && (
         <>
           <div className="light-orb light-orb-1" style={{transform: `translate(calc(${mousePosition.x}px - 30vw), calc(${mousePosition.y}px - 30vh))`}}/>
@@ -101,6 +104,6 @@ export function ClientLayoutWrapper({
         {!isAdminRoute && footer}
       </div>
       <Toaster />
-    </ThemeProvider>
+    </>
   );
 }

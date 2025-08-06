@@ -5,6 +5,7 @@ import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
 import { defaultSiteSettingsForClient } from '@/lib/data';
 import { ClientLayoutWrapper } from '@/components/layout/client-layout-wrapper';
 import Footer from '@/components/layout/footer';
+import { ThemeProvider } from '@/components/layout/theme-provider';
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteSettings = await getSiteSettingsAction();
@@ -30,6 +31,30 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const ThemeScript = () => (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+          (function() {
+            function getInitialTheme() {
+              try {
+                const theme = localStorage.getItem('theme');
+                if (theme === 'dark' || theme === 'light') return theme;
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
+              } catch (e) { /* ignore */ }
+              return 'dark'; // Default to dark theme
+            }
+            const theme = getInitialTheme();
+            if (theme === 'dark') {
+              document.documentElement.classList.add('dark');
+            }
+          })();
+        `,
+      }}
+    />
+);
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,7 +63,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Favicon links are now generated via Metadata API */}
+        <ThemeScript />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -46,9 +71,11 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css?family=Arvo&display=swap" rel="stylesheet" />
       </head>
       <body>
-        <ClientLayoutWrapper footer={<Footer />}>
-          {children}
-        </ClientLayoutWrapper>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            <ClientLayoutWrapper footer={<Footer />}>
+            {children}
+            </ClientLayoutWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );
