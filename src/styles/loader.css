@@ -1,4 +1,22 @@
 
+.fullscreen-loader-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column; 
+  justify-content: center;
+  align-items: center;
+  background-color: hsl(var(--card));
+  z-index: 9999;
+}
+
+.dark .fullscreen-loader-container {
+  background-color: hsl(var(--card));
+}
+
 .loader {
   --cell-size: 32px; /* Reduced from 52px */
   --cell-spacing: 1px;
@@ -61,4 +79,3 @@
     background-color: transparent;
   }
 }
-
