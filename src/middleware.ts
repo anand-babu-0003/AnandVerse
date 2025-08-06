@@ -1,23 +1,33 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { cookies } from 'next/headers';
 
 const SESSION_COOKIE_NAME = 'admin_session';
 
 export function middleware(request: NextRequest) {
-  const cookie = cookies().get(SESSION_COOKIE_NAME);
+  const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME);
 
-  if (!cookie && request.nextUrl.pathname.startsWith('/admin') && request.nextUrl.pathname !== '/admin/login') {
+  const { pathname } = request.nextUrl;
+
+  // If trying to access a protected admin page without a session, redirect to login
+  if (!sessionCookie && pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     return NextResponse.redirect(new URL('/admin/login', request.url));
   }
 
-  if (cookie && request.nextUrl.pathname === '/admin/login') {
+  // If logged in and trying to access the login page, redirect to the dashboard
+  if (sessionCookie && pathname.startsWith('/admin/login')) {
     return NextResponse.redirect(new URL('/admin/dashboard', request.url));
   }
-  
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  /*
+   * Match all request paths except for the ones starting with:
+   * - api (API routes)
+   * - _next/static (static files)
+   * - _next/image (image optimization files)
+   * - favicon.ico (favicon file)
+   */
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };
