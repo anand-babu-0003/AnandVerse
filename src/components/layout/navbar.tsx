@@ -32,7 +32,6 @@ export default function Navbar() {
     };
 
     window.addEventListener('scroll', handleScroll);
-    // Call handler once on mount to set initial state
     handleScroll(); 
 
     return () => {
@@ -41,7 +40,6 @@ export default function Navbar() {
   }, []);
 
   if (!isMounted) {
-    // Return a basic structure or null during server render / hydration mismatch prevention
     return (
       <header className="sticky top-0 z-50 w-full border-b bg-background">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -53,30 +51,36 @@ export default function Navbar() {
             </svg>
             <span className="font-headline text-2xl font-bold text-primary">AnandVerse</span>
           </Link>
-          <div className="h-8 w-8" /> {/* Placeholder for theme toggle button to prevent layout shift */}
+          <div className="h-8 w-8" />
         </div>
       </header>
     );
   }
 
-  const NavLink = ({ href, label, icon: Icon, onClick }: { href: string; label: string; icon: React.ElementType; onClick?: () => void; }) => (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={cn(
-        "flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-        pathname === href
-          ? "bg-primary/10 text-primary font-semibold"
-          : "text-foreground/70 hover:text-primary hover:bg-primary/5",
-        "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-      )}
-      aria-current={pathname === href ? "page" : undefined}
-    >
-      <Icon className="h-5 w-5" />
-      <span>{label}</span>
-    </Link>
-  );
-
+  const NavLink = ({ href, label, icon: Icon, onClick, isMobile = false }: { href: string; label: string; icon: React.ElementType; onClick?: () => void; isMobile?: boolean }) => {
+    const isActive = pathname === href;
+    return (
+      <Link
+        href={href}
+        onClick={onClick}
+        data-active={isActive}
+        className={cn(
+          "flex items-center gap-3 rounded-md text-sm font-medium transition-colors",
+          isMobile 
+            ? "px-3 py-3 text-lg" 
+            : "px-3 py-2 nav-link-underline",
+          isActive
+            ? "text-primary font-semibold"
+            : "text-foreground/70 hover:text-primary",
+          "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-background"
+        )}
+        aria-current={pathname === href ? "page" : undefined}
+      >
+        <Icon className="h-5 w-5" />
+        <span>{label}</span>
+      </Link>
+    );
+  };
 
   return (
     <header className={cn(
@@ -129,7 +133,7 @@ export default function Navbar() {
                   <nav className="flex flex-col space-y-3">
                     {navItems.map((item) => (
                        <SheetClose asChild key={item.href}>
-                          <NavLink {...item} onClick={() => setIsMobileMenuOpen(false)} />
+                          <NavLink {...item} isMobile={true} onClick={() => setIsMobileMenuOpen(false)} />
                        </SheetClose>
                     ))}
                   </nav>

@@ -8,6 +8,7 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  scroll-behavior: smooth;
 }
 
 @layer base {
@@ -195,6 +196,27 @@ body {
 
 
 @layer utilities {
+  .transition-all-300 {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  .subtle-hover {
+    @apply transition-all-300 hover:-translate-y-px hover:scale-[1.03];
+  }
+
+  .nav-link-underline {
+    @apply relative;
+  }
+
+  .nav-link-underline::after {
+    @apply content-[''] absolute left-0 -bottom-1 h-[2px] w-full bg-primary transition-all-300 scale-x-0 origin-center;
+  }
+
+  .nav-link-underline:hover::after,
+  .nav-link-underline[data-active='true']::after {
+    @apply scale-x-100;
+  }
+
   @keyframes fadeInUp {
     from {
       opacity: 0;

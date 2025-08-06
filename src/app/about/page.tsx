@@ -71,7 +71,7 @@ export default async function AboutPage() {
                 {(displayedData.experience || []).length > 0 ? (
                   (displayedData.experience || []).map((exp: Experience, index: number) => (
                     <ScrollAnimationWrapper key={exp.id || `exp-${index}-${Date.now()}`} delay={index * 100}>
-                      <Card className="shadow-md hover:shadow-lg transition-shadow">
+                      <Card className="shadow-md hover:shadow-lg transition-all-300 hover:-translate-y-1">
                         <CardHeader>
                           <CardTitle className="font-headline text-xl text-primary">{exp.role}</CardTitle>
                           <p className="text-sm text-muted-foreground">{exp.company} | {exp.period}</p>
@@ -96,7 +96,7 @@ export default async function AboutPage() {
                 {(displayedData.education || []).length > 0 ? (
                   (displayedData.education || []).map((edu: Education, index: number) => (
                     <ScrollAnimationWrapper key={edu.id || `edu-${index}-${Date.now()}`} delay={index * 100}>
-                      <Card className="shadow-md hover:shadow-lg transition-shadow">
+                      <Card className="shadow-md hover:shadow-lg transition-all-300 hover:-translate-y-1">
                         <CardHeader>
                           <CardTitle className="font-headline text-xl text-primary">{edu.degree}</CardTitle>
                           <p className="text-sm text-muted-foreground">{edu.institution} | {edu.period}</p>

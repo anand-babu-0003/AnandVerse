@@ -59,7 +59,7 @@ export default async function Footer() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-ring rounded px-1 py-0.5"
+                    className="text-sm text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-ring rounded px-1 py-0.5 nav-link-underline"
                   >
                     {item.label}
                   </Link>
@@ -80,7 +80,7 @@ export default async function Footer() {
                     asChild
                     variant="ghost"
                     size="icon"
-                    className="text-muted-foreground hover:text-primary hover:bg-muted rounded-full focus:ring-offset-background"
+                    className="text-muted-foreground hover:text-primary hover:bg-muted rounded-full focus:ring-offset-background subtle-hover"
                     aria-label={link.name}
                   >
                     <Link
