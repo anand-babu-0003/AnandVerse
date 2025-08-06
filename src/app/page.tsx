@@ -5,12 +5,13 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Mail, Package } from 'lucide-react';
 import type { PortfolioItem, Skill } from '@/lib/types';
 import { ScrollAnimationWrapper } from '@/components/shared/scroll-animation-wrapper';
-import { lucideIconsMap, defaultAboutMeDataForClient, defaultPortfolioItemsDataForClient, defaultSkillsDataForClient } from '@/lib/data';
+import { lucideIconsMap, defaultAboutMeDataForClient, defaultPortfolioItemsDataForClient, defaultSkillsDataForClient, skillCategories } from '@/lib/data';
 import StarryBackground from '@/components/layout/starry-background';
 import { PortfolioCard } from '@/components/portfolio/portfolio-card';
 import { getAboutMeDataAction } from '@/actions/getAboutMeDataAction';
 import { getPortfolioItemsAction } from '@/actions/admin/portfolioActions';
 import { getSkillsAction } from '@/actions/admin/skillsActions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function Home() {
   const [aboutMeData, allPortfolioItems, allSkills] = await Promise.all([
@@ -21,11 +22,20 @@ export default async function Home() {
 
   const displayedAboutMe = aboutMeData || defaultAboutMeDataForClient;
   const featuredProjects = (allPortfolioItems || defaultPortfolioItemsDataForClient).slice(0, 2);
-  const highlightedSkills = (allSkills || defaultSkillsDataForClient).slice(0, 6);
+  const highlightedSkills = (allSkills || defaultSkillsDataForClient);
   
   const fullBio = displayedAboutMe.bio || defaultAboutMeDataForClient.bio;
   const firstParagraphBio = fullBio.split('\n\n')[0];
   const bioSnippet = firstParagraphBio.length > 150 ? `${firstParagraphBio.substring(0, 150)}...` : firstParagraphBio;
+
+  const groupedSkills = highlightedSkills.reduce((acc, skill) => {
+    const category = skill.category || 'Other';
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(skill);
+    return acc;
+  }, {} as Record<string, Skill[]>);
 
 
   return (
@@ -148,16 +158,33 @@ export default async function Home() {
               </h2>
             </ScrollAnimationWrapper>
 
-            {highlightedSkills.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-8">
-                {highlightedSkills.map((skill, index) => {
-                  const IconComponent = lucideIconsMap[skill.iconName] || Package;
+            {Object.keys(groupedSkills).length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+                {skillCategories.map((category, categoryIndex) => {
+                  const skillsInCategory = groupedSkills[category];
+                  if (!skillsInCategory || skillsInCategory.length === 0) {
+                    return null;
+                  }
                   return (
-                    <ScrollAnimationWrapper key={skill.id || `skill-${index}`} delay={index * 100} threshold={0.05}>
-                      <div className="flex flex-col items-center text-center p-4 md:p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.03] bg-card h-full">
-                        <IconComponent className="h-10 w-10 md:h-12 md:w-12 text-primary mb-3" />
-                        <h3 className="text-sm md:text-base font-semibold text-card-foreground">{skill.name}</h3>
-                      </div>
+                    <ScrollAnimationWrapper key={category} delay={categoryIndex * 100}>
+                      <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300 h-full">
+                        <CardHeader>
+                          <CardTitle className="font-headline text-2xl text-primary">{category}</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ul className="space-y-4">
+                            {skillsInCategory.map((skill) => {
+                              const IconComponent = lucideIconsMap[skill.iconName] || Package;
+                              return (
+                                <li key={skill.id} className="flex items-center gap-4">
+                                  <IconComponent className="h-8 w-8 text-accent flex-shrink-0" />
+                                  <span className="text-lg text-foreground/80">{skill.name}</span>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </CardContent>
+                      </Card>
                     </ScrollAnimationWrapper>
                   );
                 })}
@@ -168,17 +195,15 @@ export default async function Home() {
                </ScrollAnimationWrapper>
             )}
             
-            {(allSkills.length > highlightedSkills.length || allSkills.length === 0 && highlightedSkills.length === 0) && (
-              <ScrollAnimationWrapper className="mt-12 text-center" delay={highlightedSkills.length * 100}>
-                <Button asChild size="lg" variant="outline" className="text-lg">
-                  <Link href="/about#skills">
-                    <span>
-                      Explore All My Skills <ArrowRight className="ml-2 h-5 w-5" />
-                    </span>
-                  </Link>
-                </Button>
-              </ScrollAnimationWrapper>
-            )}
+            <ScrollAnimationWrapper className="mt-12 text-center" delay={Object.keys(groupedSkills).length * 100}>
+              <Button asChild size="lg" variant="outline" className="text-lg">
+                <Link href="/about#skills">
+                  <span>
+                    Explore All My Skills <ArrowRight className="ml-2 h-5 w-5" />
+                  </span>
+                </Link>
+              </Button>
+            </ScrollAnimationWrapper>
           </div>
         </section>
       </ScrollAnimationWrapper>
