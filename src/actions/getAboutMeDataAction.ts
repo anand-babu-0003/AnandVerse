@@ -6,15 +6,15 @@ import { Timestamp } from 'firebase-admin/firestore';
 import type { AboutMeData } from '@/lib/types';
 import { defaultAboutMeDataForClient } from '@/lib/data';
 
-const aboutMeDocRef = async () => {
-  return (await getAdminFirestore()).collection('app_config').doc('aboutMeDoc');
+const aboutMeDocRef = () => {
+  return getAdminFirestore().collection('app_config').doc('aboutMeDoc');
 }
 
 export async function getAboutMeDataAction(): Promise<AboutMeData> {
-  const adminFirestore = await getAdminFirestore();
+  const adminFirestore = getAdminFirestore();
 
   try {
-    const docRef = await aboutMeDocRef();
+    const docRef = aboutMeDocRef();
     const docSnap = await docRef.get();
     
     if (docSnap.exists) {

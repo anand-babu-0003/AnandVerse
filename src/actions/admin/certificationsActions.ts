@@ -8,18 +8,18 @@ import { certificationAdminSchema, type CertificationAdminFormData } from '@/lib
 import { defaultCertificationsDataForClient } from '@/lib/data';
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 
-const certificationsCollectionRef = async () => {
-    return (await getAdminFirestore()).collection('certifications');
+const certificationsCollectionRef = () => {
+    return getAdminFirestore().collection('certifications');
 };
 
-const certificationDocRef = async (id: string) => {
-    return (await getAdminFirestore()).collection('certifications').doc(id);
+const certificationDocRef = (id: string) => {
+    return getAdminFirestore().collection('certifications').doc(id);
 };
 
 export async function getCertificationsAction(): Promise<LibCertificationType[]> {
-    const adminFirestore = await getAdminFirestore();
+    const adminFirestore = getAdminFirestore();
     try {
-        const collectionRef = await certificationsCollectionRef();
+        const collectionRef = certificationsCollectionRef();
         const snapshot = await collectionRef.orderBy('date', 'desc').get();
 
         if (snapshot.empty) {
@@ -67,7 +67,7 @@ export async function saveCertificationAction(
         return { message: (authError as Error).message, status: 'error' };
     }
     
-    const adminFirestore = await getAdminFirestore();
+    const adminFirestore = getAdminFirestore();
 
     const idFromForm = formData.get('id');
     const rawData: CertificationAdminFormData = {
@@ -99,7 +99,7 @@ export async function saveCertificationAction(
         
         if (certId) {
             finalCertId = certId;
-            const certRef = await certificationDocRef(finalCertId);
+            const certRef = certificationDocRef(finalCertId);
             const docSnap = await certRef.get();
             if (!docSnap.exists) {
                 throw new Error("Attempted to update a certification that does not exist.");
@@ -115,7 +115,7 @@ export async function saveCertificationAction(
             };
             await certRef.update(certDataToUpdate);
         } else {
-            const collectionRef = await certificationsCollectionRef();
+            const collectionRef = certificationsCollectionRef();
             const certDataToCreate = {
                 name: data.name,
                 issuingBody: data.issuingBody,
@@ -133,7 +133,7 @@ export async function saveCertificationAction(
         revalidatePath('/certifications');
         revalidatePath('/admin/certifications');
 
-        const savedDocRef = await certificationDocRef(finalCertId);
+        const savedDocRef = certificationDocRef(finalCertId);
         const savedDoc = await savedDocRef.get();
         if (!savedDoc.exists) {
              throw new Error("Failed to retrieve saved certification from Firestore after save operation.");
@@ -187,7 +187,7 @@ export async function deleteCertificationAction(itemId: string): Promise<DeleteC
         return { success: false, message: "No certification ID provided for deletion." };
     }
     try {
-        const certRef = await certificationDocRef(itemId);
+        const certRef = certificationDocRef(itemId);
         await certRef.delete();
         revalidatePath('/certifications');
         revalidatePath('/admin/certifications');

@@ -29,7 +29,7 @@ export async function submitAnnouncementAction(
         return { message: (authError as Error).message, status: 'error' };
     }
   
-  const adminFirestore = await getAdminFirestore();
+  const adminFirestore = getAdminFirestore();
 
   const validatedFields = announcementSchema.safeParse({
     message: formData.get('message'),

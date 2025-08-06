@@ -1,6 +1,4 @@
 
-'use server';
-
 import { initializeApp, getApps, getApp, cert, type App } from 'firebase-admin/app';
 import { getFirestore, type Firestore } from 'firebase-admin/firestore';
 import { getAuth, type Auth } from 'firebase-admin/auth';
@@ -44,19 +42,19 @@ function initializeAdminApp(): App {
   }
 }
 
-export async function getAdminAuth(): Promise<Auth> {
-  const app = initializeAdminApp();
-  return getAuth(app);
+export function getAdminAuth(): Auth {
+    const app = initializeAdminApp();
+    return getAuth(app);
 }
 
-export async function getAdminFirestore(): Promise<Firestore> {
+export function getAdminFirestore(): Firestore {
   const app = initializeAdminApp();
   return getFirestore(app);
 }
 
 
 export async function getAuthenticatedUser() {
-    const adminAuth = await getAdminAuth();
+    const adminAuth = getAdminAuth();
     const authorization = headers().get('Authorization');
     if (authorization?.startsWith('Bearer ')) {
         const idToken = authorization.split('Bearer ')[1];

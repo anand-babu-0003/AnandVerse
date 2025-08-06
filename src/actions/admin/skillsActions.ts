@@ -8,18 +8,18 @@ import { skillAdminSchema, type SkillAdminFormData } from '@/lib/adminSchemas';
 import { defaultSkillsDataForClient, lucideIconsMap } from '@/lib/data'; 
 import { Timestamp } from 'firebase-admin/firestore';
 
-const skillsCollectionRef = async () => {
-  return (await getAdminFirestore()).collection('skills');
+const skillsCollectionRef = () => {
+  return getAdminFirestore().collection('skills');
 }
 
-const skillDocRef = async (id: string) => {
-  return (await getAdminFirestore()).collection('skills').doc(id);
+const skillDocRef = (id: string) => {
+  return getAdminFirestore().collection('skills').doc(id);
 }
 
 export async function getSkillsAction(): Promise<LibSkillType[]> {
-  const adminFirestore = await getAdminFirestore();
+  const adminFirestore = getAdminFirestore();
   try {
-    const collectionRef = await skillsCollectionRef();
+    const collectionRef = skillsCollectionRef();
     const snapshot = await collectionRef.orderBy('category', 'asc').orderBy('name', 'asc').get();
 
     if (snapshot.empty) {
@@ -92,7 +92,8 @@ export async function saveSkillAction(
   };
 
   try {
-    const docRef = skillId ? await skillDocRef(skillId) : (await skillsCollectionRef()).doc();
+    const adminFirestore = getAdminFirestore();
+    const docRef = skillId ? skillDocRef(skillId) : adminFirestore.collection('skills').doc();
     if (!skillId) {
       skillId = docRef.id;
     }
@@ -140,7 +141,7 @@ export async function deleteSkillAction(itemId: string): Promise<DeleteSkillResu
         return { success: false, message: "No skill ID provided for deletion." };
     }
     try {
-        const docRef = await skillDocRef(itemId);
+        const docRef = skillDocRef(itemId);
         await docRef.delete();
         revalidatePath('/skills');
         revalidatePath('/admin/skills');

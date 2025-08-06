@@ -6,12 +6,12 @@ import { revalidatePath } from 'next/cache';
 import type { ContactMessage } from '@/lib/types';
 import { Timestamp } from 'firebase-admin/firestore';
 
-const messagesCollectionRef = async () => {
-  return (await getAdminFirestore()).collection('contactMessages');
+const messagesCollectionRef = () => {
+  return getAdminFirestore().collection('contactMessages');
 }
 
-const messageDocRef = async (id: string) => {
-  return (await getAdminFirestore()).collection('contactMessages').doc(id);
+const messageDocRef = (id: string) => {
+  return getAdminFirestore().collection('contactMessages').doc(id);
 }
 
 export async function getContactMessagesAction(): Promise<ContactMessage[]> {
@@ -22,10 +22,10 @@ export async function getContactMessagesAction(): Promise<ContactMessage[]> {
     return []; 
   }
 
-  const adminFirestore = await getAdminFirestore();
+  const adminFirestore = getAdminFirestore();
   
   try {
-    const collectionRef = await messagesCollectionRef();
+    const collectionRef = messagesCollectionRef();
     const snapshot = await collectionRef.orderBy('submittedAt', 'desc').get();
     if (snapshot.empty) {
       return [];
@@ -65,7 +65,7 @@ export async function deleteContactMessageAction(messageId: string): Promise<Del
     }
     
     try {
-        const docRef = await messageDocRef(messageId);
+        const docRef = messageDocRef(messageId);
         await docRef.delete();
         revalidatePath('/admin/messages');
         return { success: true, message: `Message (ID: ${messageId}) deleted successfully!` };

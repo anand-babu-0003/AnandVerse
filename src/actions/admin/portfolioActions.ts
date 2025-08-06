@@ -21,19 +21,19 @@ const defaultPortfolioItemStructure: Omit<LibPortfolioItemType, 'id' | 'createdA
   repoUrl: '',
 };
 
-const portfolioCollectionRef = async () => {
-  return (await getAdminFirestore()).collection('portfolioItems');
+const portfolioCollectionRef = () => {
+  return getAdminFirestore().collection('portfolioItems');
 }
 
-const portfolioDocRef = async (id: string) => {
-  return (await getAdminFirestore()).collection('portfolioItems').doc(id);
+const portfolioDocRef = (id: string) => {
+  return getAdminFirestore().collection('portfolioItems').doc(id);
 }
 
 // Action to get all portfolio items
 export async function getPortfolioItemsAction(): Promise<LibPortfolioItemType[]> {
-  const adminFirestore = await getAdminFirestore();
+  const adminFirestore = getAdminFirestore();
   try {
-    const q = (await portfolioCollectionRef()).orderBy('createdAt', 'desc');
+    const q = portfolioCollectionRef().orderBy('createdAt', 'desc');
     const snapshot = await q.get();
 
     if (snapshot.empty) {
@@ -74,10 +74,10 @@ export async function getPortfolioItemBySlugAction(slug: string): Promise<LibPor
     return null;
   }
   
-  const adminFirestore = await getAdminFirestore();
+  const adminFirestore = getAdminFirestore();
 
   try {
-    const q = (await portfolioCollectionRef()).where("slug", "==", slug);
+    const q = portfolioCollectionRef().where("slug", "==", slug);
     const snapshot = await q.get();
 
     if (snapshot.empty) {
@@ -130,7 +130,7 @@ export async function savePortfolioItemAction(
     return { message: (authError as Error).message, status: 'error' };
   }
   
-  const adminFirestore = await getAdminFirestore();
+  const adminFirestore = getAdminFirestore();
 
   const rawData: PortfolioAdminFormData = {
     id: formData.get('id') as string || undefined,
@@ -174,7 +174,7 @@ export async function savePortfolioItemAction(
   let projectId = data.id;
 
   try {
-    const collRef = await portfolioCollectionRef();
+    const collRef = portfolioCollectionRef();
     const slugCheckQuery = collRef.where("slug", "==", data.slug);
     const slugSnapshot = await slugCheckQuery.get();
     let slugIsTaken = false;
@@ -196,7 +196,7 @@ export async function savePortfolioItemAction(
     }
 
     if (projectId) {
-      const docRef = await portfolioDocRef(projectId);
+      const docRef = portfolioDocRef(projectId);
       const docSnap = await docRef.get();
       if (!docSnap.exists) throw new Error("Trying to update a project that does not exist.");
 
@@ -235,7 +235,7 @@ export async function savePortfolioItemAction(
       projectId = newProjectRef.id;
     }
     
-    const savedDocRef = await portfolioDocRef(projectId!);
+    const savedDocRef = portfolioDocRef(projectId!);
     const savedDoc = await savedDocRef.get();
     if (!savedDoc.exists()) {
         throw new Error("Failed to retrieve saved project from Firestore after save operation.");
@@ -300,7 +300,7 @@ export async function deletePortfolioItemAction(itemId: string): Promise<DeleteP
         return { success: false, message: "No item ID provided for deletion." };
     }
     try {
-        const docRef = await portfolioDocRef(itemId);
+        const docRef = portfolioDocRef(itemId);
         const projectDocSnap = await docRef.get();
         if (!projectDocSnap.exists()) {
              return { success: false, message: `Project (ID: ${itemId}) not found for deletion.` };

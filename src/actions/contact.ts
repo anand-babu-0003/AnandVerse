@@ -26,7 +26,7 @@ export async function submitContactForm(
   prevState: ContactFormState,
   formData: FormData
 ): Promise<ContactFormState> {
-  const adminFirestore = await getAdminFirestore();
+  const adminFirestore = getAdminFirestore();
 
   const validatedFields = contactFormSchema.safeParse({
     name: formData.get('name'),
