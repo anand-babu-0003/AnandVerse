@@ -2,7 +2,7 @@
 "use server";
 
 import { getAdminFirestore } from '@/lib/firebaseAdmin';
-import { doc, getDoc, setDoc, Timestamp } from 'firebase-admin/firestore';
+import { doc, getDoc, setDoc } from 'firebase-admin/firestore';
 import type { AboutMeData } from '@/lib/types';
 import { 
   aboutMeSchema, 

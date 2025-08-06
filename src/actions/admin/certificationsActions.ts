@@ -13,6 +13,8 @@ import {
   getDoc,
   serverTimestamp,
   Timestamp,
+  orderBy,
+  query
 } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 import type { Certification as LibCertificationType } from '@/lib/types';
@@ -22,8 +24,8 @@ import { defaultCertificationsDataForClient } from '@/lib/data';
 export async function getCertificationsAction(): Promise<LibCertificationType[]> {
   try {
     const adminDb = getAdminFirestore();
-    const q = adminDb.collection('certifications').orderBy('date', 'desc');
-    const snapshot = await q.get();
+    const q = query(adminDb.collection('certifications'), orderBy('date', 'desc'));
+    const snapshot = await getDocs(q);
 
     if (snapshot.empty) {
       return [];
@@ -174,3 +176,5 @@ export async function deleteCertificationAction(itemId: string): Promise<DeleteC
     } catch (error) {
         console.error("Error deleting certification from Firestore:", error);
         return { success: false, message: "Failed to delete certification due to a server error." };
+    }
+}

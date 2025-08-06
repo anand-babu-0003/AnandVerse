@@ -1,3 +1,4 @@
+
 "use server";
 
 import { getAdminFirestore } from '@/lib/firebaseAdmin';
@@ -9,7 +10,6 @@ import {
   getDocs, 
   serverTimestamp, 
   deleteDoc,
-  Timestamp
 } from 'firebase-admin/firestore';
 import { 
   defaultSiteSettingsForClient,
@@ -19,6 +19,7 @@ import {
   defaultNotFoundPageDataForClient
 } from '@/lib/data';
 import type { SiteSettings, AboutMeData, Skill, PortfolioItem, Experience, Education, Certification, NotFoundPageData } from '@/lib/types';
+import { revalidatePath } from 'next/cache';
 
 export interface SeedDetails {
   siteSettings: { status: 'success' | 'error'; message?: string; count: number };
@@ -142,6 +143,9 @@ export async function seedFirestoreWithMockDataAction(): Promise<SeedResult> {
       details.notFoundPage = { status: 'error', count: 0, message: (e as Error).message };
       throw e;
     }
+    
+    // Revalidate all paths after seeding
+    revalidatePath('/', 'layout');
 
     return {
       success: true,

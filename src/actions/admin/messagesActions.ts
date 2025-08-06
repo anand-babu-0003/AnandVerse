@@ -2,14 +2,15 @@
 "use server";
 
 import { getAdminFirestore } from '@/lib/firebaseAdmin';
-import { doc, deleteDoc, Timestamp } from 'firebase-admin/firestore';
+import { doc, deleteDoc, Timestamp, getDocs, query, collection, orderBy } from 'firebase-admin/firestore';
 import { revalidatePath } from 'next/cache';
 import type { ContactMessage } from '@/lib/types';
 
 export async function getContactMessagesAction(): Promise<ContactMessage[]> {
   try {
     const adminDb = getAdminFirestore();
-    const snapshot = await adminDb.collection('contactMessages').orderBy('submittedAt', 'desc').get();
+    const q = query(adminDb.collection('contactMessages'), orderBy('submittedAt', 'desc'));
+    const snapshot = await getDocs(q);
     
     if (snapshot.empty) {
       return [];

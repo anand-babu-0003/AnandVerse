@@ -1,8 +1,10 @@
+
 "use server";
 
 import { z } from 'zod';
 import { getAdminFirestore } from '@/lib/firebaseAdmin';
 import { collection, addDoc, serverTimestamp } from 'firebase-admin/firestore';
+import { revalidatePath } from 'next/cache';
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -49,6 +51,9 @@ export async function submitContactForm(
       message,
       submittedAt: serverTimestamp(),
     });
+
+    // Revalidate the messages page in the admin panel
+    revalidatePath('/admin/messages');
 
     return {
       message: "Your message has been sent successfully! I'll get back to you soon.",

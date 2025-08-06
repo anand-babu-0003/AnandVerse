@@ -100,13 +100,6 @@ export async function updateSiteSettingsAction(
     await setDoc(siteSettingsDocRef, dataToSave, { merge: true });
 
     revalidatePath('/', 'layout'); 
-    revalidatePath('/'); 
-    revalidatePath('/about');
-    revalidatePath('/portfolio');
-    revalidatePath('/portfolio/[slug]', 'page');
-    revalidatePath('/skills');
-    revalidatePath('/contact');
-    revalidatePath('/admin/settings');
 
     return {
       message: "Site settings updated successfully!",
