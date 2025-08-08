@@ -178,16 +178,13 @@ body {
   flex-direction: column; 
   justify-content: center;
   align-items: center;
-  background-color: #f0f0f0; /* Fallback light color */
-  background-color: hsl(var(--background)); /* Use theme variable */
+  background-color: hsl(var(--card)); /* Opaque color */
   z-index: 9999;
 }
 
 .dark .fullscreen-loader-container {
-  background-color: #0a0a0a; /* Fallback dark color */
-  background-color: hsl(var(--background)); /* Use theme variable */
+  background-color: hsl(var(--card)); /* Opaque color */
 }
-
 
 .loader-content {
   display: flex;
@@ -195,7 +192,6 @@ body {
   align-items: center;
   gap: 20px;
 }
-
 
 @layer utilities {
   .transition-all-300 {

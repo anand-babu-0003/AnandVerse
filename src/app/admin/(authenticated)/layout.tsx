@@ -1,5 +1,5 @@
-// This file is no longer needed and will be replaced by /src/app/admin/layout.tsx
+// This file is obsolete due to the admin route restructuring and can be removed.
 // It is left blank to avoid build errors during file system changes.
-export default function AuthenticatedLayout({ children }: { children: React.ReactNode }) {
+export default function ObsoleteLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }

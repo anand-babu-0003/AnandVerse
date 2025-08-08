@@ -4,14 +4,13 @@ import { AdminHeader } from '@/components/admin/admin-header';
 import { AdminSidebar } from '@/components/admin/admin-sidebar';
 import { Toaster } from '@/components/ui/toaster';
 
-// This is the layout for all authenticated admin pages
-export default function AdminLayout({
+export default function AdminAuthenticatedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-screen bg-muted/10">
+    <div className="flex h-screen bg-background/50">
       <AdminSidebar />
       <div className="flex flex-col flex-1">
         <AdminHeader />

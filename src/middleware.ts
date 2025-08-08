@@ -7,13 +7,15 @@ export function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME);
   const { pathname } = request.nextUrl;
 
+  const isAuthenticated = !!sessionCookie;
+
   // If trying to access any admin page (except login) without a session, redirect to login
-  if (!sessionCookie && pathname.startsWith('/admin') && pathname !== '/admin/login') {
+  if (!isAuthenticated && pathname.startsWith('/admin') && pathname !== '/admin/login') {
     return NextResponse.redirect(new URL('/admin/login', request.url));
   }
 
   // If logged in and trying to access the login page, redirect to the dashboard
-  if (sessionCookie && pathname === '/admin/login') {
+  if (isAuthenticated && pathname === '/admin/login') {
     return NextResponse.redirect(new URL('/admin/dashboard', request.url));
   }
 

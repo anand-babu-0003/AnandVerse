@@ -1,2 +1,3 @@
-// This file is intentionally left blank to resolve a Next.js routing conflict.
-// It is overridden by /src/app/admin/(authenticated)/messages/page.tsx.
+// This file was a duplicate causing build errors and is now obsolete.
+// The correct page is located at /src/app/admin/messages/page.tsx
+// This file is intentionally left blank and can be deleted.
