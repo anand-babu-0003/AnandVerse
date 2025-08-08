@@ -1,2 +1,6 @@
-// This file is obsolete due to the admin route restructuring and can be removed.
-// It is left blank to avoid build errors during file system changes.
+// This layout file is obsolete due to the admin route restructuring.
+// The primary admin layout is now at /src/app/admin/layout.tsx.
+// This content is here to prevent Next.js from treating it as a layout and causing build errors.
+export default function ObsoleteLayout({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
+}

@@ -1,2 +1,3 @@
-// This file is obsolete and has been moved to /src/app/admin/about/page.tsx
-// It is left blank to avoid build errors during file system changes.
+// This file is obsolete and has been replaced by /src/app/admin/about/page.tsx.
+// This content is here to prevent Next.js from treating it as a page and causing build errors.
+export default null;
