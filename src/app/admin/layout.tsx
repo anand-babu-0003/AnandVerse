@@ -1,24 +1,12 @@
-
 import type React from 'react';
-import { AdminHeader } from '@/components/admin/admin-header';
-import { AdminSidebar } from '@/components/admin/admin-sidebar';
-import { Toaster } from '@/components/ui/toaster';
 
-export default function AdminAuthenticatedLayout({
+// This layout is intentionally minimal. It applies to the entire /admin route,
+// but the shared sidebar/header layout is applied within the (authenticated) route group.
+// This allows the /admin/login page to have its own separate layout without the admin panel UI.
+export default function AdminRootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="flex h-screen bg-background/50">
-      <AdminSidebar />
-      <div className="flex flex-col flex-1">
-        <AdminHeader />
-        <main className="flex-1 p-6 overflow-y-auto">
-          {children}
-        </main>
-      </div>
-      <Toaster />
-    </div>
-  );
+  return <>{children}</>;
 }

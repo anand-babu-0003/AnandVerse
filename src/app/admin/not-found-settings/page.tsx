@@ -1,18 +1,3 @@
-
-import { PageHeader } from '@/components/shared/page-header';
-import { getNotFoundPageDataAction } from '@/actions/admin/notFoundActions';
-import NotFoundSettingsForm from '@/components/admin/NotFoundSettingsForm';
-
-export default async function AdminNotFoundSettingsPage() {
-    const initialData = await getNotFoundPageDataAction();
-    return (
-        <div className="space-y-8">
-            <PageHeader
-                title="404 Page Settings"
-                subtitle="Customize the content displayed on your 'Page Not Found' page."
-                className="py-0 text-left"
-            />
-            <NotFoundSettingsForm initialData={initialData} />
-        </div>
-    );
-}
+// This file is obsolete and has been moved to /src/app/admin/(authenticated)/not-found-settings/page.tsx.
+// This content is here to prevent Next.js from treating it as a page and causing build errors.
+export default null;

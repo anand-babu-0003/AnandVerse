@@ -1,4 +1,17 @@
+import { PageHeader } from '@/components/shared/page-header';
+import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
+import SettingsAdminClientPage from '@/components/admin/SettingsAdminClientPage';
 
-// This file is obsolete and has been replaced by /src/app/admin/settings/page.tsx.
-// This content is here to prevent Next.js from treating it as a page and causing build errors.
-export default null;
+export default async function AdminSettingsPage() {
+    const initialData = await getSiteSettingsAction();
+    return (
+        <div className="space-y-8">
+            <PageHeader
+                title="Site Settings"
+                subtitle="Manage general configuration, SEO, and other site-wide settings."
+                className="py-0 text-left"
+            />
+            <SettingsAdminClientPage initialData={initialData} />
+        </div>
+    );
+}

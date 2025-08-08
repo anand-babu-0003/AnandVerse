@@ -1,4 +1,7 @@
+import { getSkillsAction } from '@/actions/admin/skillsActions';
+import SkillsAdminClientPage from '@/components/admin/SkillsAdminClientPage';
 
-// This file is obsolete and has been replaced by /src/app/admin/skills/page.tsx.
-// This content is here to prevent Next.js from treating it as a page and causing build errors.
-export default null;
+export default async function AdminSkillsPage() {
+  const initialSkills = await getSkillsAction();
+  return <SkillsAdminClientPage initialSkills={initialSkills} />;
+}

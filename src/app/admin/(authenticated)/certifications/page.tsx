@@ -1,4 +1,7 @@
+import { getCertificationsAction } from '@/actions/admin/certificationsActions';
+import CertificationsAdminClientPage from '@/components/admin/CertificationsAdminClientPage';
 
-// This file is obsolete and has been replaced by /src/app/admin/certifications/page.tsx.
-// This content is here to prevent Next.js from treating it as a page and causing build errors.
-export default null;
+export default async function AdminCertificationsPage() {
+  const initialCertifications = await getCertificationsAction();
+  return <CertificationsAdminClientPage initialCertifications={initialCertifications} />;
+}

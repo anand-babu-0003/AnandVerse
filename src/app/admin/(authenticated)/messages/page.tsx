@@ -1,4 +1,13 @@
+import { PageHeader } from '@/components/shared/page-header';
+import { getContactMessagesAction } from '@/actions/admin/messagesActions';
+import MessagesClientPage from '@/components/admin/MessagesClientPage';
 
-// This file is obsolete and has been replaced by /src/app/admin/messages/page.tsx.
-// This content is here to prevent Next.js from treating it as a page and causing build errors.
-export default null;
+export default async function AdminMessagesPage() {
+  const initialMessages = await getContactMessagesAction();
+  return (
+    <div className="space-y-6">
+        <PageHeader title="Contact Messages" subtitle="Messages received from your site visitors." className="py-0 text-left" />
+        <MessagesClientPage initialMessages={initialMessages} />
+    </div>
+  );
+}

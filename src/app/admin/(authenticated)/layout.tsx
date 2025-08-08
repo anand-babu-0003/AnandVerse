@@ -1,7 +1,23 @@
+import type React from 'react';
+import { AdminHeader } from '@/components/admin/admin-header';
+import { AdminSidebar } from '@/components/admin/admin-sidebar';
+import { Toaster } from '@/components/ui/toaster';
 
-// This layout file is obsolete due to the admin route restructuring.
-// The primary admin layout is now at /src/app/admin/layout.tsx.
-// This content is here to prevent Next.js from treating it as a layout and causing build errors.
-export default function ObsoleteLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+export default function AdminAuthenticatedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex h-screen bg-background/50">
+      <AdminSidebar />
+      <div className="flex flex-col flex-1">
+        <AdminHeader />
+        <main className="flex-1 p-6 overflow-y-auto">
+          {children}
+        </main>
+      </div>
+      <Toaster />
+    </div>
+  );
 }

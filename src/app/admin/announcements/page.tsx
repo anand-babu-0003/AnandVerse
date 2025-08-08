@@ -1,16 +1,3 @@
-
-import { PageHeader } from '@/components/shared/page-header';
-import AdminAnnouncementPanel from '@/components/announcements/AdminAnnouncementPanel';
-
-export default function AdminAnnouncementsPage() {
-  return (
-    <div className="space-y-6">
-      <PageHeader 
-        title="Manage Announcements" 
-        subtitle="Publish and oversee site-wide announcements." 
-        className="py-0 text-left" 
-      />
-      <AdminAnnouncementPanel />
-    </div>
-  );
-}
+// This file is obsolete and has been moved to /src/app/admin/(authenticated)/announcements/page.tsx.
+// This content is here to prevent Next.js from treating it as a page and causing build errors.
+export default null;
