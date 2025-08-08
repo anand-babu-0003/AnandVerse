@@ -1,9 +1,5 @@
-
-import { getSkillsAction } from '@/actions/admin/skillsActions';
-import SkillsAdminClientPage from '@/components/admin/SkillsAdminClientPage';
-
-// Server Component to fetch initial data
-export default async function AdminSkillsPage() {
-  const initialSkills = await getSkillsAction();
-  return <SkillsAdminClientPage initialSkills={initialSkills} />;
+// This file is obsolete and has been moved to /src/app/admin/skills/page.tsx
+// It is left blank to avoid build errors during file system changes.
+export default function ObsoletePage() {
+  return null;
 }

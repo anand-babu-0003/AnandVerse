@@ -1,19 +1,5 @@
-
-import { PageHeader } from '@/components/shared/page-header';
-import { getNotFoundPageDataAction } from '@/actions/admin/notFoundActions';
-import NotFoundSettingsForm from '@/components/admin/NotFoundSettingsForm'; // Import the new client component
-
-// Server Component to fetch initial data
-export default async function AdminNotFoundSettingsPage() {
-    const initialData = await getNotFoundPageDataAction();
-    return (
-        <div className="space-y-8">
-            <PageHeader
-                title="404 Page Settings"
-                subtitle="Customize the content displayed on your 'Page Not Found' page."
-                className="py-0 text-left"
-            />
-            <NotFoundSettingsForm initialData={initialData} />
-        </div>
-    );
+// This file is obsolete and has been moved to /src/app/admin/not-found-settings/page.tsx
+// It is left blank to avoid build errors during file system changes.
+export default function ObsoletePage() {
+  return null;
 }

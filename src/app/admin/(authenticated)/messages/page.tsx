@@ -1,5 +1,5 @@
-// This file is obsolete due to the admin route restructuring and can be removed.
-// Its content has been moved to /src/app/admin/messages/page.tsx
+// This file is obsolete and has been moved to /src/app/admin/messages/page.tsx
+// It is left blank to avoid build errors during file system changes.
 export default function ObsoletePage() {
     return null;
 }

@@ -1,19 +1,5 @@
-
-import { PageHeader } from '@/components/shared/page-header';
-import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
-import SettingsAdminClientPage from '@/components/admin/SettingsAdminClientPage';
-
-// Server Component to fetch initial data
-export default async function AdminSettingsPage() {
-    const initialData = await getSiteSettingsAction();
-    return (
-        <div className="space-y-8">
-            <PageHeader
-                title="Site Settings"
-                subtitle="Manage general configuration, SEO, and other site-wide settings."
-                className="py-0 text-left"
-            />
-            <SettingsAdminClientPage initialData={initialData} />
-        </div>
-    );
+// This file is obsolete and has been moved to /src/app/admin/settings/page.tsx
+// It is left blank to avoid build errors during file system changes.
+export default function ObsoletePage() {
+  return null;
 }

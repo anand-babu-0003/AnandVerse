@@ -1,9 +1,5 @@
-
-import { getCertificationsAction } from '@/actions/admin/certificationsActions';
-import CertificationsAdminClientPage from '@/components/admin/CertificationsAdminClientPage';
-
-// Server Component to fetch initial data
-export default async function AdminCertificationsPage() {
-  const initialCertifications = await getCertificationsAction();
-  return <CertificationsAdminClientPage initialCertifications={initialCertifications} />;
+// This file is obsolete and has been moved to /src/app/admin/certifications/page.tsx
+// It is left blank to avoid build errors during file system changes.
+export default function ObsoletePage() {
+  return null;
 }

@@ -1,6 +1,6 @@
 
 {
-  "name": "nextn",
+  "name": "AnanndVerse",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -41,7 +41,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
-    "dotenv": "^16.5.0",
     "embla-carousel-react": "^8.1.7",
     "firebase": "^11.9.1",
     "genkit": "^1.8.0",
