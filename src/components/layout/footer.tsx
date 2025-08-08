@@ -42,7 +42,7 @@ export default async function Footer() {
                 <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="font-headline text-xl font-bold text-primary group-hover:text-accent transition-colors">
-                {displayedData.name ? `${displayedData.name.split(' ')[0]}'s Verse` : defaultAboutMeDataForClient.name.split(' ')[0] + "'s Verse"}
+                AnanndVerse
               </span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-md">

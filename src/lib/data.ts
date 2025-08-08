@@ -67,13 +67,13 @@ import { SKILL_CATEGORIES } from './constants';
 // --- Default Data Structures for Client-Side Admin Forms & Fallbacks ---
 
 export const defaultSiteSettingsForClient: SiteSettings = {
-  siteName: 'VermaVerse',
-  defaultMetaDescription: 'A showcase of my projects and skills in VermaVerse, the digital realm of Anand Verma.',
+  siteName: 'AnanndVerse',
+  defaultMetaDescription: 'A showcase of my projects and skills in AnanndVerse, the digital realm of Anand Verma.',
   defaultMetaKeywords: 'portfolio, web developer, react, nextjs, anand verma, full-stack',
-  siteOgImageUrl: 'https://placehold.co/1200x630.png?text=VermaVerse',
+  siteOgImageUrl: 'https://placehold.co/1200x630.png?text=AnanndVerse',
   maintenanceMode: false,
-  skillsPageMetaTitle: 'My Skills | VermaVerse',
-  skillsPageMetaDescription: 'Explore my diverse skill set including programming languages, frameworks, and tools used in VermaVerse.',
+  skillsPageMetaTitle: 'My Skills | AnanndVerse',
+  skillsPageMetaDescription: 'Explore my diverse skill set including programming languages, frameworks, and tools used in AnanndVerse.',
   faviconUrl: '/favicon.ico', // Default local favicon
   appleTouchIconUrl: '/apple-touch-icon.png', // Default local apple touch icon
 };
@@ -112,7 +112,7 @@ export const defaultCertificationsDataForClient: Certification[] = [
 export const defaultAboutMeDataForClient: AboutMeData = {
   name: 'Anand Verma',
   title: 'Full-Stack Developer & UI Enthusiast',
-  bio: "Hello! I'm Anand, a passionate and results-oriented Full-Stack Developer with a keen eye for UI/UX design. My journey in the tech world is driven by the thrill of turning complex problems into elegant, user-friendly solutions. I thrive in collaborative environments and am always eager to learn and adapt to new technologies.\n\nIn VermaVerse, you'll find a collection of projects that showcase my dedication to quality, innovation, and a user-first approach. From architecting robust backend systems to crafting pixel-perfect frontends, I enjoy every aspect of the development lifecycle. Let's build something amazing together!",
+  bio: "Hello! I'm Anand, a passionate and results-oriented Full-Stack Developer with a keen eye for UI/UX design. My journey in the tech world is driven by the thrill of turning complex problems into elegant, user-friendly solutions. I thrive in collaborative environments and am always eager to learn and adapt to new technologies.\n\nIn AnanndVerse, you'll find a collection of projects that showcase my dedication to quality, innovation, and a user-first approach. From architecting robust backend systems to crafting pixel-perfect frontends, I enjoy every aspect of the development lifecycle. Let's build something amazing together!",
   profileImage: 'https://github.com/anand-babu-0003/TrueValidator2/blob/main/Screenshot_2024-11-19-16-59-04-27_99c04817c0de5652397fc8b56c3b3817~2.jpg?raw=true',
   dataAiHint: 'developer portrait modern tech',
   experience: defaultExperienceForClient,
@@ -141,11 +141,11 @@ export const defaultPortfolioItemsDataForClient: PortfolioItem[] = [
     longDescription: 'This portfolio is a dynamic showcase of my skills and projects. It features a modern design, responsive layout, and an admin panel for easy content management. Built using Next.js for server-side rendering and static generation, Tailwind CSS for styling, and Firebase for backend services including Firestore database. All data is dynamically fetched and managed.',
     images: ['https://placehold.co/600x400.png?text=PortfolioSite1', 'https://placehold.co/600x400.png?text=PortfolioSite2'],
     tags: ['Next.js', 'React', 'Tailwind CSS', 'Firebase', 'TypeScript', 'ShadCN UI'],
-    slug: 'personal-portfolio-vermaverse',
+    slug: 'personal-portfolio-ananndverse',
     dataAiHint: 'website design code modern',
-    readmeContent: '# Personal Portfolio - VermaVerse\n\nThis project is the source code for my personal portfolio website, VermaVerse. It demonstrates my ability to build full-stack applications with modern technologies.\n\n## Key Features\n- Dynamic content managed via Firestore.\n- Responsive design for all devices.\n- Showcase of projects, skills, and professional background.\n- Interactive contact form.\n- Admin panel for content updates (portfolio, skills, about me, site settings).\n\n## Technology Stack\n- **Frontend**: Next.js (App Router), React, TypeScript, Tailwind CSS, ShadCN UI Components, Lucide Icons\n- **Backend/Database**: Firebase (Firestore)\n- **Styling**: Tailwind CSS, PostCSS\n- **State Management**: React Hooks, Server Actions\n- **Form Handling**: React Hook Form, Zod for validation\n\nThis site is deployed on Vercel.',
+    readmeContent: '# Personal Portfolio - AnanndVerse\n\nThis project is the source code for my personal portfolio website, AnanndVerse. It demonstrates my ability to build full-stack applications with modern technologies.\n\n## Key Features\n- Dynamic content managed via Firestore.\n- Responsive design for all devices.\n- Showcase of projects, skills, and professional background.\n- Interactive contact form.\n- Admin panel for content updates (portfolio, skills, about me, site settings).\n\n## Technology Stack\n- **Frontend**: Next.js (App Router), React, TypeScript, Tailwind CSS, ShadCN UI Components, Lucide Icons\n- **Backend/Database**: Firebase (Firestore)\n- **Styling**: Tailwind CSS, PostCSS\n- **State Management**: React Hooks, Server Actions\n- **Form Handling**: React Hook Form, Zod for validation\n\nThis site is deployed on Vercel.',
     liveUrl: '#',
-    repoUrl: 'https://github.com/yourusername/vermaverse-portfolio',
+    repoUrl: 'https://github.com/yourusername/ananndverse-portfolio',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },

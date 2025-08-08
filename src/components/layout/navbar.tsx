@@ -49,7 +49,7 @@ export default function Navbar() {
               <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="font-headline text-2xl font-bold text-primary">AnandVerse</span>
+            <span className="font-headline text-2xl font-bold text-primary">AnanndVerse</span>
           </Link>
           <div className="h-8 w-8" />
         </div>
@@ -96,7 +96,7 @@ export default function Navbar() {
             <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="font-headline text-2xl font-bold text-primary">AnandVerse</span>
+          <span className="font-headline text-2xl font-bold text-primary">AnanndVerse</span>
         </Link>
 
         <div className="flex items-center gap-2">
@@ -122,7 +122,7 @@ export default function Navbar() {
                          <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
                          <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
                        </svg>
-                       <span className="font-headline text-xl font-bold text-primary">AnandVerse</span>
+                       <span className="font-headline text-xl font-bold text-primary">AnanndVerse</span>
                      </Link>
                     <SheetClose asChild>
                        <Button variant="ghost" size="icon" aria-label="Close menu">
