@@ -63,7 +63,7 @@ export default async function AboutPage() {
         <section id="experience-education">
           <h2 className="font-headline text-3xl md:text-4xl font-bold text-primary mb-8 text-center">My Journey</h2>
           <div className="grid md:grid-cols-2 gap-8">
-            <div>
+            <div className="space-y-6">
               <h3 className="font-headline text-2xl font-semibold text-primary/90 mb-6 flex items-center">
                 <Briefcase className="mr-3 h-7 w-7 text-primary" /> Professional Journey
               </h3>
@@ -88,7 +88,7 @@ export default async function AboutPage() {
               </div>
             </div>
 
-            <div>
+            <div className="space-y-6">
               <h3 className="font-headline text-2xl font-semibold text-primary/90 mb-6 flex items-center">
                 <GraduationCap className="mr-3 h-7 w-7 text-primary" /> Academic Background
               </h3>

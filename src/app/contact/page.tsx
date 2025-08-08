@@ -20,15 +20,15 @@ export default async function ContactPage() {
         />
       </ScrollAnimationWrapper>
 
-      <div className="grid lg:grid-cols-5 gap-12">
-        <ScrollAnimationWrapper className="lg:col-span-3" delay={100}>
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-12">
+        <ScrollAnimationWrapper className="md:col-span-3" delay={100}>
           <Card className="shadow-xl p-6 sm:p-8">
             <CardContent className="p-0">
               <ContactForm />
             </CardContent>
           </Card>
         </ScrollAnimationWrapper>
-        <ScrollAnimationWrapper className="lg:col-span-2" delay={200}>
+        <ScrollAnimationWrapper className="md:col-span-2" delay={200}>
            <Card className="shadow-xl p-6 sm:p-8 bg-primary/5">
             <CardContent className="p-0">
               <ContactInfo aboutMeData={displayedData} />
