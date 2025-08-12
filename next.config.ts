@@ -33,7 +33,13 @@ const nextConfig: NextConfig = {
         hostname: 'photos.fife.usercontent.google.com',
         port: '',
         pathname: '/**',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.dribbble.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
