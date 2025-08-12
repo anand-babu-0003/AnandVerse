@@ -5,6 +5,7 @@ import type { SocialLink } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { getAboutMeDataAction } from '@/actions/getAboutMeDataAction';
 import { defaultAboutMeDataForClient } from '@/lib/data';
+import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
 
 const mainNavItems = [
   { href: '/', label: 'Home' },
@@ -16,7 +17,11 @@ const mainNavItems = [
 
 export default async function Footer() {
   const currentYear = new Date().getFullYear();
-  const aboutMeData = await getAboutMeDataAction();
+  const [aboutMeData, siteSettings] = await Promise.all([
+    getAboutMeDataAction(),
+    getSiteSettingsAction(),
+  ]);
+
   const displayedData = aboutMeData || defaultAboutMeDataForClient;
 
   const socialLinksToDisplay: SocialLink[] = [
@@ -42,7 +47,7 @@ export default async function Footer() {
                 <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
               <span className="font-headline text-xl font-bold text-primary group-hover:text-accent transition-colors">
-                AnanndVerse
+                {siteSettings.siteName}
               </span>
             </Link>
             <p className="text-sm text-muted-foreground max-w-md">

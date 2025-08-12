@@ -9,6 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { ThemeToggleButton } from './theme-toggle-button';
+import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
+import type { SiteSettings } from '@/lib/types';
+import { defaultSiteSettingsForClient } from '@/lib/data';
 
 const navItems = [
   { href: '/', label: 'Home', icon: Home },
@@ -23,9 +26,12 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(defaultSiteSettingsForClient);
 
   useEffect(() => {
     setIsMounted(true);
+
+    getSiteSettingsAction().then(setSiteSettings);
 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -49,7 +55,7 @@ export default function Navbar() {
               <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
               <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-            <span className="font-headline text-2xl font-bold text-primary">AnanndVerse</span>
+            <span className="font-headline text-2xl font-bold text-primary">{siteSettings.siteName}</span>
           </Link>
           <div className="h-8 w-8" />
         </div>
@@ -96,7 +102,7 @@ export default function Navbar() {
             <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
             <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          <span className="font-headline text-2xl font-bold text-primary">AnanndVerse</span>
+          <span className="font-headline text-2xl font-bold text-primary">{siteSettings.siteName}</span>
         </Link>
 
         <div className="flex items-center gap-2">
@@ -122,7 +128,7 @@ export default function Navbar() {
                          <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
                          <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
                        </svg>
-                       <span className="font-headline text-xl font-bold text-primary">AnanndVerse</span>
+                       <span className="font-headline text-xl font-bold text-primary">{siteSettings.siteName}</span>
                      </Link>
                     <SheetClose asChild>
                        <Button variant="ghost" size="icon" aria-label="Close menu">
