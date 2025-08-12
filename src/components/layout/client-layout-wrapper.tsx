@@ -11,7 +11,6 @@ import { AlertTriangle } from 'lucide-react';
 import FullScreenLoader from '@/components/shared/FullScreenLoader';
 import LiveAnnouncementBanner from '@/components/announcements/LiveAnnouncementBanner';
 import { cn } from '@/lib/utils';
-import { Analytics } from '@vercel/analytics/react';
 
 import { firestore } from '@/lib/firebaseConfig';
 import { doc, onSnapshot } from 'firebase/firestore';
@@ -105,7 +104,6 @@ export function ClientLayoutWrapper({
         {!isAdminRoute && footer}
       </div>
       <Toaster />
-      <Analytics />
     </>
   );
 }
