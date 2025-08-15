@@ -8,52 +8,41 @@
 
 @layer base {
   :root {
-    --background: 285 14% 96%;
-    --foreground: 274 13% 13%;
-
-    --card: 285 14% 96%;
-    --card-foreground: 274 13% 13%;
-
-    --popover: 285 14% 96%;
-    --popover-foreground: 274 13% 13%;
-
-    --primary: 278 82% 51%;
-    --primary-foreground: 300 13% 97%;
-
-    --secondary: 285 5% 94%;
-    --secondary-foreground: 274 13% 13%;
-
-    --muted: 285 5% 94%;
-    --muted-foreground: 276 8% 41%;
-
-    --accent: 182 98% 74%;
-    --accent-foreground: 183 98% 18%;
-
-    --destructive: 0 84% 60%;
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 285 7% 84%;
-    --input: 285 7% 84%;
-    --ring: 278 82% 51%;
-
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 262.1 83.3% 57.8%;
     --radius: 0.5rem;
-
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     
-    --sidebar-background: 285 14% 98%;
-    --sidebar-foreground: 274 13% 26%;
-    --sidebar-primary: 274 13% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 285 5% 96%;
-    --sidebar-accent-foreground: 274 13% 10%;
-    --sidebar-border: 285 7% 91%;
-    --sidebar-ring: 278 82% 51%;
-
-    /* Loader cell colors for light theme */
+    --sidebar-background: 240 10% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 240 4.9% 83.9%;
+    
     --loader-cell-1: hsl(var(--primary));
     --loader-cell-2: hsl(var(--primary) / 0.9);
     --loader-cell-3: hsl(var(--primary) / 0.8);
@@ -66,50 +55,41 @@
   }
 
   .dark {
-    --background: 274 13% 10%;
+    --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
-
-    --card: 274 13% 10%;
+    --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
-
-    --popover: 274 13% 10%;
+    --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
-
-    --primary: 278 82% 61%;
-    --primary-foreground: 274 13% 10%;
-
-    --secondary: 274 13% 15%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
-
-    --muted: 274 13% 15%;
-    --muted-foreground: 276 8% 64%;
-
-    --accent: 182 98% 65%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
-
-    --destructive: 0 72% 51%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 274 13% 20%;
-    --input: 274 13% 20%;
-    --ring: 278 82% 61%;
-
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
 
-    --sidebar-background: 274 13% 10%;
-    --sidebar-foreground: 285 5% 96%;
-    --sidebar-primary: 278 82% 61%;
-    --sidebar-primary-foreground: 274 13% 10%;
-    --sidebar-accent: 274 13% 16%;
-    --sidebar-accent-foreground: 285 5% 96%;
-    --sidebar-border: 274 13% 16%;
-    --sidebar-ring: 278 82% 61%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.9% 10%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 240 5.9% 90%;
+    --sidebar-ring: 240 5.9% 10%;
 
-    /* Loader cell colors for dark theme */
     --loader-cell-1: hsl(var(--primary));
     --loader-cell-2: hsl(var(--primary) / 0.9);
     --loader-cell-3: hsl(var(--primary) / 0.8);
@@ -256,101 +236,6 @@
   flex-direction: column;
   align-items: center;
   gap: 20px;
-}
-
-
-@layer utilities {
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .animate-fadeInUp-1 {
-    animation: fadeInUp 0.6s ease-out forwards;
-    opacity: 0; 
-  }
-  .animate-fadeInUp-2 {
-    animation: fadeInUp 0.6s ease-out 0.3s forwards; 
-    opacity: 0; 
-  }
-  .animate-fadeInUp-delayed { 
-    animation: fadeInUp 0.6s ease-out 0.6s forwards; 
-    opacity: 0; 
-  }
-
-  @keyframes animatedGradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-
-  .bg-animated-gradient {
-    background-size: 200% 200%;
-    animation: animatedGradient 15s ease infinite;
-  }
-
-  .scroll-trigger {
-    opacity: 0;
-    transform: translateY(25px); 
-    transition-property: opacity, transform;
-    transition-duration: 0.7s; 
-    transition-timing-function: ease-out;
-  }
-
-  .scroll-trigger.animate-scroll-in {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .light-orb {
-    position: fixed; 
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: -1; 
-    mix-blend-mode: overlay; 
-    transition: transform 0.15s ease-out; 
-  }
-
-  .light-orb-1 {
-    width: 60vw;
-    height: 60vh;
-    background: radial-gradient(circle, hsl(var(--primary) / 0.3) 0%, transparent 70%);
-  }
-
-  .light-orb-2 {
-    width: 50vw;
-    height: 50vh;
-    background: radial-gradient(circle, hsl(var(--accent) / 0.2) 0%, transparent 70%);
-  }
-
-  .star {
-    position: absolute;
-    background-color: white;
-    border-radius: 50%;
-    animation: fallAndFade linear infinite;
-    box-shadow: 0 0 4px #fff, 0 0 8px #fff, 0 0 12px hsl(var(--accent) / 0.7); 
-  }
-
-  @keyframes fallAndFade {
-    0% {
-      transform: translateY(-30px) scale(0.5); 
-      opacity: 0;
-    }
-    10%, 20% { 
-      opacity: 1;
-      transform: scale(1);
-    }
-    100% {
-      transform: translateY(100vh) scale(0.7); 
-      opacity: 0;
-    }
-  }
 }
 
 .markdown-body {
