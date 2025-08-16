@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useForm, useFieldArray, type FieldArrayWithId } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useActionState, useFormStatus } from 'react-dom';
+import { useFormState, useFormStatus } from 'react-dom';
 import type { Experience } from '@/lib/types';
 import { experienceSectionSchema, type ExperienceSectionData } from '@/lib/adminSchemas';
 import { updateExperienceDataAction, type UpdateExperienceDataFormState } from '@/actions/admin/aboutActions';
@@ -39,7 +39,7 @@ function SubmitButton() {
 
 export function ExperienceForm({ experience: initialExperience }: ExperienceFormProps) {
   const { toast } = useToast();
-  const [formState, formAction] = useActionState(updateExperienceDataAction, initialState);
+  const [formState, formAction] = useFormState(updateExperienceDataAction, initialState);
 
   const form = useForm<ExperienceSectionData>({
     resolver: zodResolver(experienceSectionSchema),

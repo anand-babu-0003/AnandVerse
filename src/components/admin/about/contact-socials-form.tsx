@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useActionState, useFormStatus } from 'react-dom';
+import { useFormState, useFormStatus } from 'react-dom';
 import type { AboutMeData } from '@/lib/types';
 import { aboutMeSchema } from '@/lib/adminSchemas';
 import { updateAboutDataAction, type UpdateAboutDataFormState } from '@/actions/admin/aboutActions';
@@ -46,7 +46,7 @@ function SubmitButton() {
 
 export function ContactSocialsForm({ aboutMeData }: ContactSocialsFormProps) {
   const { toast } = useToast();
-  const [formState, formAction] = useActionState(updateAboutDataAction, initialState);
+  const [formState, formAction] = useFormState(updateAboutDataAction, initialState);
 
   const form = useForm<ContactSocialsFormData>({
     resolver: zodResolver(contactSocialsSchema),

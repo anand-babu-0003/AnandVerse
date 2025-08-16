@@ -4,8 +4,7 @@
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useFormState, useFormStatus } from 'react-dom';
 import type { SiteSettings } from '@/lib/types';
 import { siteSettingsAdminSchema, type SiteSettingsAdminFormData } from '@/lib/adminSchemas';
 import { updateSiteSettingsAction, type UpdateSiteSettingsFormState } from '@/actions/admin/settingsActions';
@@ -40,7 +39,7 @@ function SubmitButton() {
 
 export default function AdminSettingsForm({ siteSettings }: AdminSettingsFormProps) {
   const { toast } = useToast();
-  const [formState, formAction] = useActionState(updateSiteSettingsAction, initialState);
+  const [formState, formAction] = useFormState(updateSiteSettingsAction, initialState);
 
   const form = useForm<SiteSettingsAdminFormData>({
     resolver: zodResolver(siteSettingsAdminSchema),
