@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useFormStatus } from 'react-dom';
 import Link from 'next/link'; 
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -38,7 +38,7 @@ const initialState: LoginFormState = { message: '', status: 'idle' };
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [formState, formAction] = useFormState(loginAction, initialState);
+  const [formState, formAction] = useActionState(loginAction, initialState);
 
   useEffect(() => {
     if (formState.status === 'success') {

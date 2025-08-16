@@ -4,7 +4,8 @@
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import type { AboutMeData } from '@/lib/types';
 import { profileBioSchema, type ProfileBioData } from '@/lib/adminSchemas';
 import { updateProfileBioDataAction, type UpdateProfileBioDataFormState } from '@/actions/admin/aboutActions';
@@ -38,7 +39,7 @@ function SubmitButton() {
 
 export function ProfileBioForm({ aboutMeData }: ProfileBioFormProps) {
   const { toast } = useToast();
-  const [formState, formAction] = useFormState(updateProfileBioDataAction, initialState);
+  const [formState, formAction] = useActionState(updateProfileBioDataAction, initialState);
 
   const form = useForm<ProfileBioData>({
     resolver: zodResolver(profileBioSchema),

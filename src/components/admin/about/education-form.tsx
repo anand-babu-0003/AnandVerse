@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useForm, useFieldArray, type FieldArrayWithId } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useFormStatus } from 'react-dom';
 import type { Education } from '@/lib/types';
 import { educationSectionSchema, type EducationSectionData } from '@/lib/adminSchemas';
 import { updateEducationDataAction, type UpdateEducationDataFormState } from '@/actions/admin/aboutActions';
@@ -37,7 +37,7 @@ function SubmitButton() {
 
 export function EducationForm({ education: initialEducation }: EducationFormProps) {
   const { toast } = useToast();
-  const [formState, formAction] = useFormState(updateEducationDataAction, initialState);
+  const [formState, formAction] = useActionState(updateEducationDataAction, initialState);
 
   const form = useForm<EducationSectionData>({
     resolver: zodResolver(educationSectionSchema),

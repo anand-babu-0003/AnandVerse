@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -40,7 +40,7 @@ function SubmitButton() {
 }
 
 export default function AdminAnnouncementPanel() {
-  const [state, formAction] = useFormState(submitAnnouncementAction, initialFormState);
+  const [state, formAction] = useActionState(submitAnnouncementAction, initialFormState);
   const { toast } = useToast();
 
   const form = useForm<AnnouncementFormData>({
