@@ -1,9 +1,7 @@
 
 "use client";
 
-import { useEffect } from 'react';
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useEffect, useTransition } from 'react';
 import Link from 'next/link'; 
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -13,12 +11,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { AlertCircle, LogIn, Home } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { loginAction, type LoginFormState } from '@/actions/admin/authActions';
+import * as React from 'react';
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isPending }: { isPending: boolean }) {
   return (
-     <Button type="submit" className="w-full" disabled={pending}>
-      {pending ? (
+     <Button type="submit" className="w-full" disabled={isPending}>
+      {isPending ? (
         <>
           <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -39,7 +37,15 @@ const initialState: LoginFormState = { message: '', status: 'idle' };
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [formState, formAction] = useActionState(loginAction, initialState);
+  const [isPending, startTransition] = useTransition();
+  const [formState, setFormState] = React.useState<LoginFormState>(initialState);
+
+  const formAction = (formData: FormData) => {
+    startTransition(async () => {
+      const result = await loginAction(formState, formData);
+      setFormState(result);
+    });
+  };
 
   useEffect(() => {
     if (formState.status === 'success') {
@@ -100,7 +106,7 @@ export default function AdminLoginPage() {
                 <AlertDescription>{formState.message}</AlertDescription>
               </Alert>
             )}
-            <SubmitButton />
+            <SubmitButton isPending={isPending}/>
           </form>
         </CardContent>
          <CardFooter className="flex flex-col items-center text-center text-xs text-muted-foreground pt-6 gap-4">

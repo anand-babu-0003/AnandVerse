@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useForm, useFieldArray, type FieldArrayWithId } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useActionState, useFormStatus } from 'react-dom';
+import { useTransition } from 'react';
 import type { Education } from '@/lib/types';
 import { educationSectionSchema, type EducationSectionData } from '@/lib/adminSchemas';
 import { updateEducationDataAction, type UpdateEducationDataFormState } from '@/actions/admin/aboutActions';
@@ -22,11 +22,10 @@ interface EducationFormProps {
 
 const initialState: UpdateEducationDataFormState = { message: '', status: 'idle', data: { education: [] } };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isPending }: { isPending: boolean }) {
   return (
-    <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-      {pending ? (
+    <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+      {isPending ? (
         <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
       ) : (
         <><Save className="mr-2 h-4 w-4" /> Save Education</>
@@ -37,7 +36,8 @@ function SubmitButton() {
 
 export function EducationForm({ education: initialEducation }: EducationFormProps) {
   const { toast } = useToast();
-  const [formState, formAction] = useActionState(updateEducationDataAction, initialState);
+  const [isPending, startTransition] = useTransition();
+  const [formState, setFormState] = React.useState<UpdateEducationDataFormState>(initialState);
 
   const form = useForm<EducationSectionData>({
     resolver: zodResolver(educationSectionSchema),
@@ -60,20 +60,24 @@ export function EducationForm({ education: initialEducation }: EducationFormProp
     });
   };
 
-  React.useEffect(() => {
-    if (formState.status === 'success') {
-      toast({ title: "Success!", description: formState.message });
-      if (formState.data?.education) {
-        form.reset({ education: formState.data.education });
+  const onSubmit = (formData: FormData) => {
+    startTransition(async () => {
+      const result = await updateEducationDataAction(formState, formData);
+      setFormState(result);
+      if (result.status === 'success') {
+        toast({ title: "Success!", description: result.message });
+        if (result.data?.education) {
+          form.reset({ education: result.data.education });
+        }
+      } else if (result.status === 'error') {
+        toast({ title: "Error", description: result.message, variant: "destructive" });
       }
-    } else if (formState.status === 'error') {
-      toast({ title: "Error", description: formState.message, variant: "destructive" });
-    }
-  }, [formState, toast, form]);
+    });
+  };
 
   return (
     <Form {...form}>
-      <form action={formAction}>
+      <form action={onSubmit}>
         <Card>
           <CardHeader>
             <CardTitle>Education</CardTitle>
@@ -129,7 +133,7 @@ export function EducationForm({ education: initialEducation }: EducationFormProp
             </Button>
           </CardContent>
           <CardFooter className="border-t px-6 py-4 flex justify-end">
-            <SubmitButton />
+            <SubmitButton isPending={isPending} />
           </CardFooter>
         </Card>
       </form>

@@ -4,7 +4,6 @@
 import { z } from 'zod';
 import { firestore } from '@/lib/firebaseConfig';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import type { ContactMessage } from '@/lib/types';
 
 const contactFormSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),

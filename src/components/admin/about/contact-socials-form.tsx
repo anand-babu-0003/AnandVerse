@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useActionState, useFormStatus } from 'react-dom';
+import { useTransition } from 'react';
 import type { AboutMeData } from '@/lib/types';
 import { aboutMeSchema } from '@/lib/adminSchemas';
 import { updateAboutDataAction, type UpdateAboutDataFormState } from '@/actions/admin/aboutActions';
@@ -31,11 +31,10 @@ interface ContactSocialsFormProps {
 
 const initialState: UpdateAboutDataFormState = { message: '', status: 'idle' };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isPending }: { isPending: boolean }) {
   return (
-    <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-      {pending ? (
+    <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+      {isPending ? (
         <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
       ) : (
         <><Save className="mr-2 h-4 w-4" /> Save Contact Info</>
@@ -46,7 +45,8 @@ function SubmitButton() {
 
 export function ContactSocialsForm({ aboutMeData }: ContactSocialsFormProps) {
   const { toast } = useToast();
-  const [formState, formAction] = useActionState(updateAboutDataAction, initialState);
+  const [isPending, startTransition] = useTransition();
+  const [formState, setFormState] = React.useState<UpdateAboutDataFormState>(initialState);
 
   const form = useForm<ContactSocialsFormData>({
     resolver: zodResolver(contactSocialsSchema),
@@ -58,23 +58,27 @@ export function ContactSocialsForm({ aboutMeData }: ContactSocialsFormProps) {
     },
   });
 
-  React.useEffect(() => {
-    if (formState.status === 'success' && formState.data) {
-      toast({ title: "Success!", description: formState.message });
-      form.reset({
-        email: formState.data.email || '',
-        linkedinUrl: formState.data.linkedinUrl || '',
-        githubUrl: formState.data.githubUrl || '',
-        twitterUrl: formState.data.twitterUrl || '',
-      });
-    } else if (formState.status === 'error') {
-      toast({ title: "Error", description: formState.message, variant: "destructive" });
-    }
-  }, [formState, toast, form]);
+  const onSubmit = (formData: FormData) => {
+    startTransition(async () => {
+      const result = await updateAboutDataAction(formState, formData);
+      setFormState(result);
+      if (result.status === 'success' && result.data) {
+        toast({ title: "Success!", description: result.message });
+        form.reset({
+          email: result.data.email || '',
+          linkedinUrl: result.data.linkedinUrl || '',
+          githubUrl: result.data.githubUrl || '',
+          twitterUrl: result.data.twitterUrl || '',
+        });
+      } else if (result.status === 'error') {
+        toast({ title: "Error", description: result.message, variant: "destructive" });
+      }
+    });
+  };
 
   return (
     <Form {...form}>
-      <form action={formAction}>
+      <form action={onSubmit}>
         <Card>
           <CardHeader>
             <CardTitle>Contact & Social Media</CardTitle>
@@ -127,7 +131,7 @@ export function ContactSocialsForm({ aboutMeData }: ContactSocialsFormProps) {
             />
           </CardContent>
           <CardFooter className="border-t px-6 py-4 flex justify-end">
-            <SubmitButton />
+            <SubmitButton isPending={isPending} />
           </CardFooter>
         </Card>
       </form>

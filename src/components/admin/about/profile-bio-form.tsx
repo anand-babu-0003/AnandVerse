@@ -4,8 +4,7 @@
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useTransition } from 'react';
 import type { AboutMeData } from '@/lib/types';
 import { profileBioSchema, type ProfileBioData } from '@/lib/adminSchemas';
 import { updateProfileBioDataAction, type UpdateProfileBioDataFormState } from '@/actions/admin/aboutActions';
@@ -22,13 +21,10 @@ interface ProfileBioFormProps {
   aboutMeData: AboutMeData;
 }
 
-const initialState: UpdateProfileBioDataFormState = { message: '', status: 'idle' };
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isPending }: { isPending: boolean }) {
   return (
-    <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-      {pending ? (
+    <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+      {isPending ? (
         <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
       ) : (
         <><Save className="mr-2 h-4 w-4" /> Save Profile & Bio</>
@@ -39,7 +35,8 @@ function SubmitButton() {
 
 export function ProfileBioForm({ aboutMeData }: ProfileBioFormProps) {
   const { toast } = useToast();
-  const [formState, formAction] = useActionState(updateProfileBioDataAction, initialState);
+  const [isPending, startTransition] = useTransition();
+  const [formState, setFormState] = React.useState<UpdateProfileBioDataFormState>({ message: '', status: 'idle' });
 
   const form = useForm<ProfileBioData>({
     resolver: zodResolver(profileBioSchema),
@@ -52,29 +49,34 @@ export function ProfileBioForm({ aboutMeData }: ProfileBioFormProps) {
     },
   });
 
-  React.useEffect(() => {
-    if (formState.status === 'success') {
-      toast({ title: "Success!", description: formState.message });
-       if (formState.data) {
-        form.reset(formState.data);
+  const onSubmit = (formData: FormData) => {
+    startTransition(async () => {
+      const result = await updateProfileBioDataAction(formState, formData);
+      setFormState(result);
+
+      if (result.status === 'success') {
+        toast({ title: "Success!", description: result.message });
+        if (result.data) {
+          form.reset(result.data);
+        }
+      } else if (result.status === 'error') {
+        toast({ title: "Error", description: result.message, variant: "destructive" });
+        if (result.errors) {
+          Object.keys(result.errors).forEach((key) => {
+            const field = key as keyof ProfileBioData;
+            const message = result.errors?.[field]?.join(', ');
+            if (message) {
+              form.setError(field, { type: 'server', message });
+            }
+          });
+        }
       }
-    } else if (formState.status === 'error') {
-      toast({ title: "Error", description: formState.message, variant: "destructive" });
-      if (formState.errors) {
-        Object.keys(formState.errors).forEach((key) => {
-          const field = key as keyof ProfileBioData;
-          const message = formState.errors?.[field]?.join(', ');
-          if (message) {
-            form.setError(field, { type: 'server', message });
-          }
-        });
-      }
-    }
-  }, [formState, toast, form]);
+    });
+  };
 
   return (
     <Form {...form}>
-      <form action={formAction}>
+      <form action={onSubmit}>
         <Card>
           <CardHeader>
             <CardTitle>Profile & Biography</CardTitle>
@@ -141,7 +143,7 @@ export function ProfileBioForm({ aboutMeData }: ProfileBioFormProps) {
             />
           </CardContent>
           <CardFooter className="border-t px-6 py-4 flex justify-end">
-            <SubmitButton />
+            <SubmitButton isPending={isPending} />
           </CardFooter>
         </Card>
       </form>

@@ -1,8 +1,8 @@
 
 "use client";
 
-import { useEffect } from 'react';
-import { useActionState, useFormStatus } from 'react-dom';
+import { useEffect, useTransition } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -22,11 +22,10 @@ type AnnouncementFormData = z.infer<typeof announcementSchema>;
 
 const initialFormState: AnnouncementFormState = { message: '', status: 'idle' };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isPending }: { isPending: boolean }) {
   return (
-    <Button type="submit" disabled={pending}>
-      {pending ? (
+    <Button type="submit" disabled={isPending}>
+      {isPending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Publishing...
         </>
@@ -40,25 +39,32 @@ function SubmitButton() {
 }
 
 export default function AdminAnnouncementPanel() {
-  const [state, formAction] = useActionState(submitAnnouncementAction, initialFormState);
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
 
   const form = useForm<AnnouncementFormData>({
     resolver: zodResolver(announcementSchema),
     defaultValues: { message: '' },
   });
 
-  useEffect(() => {
-    if (state.status === 'success') {
-      toast({ title: "Success!", description: state.message });
-      form.reset(); // Reset form on successful submission
-    } else if (state.status === 'error' && state.message) {
-      toast({ title: "Error", description: state.message, variant: "destructive" });
-      if (state.errors?.message) {
-        form.setError("message", { type: "server", message: state.errors.message.join(', ') });
+  const onSubmit = (values: AnnouncementFormData) => {
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append('message', values.message);
+
+      const result = await submitAnnouncementAction(initialFormState, formData);
+
+      if (result.status === 'success') {
+        toast({ title: "Success!", description: result.message });
+        form.reset(); // Reset form on successful submission
+      } else if (result.status === 'error' && result.message) {
+        toast({ title: "Error", description: result.message, variant: "destructive" });
+        if (result.errors?.message) {
+          form.setError("message", { type: "server", message: result.errors.message.join(', ') });
+        }
       }
-    }
-  }, [state, toast, form]);
+    });
+  };
 
   return (
     <Card>
@@ -69,7 +75,7 @@ export default function AdminAnnouncementPanel() {
         </CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form action={formAction}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardContent>
             <FormField
               control={form.control}
@@ -91,7 +97,7 @@ export default function AdminAnnouncementPanel() {
             />
           </CardContent>
           <CardFooter className="flex justify-end">
-            <SubmitButton />
+            <SubmitButton isPending={isPending} />
           </CardFooter>
         </form>
       </Form>

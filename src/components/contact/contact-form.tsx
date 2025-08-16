@@ -1,8 +1,9 @@
 
 "use client";
 
-import { useEffect } from 'react';
-import { useActionState, useFormStatus } from 'react-dom';
+import * as React from 'react';
+import { useTransition } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -56,8 +57,9 @@ function SubmitButton() {
 }
 
 export function ContactForm() {
-  const [state, formAction] = useActionState(submitContactForm, initialState);
   const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
+  const [formState, setFormState] = React.useState<ContactFormState>(initialState);
 
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
@@ -68,30 +70,34 @@ export function ContactForm() {
     },
   });
 
-  useEffect(() => {
-    if (state.status === 'success') {
-      toast({
-        title: "Message Sent!",
-        description: state.message,
-      });
-      form.reset();
-    } else if (state.status === 'error' && state.message) {
-      toast({
-        title: "Error",
-        description: state.message,
-        variant: "destructive",
-      });
-      if (state.errors) {
-        if(state.errors.name) form.setError("name", { type: "server", message: state.errors.name.join(', ') });
-        if(state.errors.email) form.setError("email", { type: "server", message: state.errors.email.join(', ') });
-        if(state.errors.message) form.setError("message", { type: "server", message: state.errors.message.join(', ') });
-      }
-    }
-  }, [state, toast, form]);
+  const onSubmit = (formData: FormData) => {
+    startTransition(async () => {
+        const result = await submitContactForm(formState, formData);
+        setFormState(result);
+        if (result.status === 'success') {
+            toast({
+                title: "Message Sent!",
+                description: result.message,
+            });
+            form.reset();
+        } else if (result.status === 'error' && result.message) {
+            toast({
+                title: "Error",
+                description: result.message,
+                variant: "destructive",
+            });
+            if (result.errors) {
+                if(result.errors.name) form.setError("name", { type: "server", message: result.errors.name.join(', ') });
+                if(result.errors.email) form.setError("email", { type: "server", message: result.errors.email.join(', ') });
+                if(result.errors.message) form.setError("message", { type: "server", message: result.errors.message.join(', ') });
+            }
+        }
+    });
+  }
 
   return (
     <Form {...form}>
-      <form action={formAction} className="space-y-6">
+      <form action={onSubmit} className="space-y-6">
         <FormField
           control={form.control}
           name="name"

@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useActionState, useFormStatus } from 'react-dom';
+import { useTransition } from 'react';
 import type { SiteSettings } from '@/lib/types';
 import { siteSettingsAdminSchema, type SiteSettingsAdminFormData } from '@/lib/adminSchemas';
 import { updateSiteSettingsAction, type UpdateSiteSettingsFormState } from '@/actions/admin/settingsActions';
@@ -24,11 +24,10 @@ interface AdminSettingsFormProps {
 
 const initialState: UpdateSiteSettingsFormState = { message: '', status: 'idle' };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isPending }: { isPending: boolean }) {
   return (
-    <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-      {pending ? (
+    <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+      {isPending ? (
         <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
       ) : (
         <><Save className="mr-2 h-4 w-4" /> Save Changes</>
@@ -39,7 +38,8 @@ function SubmitButton() {
 
 export default function AdminSettingsForm({ siteSettings }: AdminSettingsFormProps) {
   const { toast } = useToast();
-  const [formState, formAction] = useActionState(updateSiteSettingsAction, initialState);
+  const [isPending, startTransition] = useTransition();
+  const [formState, setFormState] = React.useState<UpdateSiteSettingsFormState>(initialState);
 
   const form = useForm<SiteSettingsAdminFormData>({
     resolver: zodResolver(siteSettingsAdminSchema),
@@ -54,26 +54,30 @@ export default function AdminSettingsForm({ siteSettings }: AdminSettingsFormPro
     },
   });
 
-  React.useEffect(() => {
-    if (formState.status === 'success') {
-      toast({ title: "Success!", description: formState.message });
-    } else if (formState.status === 'error') {
-      toast({ title: "Error", description: formState.message, variant: "destructive" });
-      if (formState.errors) {
-        Object.keys(formState.errors).forEach((key) => {
-          const field = key as keyof SiteSettingsAdminFormData;
-          const message = formState.errors?.[field]?.join(', ');
-          if (message) {
-            form.setError(field, { type: 'server', message });
-          }
-        });
+  const onSubmit = (formData: FormData) => {
+    startTransition(async () => {
+      const result = await updateSiteSettingsAction(formState, formData);
+      setFormState(result);
+      if (result.status === 'success') {
+        toast({ title: "Success!", description: result.message });
+      } else if (result.status === 'error') {
+        toast({ title: "Error", description: result.message, variant: "destructive" });
+        if (result.errors) {
+          Object.keys(result.errors).forEach((key) => {
+            const field = key as keyof SiteSettingsAdminFormData;
+            const message = result.errors?.[field]?.join(', ');
+            if (message) {
+              form.setError(field, { type: 'server', message });
+            }
+          });
+        }
       }
-    }
-  }, [formState, toast, form]);
+    });
+  };
 
   return (
     <Form {...form}>
-      <form action={formAction}>
+      <form action={onSubmit}>
         <Card>
           <CardHeader>
             <CardTitle>General Settings</CardTitle>
@@ -219,7 +223,7 @@ export default function AdminSettingsForm({ siteSettings }: AdminSettingsFormPro
                 />
             </CardContent>
             <CardFooter className="border-t px-6 py-4">
-               <SubmitButton />
+               <SubmitButton isPending={isPending}/>
             </CardFooter>
         </Card>
 

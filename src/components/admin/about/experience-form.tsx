@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useForm, useFieldArray, type FieldArrayWithId } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useActionState, useFormStatus } from 'react-dom';
+import { useTransition } from 'react';
 import type { Experience } from '@/lib/types';
 import { experienceSectionSchema, type ExperienceSectionData } from '@/lib/adminSchemas';
 import { updateExperienceDataAction, type UpdateExperienceDataFormState } from '@/actions/admin/aboutActions';
@@ -24,11 +24,10 @@ interface ExperienceFormProps {
 
 const initialState: UpdateExperienceDataFormState = { message: '', status: 'idle', data: { experience: [] } };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isPending }: { isPending: boolean }) {
   return (
-    <Button type="submit" disabled={pending} className="w-full sm:w-auto">
-      {pending ? (
+    <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
+      {isPending ? (
         <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
       ) : (
         <><Save className="mr-2 h-4 w-4" /> Save Experience</>
@@ -39,7 +38,8 @@ function SubmitButton() {
 
 export function ExperienceForm({ experience: initialExperience }: ExperienceFormProps) {
   const { toast } = useToast();
-  const [formState, formAction] = useActionState(updateExperienceDataAction, initialState);
+  const [isPending, startTransition] = useTransition();
+  const [formState, setFormState] = React.useState<UpdateExperienceDataFormState>(initialState);
 
   const form = useForm<ExperienceSectionData>({
     resolver: zodResolver(experienceSectionSchema),
@@ -63,20 +63,24 @@ export function ExperienceForm({ experience: initialExperience }: ExperienceForm
     });
   };
 
-  React.useEffect(() => {
-    if (formState.status === 'success') {
-      toast({ title: "Success!", description: formState.message });
-      if (formState.data?.experience) {
-        form.reset({ experience: formState.data.experience });
+  const onSubmit = (formData: FormData) => {
+    startTransition(async () => {
+      const result = await updateExperienceDataAction(formState, formData);
+      setFormState(result);
+      if (result.status === 'success') {
+        toast({ title: "Success!", description: result.message });
+        if (result.data?.experience) {
+          form.reset({ experience: result.data.experience });
+        }
+      } else if (result.status === 'error') {
+        toast({ title: "Error", description: result.message, variant: "destructive" });
       }
-    } else if (formState.status === 'error') {
-      toast({ title: "Error", description: formState.message, variant: "destructive" });
-    }
-  }, [formState, toast, form]);
+    });
+  };
 
   return (
     <Form {...form}>
-       <form action={formAction}>
+       <form action={onSubmit}>
         <Card>
           <CardHeader>
             <CardTitle>Work Experience</CardTitle>
@@ -143,7 +147,7 @@ export function ExperienceForm({ experience: initialExperience }: ExperienceForm
             </Button>
           </CardContent>
           <CardFooter className="border-t px-6 py-4 flex justify-end">
-            <SubmitButton />
+            <SubmitButton isPending={isPending} />
           </CardFooter>
         </Card>
       </form>
