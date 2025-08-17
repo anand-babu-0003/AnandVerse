@@ -40,7 +40,7 @@ export default async function Home() {
             <div className="mt-10 flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 animate-fadeInUp-2" style={{ animationDelay: '0.7s' }}>
               <Button
                 asChild
-                className="bg-[hsl(260,55%,78%)] text-[hsl(260,25%,30%)] hover:bg-[hsl(260,55%,72%)] dark:bg-[hsl(260,55%,78%)] dark:text-[hsl(260,25%,30%)] dark:hover:bg-[hsl(260,55%,72%)] font-semibold shadow-lg transition-all duration-300 rounded-md text-base leading-snug px-6 py-3"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg transition-all duration-300 rounded-md text-base leading-snug px-6 py-3"
               >
                 <Link href="/portfolio">
                   <span className="inline-flex items-center">
@@ -51,7 +51,8 @@ export default async function Home() {
               </Button>
               <Button
                 asChild
-                className="bg-[hsl(260,55%,78%)] text-[hsl(260,25%,30%)] hover:bg-[hsl(260,55%,72%)] dark:bg-[hsl(260,55%,78%)] dark:text-[hsl(260,25%,30%)] dark:hover:bg-[hsl(260,55%,72%)] font-semibold shadow-lg transition-all duration-300 rounded-md text-base leading-snug px-6 py-3"
+                variant="outline"
+                className="font-semibold shadow-lg transition-all duration-300 rounded-md text-base leading-snug px-6 py-3"
               >
                 <Link href="/contact">
                   <span className="inline-flex items-center">

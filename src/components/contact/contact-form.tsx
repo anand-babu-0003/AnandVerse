@@ -3,7 +3,6 @@
 
 import * as React from 'react';
 import { useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -36,15 +35,14 @@ const initialState: ContactFormState = {
   status: 'idle',
 };
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ isPending }: { isPending: boolean }) {
   return (
     <Button 
       type="submit" 
-      disabled={pending} 
-      className="bg-[hsl(260,55%,78%)] text-[hsl(260,25%,30%)] hover:bg-[hsl(260,55%,72%)] dark:bg-[hsl(260,55%,78%)] dark:text-[hsl(260,25%,30%)] dark:hover:bg-[hsl(260,55%,72%)] font-semibold shadow-lg transition-all duration-300 rounded-md text-base leading-snug px-6 py-3 w-full sm:w-auto"
+      disabled={isPending} 
+      className="w-full sm:w-auto"
     >
-      {pending ? (
+      {isPending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Sending...
@@ -70,8 +68,13 @@ export function ContactForm() {
     },
   });
 
-  const onSubmit = (formData: FormData) => {
+  const onSubmit = (values: ContactFormData) => {
     startTransition(async () => {
+        const formData = new FormData();
+        formData.append('name', values.name);
+        formData.append('email', values.email);
+        formData.append('message', values.message);
+
         const result = await submitContactForm(formState, formData);
         setFormState(result);
         if (result.status === 'success') {
@@ -97,7 +100,7 @@ export function ContactForm() {
 
   return (
     <Form {...form}>
-      <form action={onSubmit} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
           name="name"
@@ -142,7 +145,7 @@ export function ContactForm() {
             </FormItem>
           )}
         />
-        <SubmitButton />
+        <SubmitButton isPending={isPending} />
       </form>
     </Form>
   );

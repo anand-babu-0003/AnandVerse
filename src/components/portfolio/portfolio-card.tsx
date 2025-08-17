@@ -12,8 +12,6 @@ interface PortfolioCardProps {
 }
 
 export function PortfolioCard({ project }: PortfolioCardProps) {
-  const cardCtaButtonStyle = "bg-[hsl(260,55%,78%)] text-[hsl(260,25%,30%)] hover:bg-[hsl(260,55%,72%)] dark:bg-[hsl(260,55%,78%)] dark:text-[hsl(260,25%,30%)] dark:hover:bg-[hsl(260,55%,72%)] font-semibold shadow-md transition-all duration-300 rounded-md text-sm px-4 py-2";
-  
   const imageUrl = (Array.isArray(project.images) && project.images.length > 0 && project.images[0]) 
                    ? project.images[0] 
                    : 'https://placehold.co/600x400.png'; // Default placeholder
@@ -42,7 +40,7 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
       <CardFooter className="p-6 bg-muted/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex gap-2 flex-wrap">
           {project.liveUrl && (
-            <Button asChild className={cardCtaButtonStyle}>
+            <Button asChild>
               <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
                 <span className="inline-flex items-center">
                   <Eye className="mr-2 h-4 w-4" /> Live Demo
@@ -51,7 +49,7 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
             </Button>
           )}
           {project.repoUrl && (
-            <Button asChild className={cardCtaButtonStyle}>
+            <Button asChild variant="secondary">
               <Link href={project.repoUrl} target="_blank" rel="noopener noreferrer">
                 <span className="inline-flex items-center">
                   <Code2 className="mr-2 h-4 w-4" /> View Code
