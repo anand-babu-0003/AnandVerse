@@ -1,10 +1,12 @@
-
 import './globals.css';
 import type { Metadata } from 'next';
 import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
 import { defaultSiteSettingsForClient } from '@/lib/data';
-import { ClientLayoutWrapper } from '@/components/layout/client-layout-wrapper';
+import { ThemeProvider } from '@/components/layout/theme-provider';
+import { Toaster } from '@/components/ui/toaster';
+import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
+import { ConditionalLayout } from '@/components/layout/conditional-layout';
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteSettings = await getSiteSettingsAction();
@@ -38,14 +40,19 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css?family=Arvo&display=swap" rel="stylesheet" />
       </head>
-      <body>
-        <ClientLayoutWrapper footer={<Footer />}>
-          {children}
-        </ClientLayoutWrapper>
+      <body className="min-h-screen bg-background text-foreground antialiased">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -14,23 +14,11 @@ import type { PortfolioItem } from '@/lib/types';
 import { getPortfolioItemsAction, getPortfolioItemBySlugAction } from '@/actions/admin/portfolioActions';
 import { defaultPortfolioItemsDataForClient } from '@/lib/data'; 
 
-export async function generateStaticParams() {
-  try {
-    const portfolioItems = await getPortfolioItemsAction();
-    if (!Array.isArray(portfolioItems) || portfolioItems.length === 0) {
-      console.warn("generateStaticParams: No portfolio items found or an error occurred while fetching.");
-      return [];
-    }
-    return portfolioItems
-      .filter(item => item && typeof item.slug === 'string' && item.slug.trim() !== '')
-      .map((project) => ({
-        slug: project.slug,
-      }));
-  } catch (error) {
-    console.error("Error generating static params for portfolio slugs:", error);
-    return []; 
-  }
-}
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Remove static generation - use dynamic routes instead
 
 export default async function PortfolioDetailPage({
   params,

@@ -81,8 +81,25 @@ export function ClientLayoutWrapper({
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
       {isMounted && !isAdminRoute && (
         <>
-          <div className="light-orb light-orb-1" style={{transform: `translate(calc(${mousePosition.x}px - 30vw), calc(${mousePosition.y}px - 30vh))`}}/>
-          <div className="light-orb light-orb-2" style={{transform: `translate(calc(${mousePosition.x}px - 25vw), calc(${mousePosition.y}px - 25vh))`, transitionDelay: '0.05s'}}/>
+          <div className="light-orb light-orb-1" style={{transform: `translate(calc(${mousePosition.x}px - 40vw), calc(${mousePosition.y}px - 40vh))`}}/>
+          <div className="light-orb light-orb-2" style={{transform: `translate(calc(${mousePosition.x}px - 30vw), calc(${mousePosition.y}px - 30vh))`, transitionDelay: '0.1s'}}/>
+          <div className="light-orb light-orb-3" style={{transform: `translate(calc(${mousePosition.x}px - 20vw), calc(${mousePosition.y}px - 20vh))`, transitionDelay: '0.2s'}}/>
+          
+          {/* Floating Particles */}
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="particle"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                width: `${Math.random() * 4 + 2}px`,
+                height: `${Math.random() * 4 + 2}px`,
+                animationDelay: `${Math.random() * 5}s`,
+                animationDuration: `${Math.random() * 10 + 5}s`
+              }}
+            />
+          ))}
         </>
       )}
 

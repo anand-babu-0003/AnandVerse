@@ -17,7 +17,6 @@ import {
 } from '@/components/ui/sidebar';
 import {
   Briefcase,
-  FileQuestion,
   Home,
   Inbox,
   LayoutDashboard,
@@ -108,7 +107,6 @@ function NavMenu() {
     { href: '/admin/skills', label: 'Skills', icon: Sparkles },
     { href: '/admin/about', label: 'About Page', icon: UserCircle },
     { href: '/admin/settings', label: 'Site Settings', icon: Settings },
-    { href: '/admin/not-found-settings', label: '404 Page', icon: FileQuestion },
   ];
 
   return (

@@ -232,11 +232,19 @@ export function SkillsList({ initialSkills }: SkillsListProps) {
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md">
-            <SkillForm 
-                skill={editingSkill} 
-                onFormSubmit={handleFormSubmit}
-                onCancel={() => setIsDialogOpen(false)}
-            />
+          <DialogHeader>
+            <DialogTitle>
+              {editingSkill ? 'Edit Skill' : 'Add New Skill'}
+            </DialogTitle>
+            <DialogDescription>
+              {editingSkill ? 'Update the skill details and proficiency level.' : 'Add a new skill to your portfolio.'}
+            </DialogDescription>
+          </DialogHeader>
+          <SkillForm 
+              skill={editingSkill} 
+              onFormSubmit={handleFormSubmit}
+              onCancel={() => setIsDialogOpen(false)}
+          />
         </DialogContent>
       </Dialog>
       

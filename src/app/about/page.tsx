@@ -1,108 +1,283 @@
-
+import Link from 'next/link';
 import Image from 'next/image';
-import { PageHeader } from '@/components/shared/page-header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Briefcase, GraduationCap } from 'lucide-react';
-import { ScrollAnimationWrapper } from '@/components/shared/scroll-animation-wrapper';
-import type { Experience, Education } from '@/lib/types';
-import { getAboutMeDataAction } from '@/actions/getAboutMeDataAction';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { 
+  ArrowRight, 
+  User, 
+  MapPin, 
+  Calendar,
+  Award,
+  Briefcase,
+  GraduationCap,
+  Mail,
+  Github,
+  Linkedin,
+  Twitter,
+  Download,
+  ExternalLink
+} from 'lucide-react';
+import { fetchAllDataFromFirestore } from '@/actions/fetchAllDataAction';
+import Starfield from '@/components/layout/starfield';
 import { defaultAboutMeDataForClient } from '@/lib/data';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function AboutPage() {
-  const aboutMeData = await getAboutMeDataAction();
-  const displayedData = aboutMeData || defaultAboutMeDataForClient; 
+  // Fetch all data from Firestore
+  const appData = await fetchAllDataFromFirestore();
+  const displayedData = appData.aboutMe;
+  
+
+  const bioParagraphs = (displayedData.bio || 'Passionate developer creating amazing digital experiences.').split('\n\n');
+  
+  // Use real experience data from Firestore
+  const experience = displayedData.experience || [];
+
+  // Use real education data from Firestore
+  const education = displayedData.education || [];
+
 
   return (
-    <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
-      <ScrollAnimationWrapper>
-        <PageHeader 
-          title="About Me" 
-          subtitle={`Get to know the person behind the code: ${(displayedData.name || 'User').split(' ')[0]}.`}
-        />
-      </ScrollAnimationWrapper>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <section className="relative py-16 sm:py-20 md:py-32 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+        
+        {/* Animated Starfield */}
+        <Starfield density={0.7} speed={0.25} twinkleSpeed={0.018} />
+        
+        <div className="relative container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="text-center max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium border border-primary/20 mb-4 sm:mb-6">
+              <User className="h-3 w-3 sm:h-4 sm:w-4" />
+              About Me
+            </div>
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 sm:mb-6">
+              <span className="text-gradient">About Me</span>
+            </h1>
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed px-4 sm:px-0">
+              Get to know the person behind the code: {displayedData.name || 'User'}. 
+              Learn about my journey, passion, and what drives me to create amazing digital experiences.
+            </p>
+          </div>
+        </div>
+      </section>
 
-      <div className="grid lg:grid-cols-3 gap-12 items-start">
-        <ScrollAnimationWrapper className="lg:col-span-1 flex flex-col items-center" delay={100}>
+      {/* Main Content */}
+      <section className="py-20 md:py-32">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-3 gap-16 items-start">
+            {/* Profile Section */}
+            <div className="lg:col-span-1">
+              <Card className="card-modern text-center">
+                <CardContent className="p-8">
+                  <div className="relative mb-8">
           <Image
             src={displayedData.profileImage || defaultAboutMeDataForClient.profileImage}
             alt={`Profile picture of ${displayedData.name || defaultAboutMeDataForClient.name}`}
-            width={350}
-            height={350}
-            className="rounded-full shadow-2xl object-cover mb-8 aspect-square"
+                      width={200}
+                      height={200}
+                      className="rounded-2xl shadow-modern-lg object-cover aspect-square border border-border mx-auto"
             data-ai-hint={displayedData.dataAiHint || defaultAboutMeDataForClient.dataAiHint}
             priority
           />
-          <h2 className="font-headline text-3xl font-semibold text-primary text-center">{displayedData.name || defaultAboutMeDataForClient.name}</h2>
-          <p className="text-muted-foreground text-center mt-1">{displayedData.title || defaultAboutMeDataForClient.title}</p>
-        </ScrollAnimationWrapper>
+                  </div>
+                  
+                  <h2 className="text-2xl font-bold text-foreground mb-2">
+                    {displayedData.name || defaultAboutMeDataForClient.name}
+                  </h2>
+                  <p className="text-lg text-muted-foreground mb-6">
+                    {displayedData.title || defaultAboutMeDataForClient.title}
+                  </p>
+                  
+                  <div className="space-y-4 mb-8">
+                    <div className="flex items-center gap-3 text-muted-foreground">
+                      <MapPin className="h-5 w-5" />
+                      <span>Remote</span>
+                    </div>
+                    <div className="flex items-center gap-3 text-muted-foreground">
+                      <Calendar className="h-5 w-5" />
+                      <span>Available for projects</span>
+                    </div>
+                  </div>
 
-        <ScrollAnimationWrapper className="lg:col-span-2" delay={200}>
-          <Card className="shadow-lg">
+                  <div className="flex flex-col gap-3">
+                    <Button asChild className="btn-modern w-full">
+                      <Link href="/contact">
+                        <span className="flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
+                          Get in Touch
+                        </span>
+                      </Link>
+                    </Button>
+                    
+                    <Button asChild variant="outline" className="btn-modern-outline w-full">
+                      <Link href="/portfolio">
+                        <span className="flex items-center gap-2">
+                          <Briefcase className="h-4 w-4" />
+                          View My Work
+                        </span>
+                      </Link>
+                    </Button>
+                  </div>
+
+                  {/* Social Links */}
+                  <div className="flex items-center justify-center gap-3 mt-8 pt-8 border-t border-border">
+                    {displayedData.githubUrl && (
+                      <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
+                        <Link href={displayedData.githubUrl} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                          <Github className="h-5 w-5" />
+                        </Link>
+                      </Button>
+                    )}
+                    {displayedData.linkedinUrl && (
+                      <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
+                        <Link href={displayedData.linkedinUrl} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                          <Linkedin className="h-5 w-5" />
+                        </Link>
+                      </Button>
+                    )}
+                    {displayedData.twitterUrl && (
+                      <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
+                        <Link href={displayedData.twitterUrl} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
+                          <Twitter className="h-5 w-5" />
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Content Section */}
+            <div className="lg:col-span-2 space-y-16">
+              {/* My Story */}
+              <Card className="card-modern">
             <CardHeader>
-              <CardTitle className="font-headline text-2xl text-primary">My Story</CardTitle>
+                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                    <User className="h-6 w-6 text-primary" />
+                    My Story
+                  </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 text-lg text-foreground/80 leading-relaxed">
-              {(displayedData.bio || defaultAboutMeDataForClient.bio).split('\n\n').map((paragraph, index) => (
-                <p key={index}>{paragraph}</p>
+                <CardContent className="space-y-6">
+                  {bioParagraphs.map((paragraph, index) => (
+                    <p key={index} className="text-muted-foreground leading-relaxed">
+                      {paragraph}
+                    </p>
               ))}
             </CardContent>
           </Card>
-        </ScrollAnimationWrapper>
-      </div>
 
-      <ScrollAnimationWrapper className="mt-16 md:mt-24" delay={300}>
-        <section>
-          <h2 className="font-headline text-3xl md:text-4xl font-bold text-primary mb-8 text-center">Experience & Education</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="font-headline text-2xl font-semibold text-primary/90 mb-6 flex items-center">
-                <Briefcase className="mr-3 h-7 w-7 text-primary" /> Professional Journey
-              </h3>
-              <div className="space-y-6">
-                {(displayedData.experience || []).length > 0 ? (
-                  (displayedData.experience || []).map((exp: Experience, index: number) => (
-                    <ScrollAnimationWrapper key={exp.id || `exp-${index}-${Date.now()}`} delay={index * 100}>
-                      <Card className="shadow-md hover:shadow-lg transition-shadow">
+
+              {/* Experience */}
+              <Card className="card-modern">
                         <CardHeader>
-                          <CardTitle className="font-headline text-xl text-primary">{exp.role}</CardTitle>
-                          <p className="text-sm text-muted-foreground">{exp.company} | {exp.period}</p>
+                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                    <Briefcase className="h-6 w-6 text-primary" />
+                    Professional Experience
+                  </CardTitle>
                         </CardHeader>
                         <CardContent>
-                          <p className="text-foreground/80">{exp.description}</p>
+                  <div className="space-y-6">
+                    {experience.length > 0 ? experience.map((exp, index) => (
+                      <div key={index} className="flex gap-4">
+                        <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg flex-shrink-0">
+                          <Briefcase className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground mb-1">{exp.title}</h3>
+                          <p className="text-primary font-medium mb-2">{exp.company}</p>
+                          <p className="text-sm text-muted-foreground mb-2">{exp.period}</p>
+                          <p className="text-muted-foreground">{exp.description}</p>
+                        </div>
+                      </div>
+                    )) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>No experience data available yet.</p>
+                      </div>
+                    )}
+                  </div>
                         </CardContent>
                       </Card>
-                    </ScrollAnimationWrapper>
-                  ))
-                ) : (
-                    <p className="text-muted-foreground">No professional experience listed yet. Updates are on the way!</p>
-                )}
-              </div>
-            </div>
 
-            <div>
-              <h3 className="font-headline text-2xl font-semibold text-primary/90 mb-6 flex items-center">
-                <GraduationCap className="mr-3 h-7 w-7 text-primary" /> Academic Background
-              </h3>
-              <div className="space-y-6">
-                {(displayedData.education || []).length > 0 ? (
-                  (displayedData.education || []).map((edu: Education, index: number) => (
-                    <ScrollAnimationWrapper key={edu.id || `edu-${index}-${Date.now()}`} delay={index * 100}>
-                      <Card className="shadow-md hover:shadow-lg transition-shadow">
-                        <CardHeader>
-                          <CardTitle className="font-headline text-xl text-primary">{edu.degree}</CardTitle>
-                          <p className="text-sm text-muted-foreground">{edu.institution} | {edu.period}</p>
-                        </CardHeader>
-                      </Card>
-                    </ScrollAnimationWrapper>
-                  ))
-                ) : (
-                  <p className="text-muted-foreground">No academic background listed yet. Details coming soon!</p>
-                )}
+              {/* Education */}
+              <Card className="card-modern">
+                <CardHeader>
+                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
+                    <GraduationCap className="h-6 w-6 text-primary" />
+                    Education
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-6">
+                    {education.length > 0 ? education.map((edu, index) => (
+                      <div key={index} className="flex gap-4">
+                        <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg flex-shrink-0">
+                          <GraduationCap className="h-6 w-6 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground mb-1">{edu.degree}</h3>
+                          <p className="text-primary font-medium mb-2">{edu.institution}</p>
+                          <p className="text-sm text-muted-foreground mb-2">{edu.period}</p>
+                        <p className="text-muted-foreground">{edu.description}</p>
+                        </div>
+                      </div>
+                    )) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <GraduationCap className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>No education data available yet.</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 md:py-32 bg-gradient-royal">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Let&apos;s Work{' '}
+              <span className="text-white/90">Together</span>
+            </h2>
+            <p className="text-xl text-white/90 leading-relaxed mb-8">
+              I'm always excited to work on new projects and help bring your ideas to life. 
+              Whether you have a specific project in mind or just want to chat about possibilities, 
+              I'd love to hear from you.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+              <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 px-8 py-3">
+                <Link href="/contact">
+                  <span className="flex items-center gap-2">
+                    <Mail className="h-5 w-5" />
+                    Get in Touch
+                    <ArrowRight className="h-4 w-4" />
+                  </span>
+                </Link>
+              </Button>
+              
+              <Button asChild size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 px-8 py-3">
+                <Link href="/portfolio">
+                  <span className="flex items-center gap-2">
+                    <Briefcase className="h-5 w-5" />
+                    View My Work
+                  </span>
+                </Link>
+              </Button>
               </div>
             </div>
           </div>
         </section>
-      </ScrollAnimationWrapper>
     </div>
   );
 }

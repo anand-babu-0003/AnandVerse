@@ -30,6 +30,8 @@ export default function AdminLayout({
       router.replace('/admin/login');
     } else if (loggedInStatus && pathname === '/admin/login') {
       router.replace('/admin/dashboard');
+    } else if (loggedInStatus && pathname === '/admin') {
+      router.replace('/admin/dashboard');
     }
   }, [pathname, router]);
 
@@ -43,6 +45,12 @@ export default function AdminLayout({
     return <FullScreenLoader />;
   }
 
-  // Once authenticated, render the children which will be wrapped by the authenticated layout
-  return <>{children}<Toaster /></>;
+  // Once authenticated, render the children without navbar and footer
+  // The admin panel has its own layout with sidebar navigation
+  return (
+    <div className="min-h-screen bg-background">
+      {children}
+      <Toaster />
+    </div>
+  );
 }

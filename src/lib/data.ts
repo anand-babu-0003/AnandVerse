@@ -89,7 +89,7 @@ export const defaultEducationForClient: Education[] = [
 export const defaultAboutMeDataForClient: AboutMeData = {
   name: 'Anand Verma',
   title: 'Full-Stack Developer & UI Enthusiast',
-  bio: "Hello! I'm Anand, a passionate and results-oriented Full-Stack Developer with a keen eye for UI/UX design. My journey in the tech world is driven by the thrill of turning complex problems into elegant, user-friendly solutions. I thrive in collaborative environments and am always eager to learn and adapt to new technologies.\n\nIn VermaVerse, you'll find a collection of projects that showcase my dedication to quality, innovation, and a user-first approach. From architecting robust backend systems to crafting pixel-perfect frontends, I enjoy every aspect of the development lifecycle. Let's build something amazing together!",
+  bio: "Hello! I'm Anand, a passionate and results-oriented Full-Stack Developer with a keen eye for UI/UX design. My journey in the tech world is driven by the thrill of turning complex problems into elegant, user-friendly solutions. I thrive in collaborative environments and am always eager to learn and adapt to new technologies. In AnandVerse, you'll find a collection of projects that showcase my dedication to quality, innovation, and a user-first approach. From architecting robust backend systems to crafting pixel-perfect frontends, I enjoy every aspect of the development lifecycle. Let's build something amazing together!",
   profileImage: 'https://github.com/anand-babu-0003/TrueValidator2/blob/main/Screenshot_2024-11-19-16-59-04-27_99c04817c0de5652397fc8b56c3b3817~2.jpg?raw=true',
   dataAiHint: 'developer portrait modern tech',
   experience: defaultExperienceForClient,

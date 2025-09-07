@@ -1,63 +1,426 @@
-
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Mail, Package } from 'lucide-react';
-import type { PortfolioItem, Skill } from '@/lib/types';
-import { ScrollAnimationWrapper } from '@/components/shared/scroll-animation-wrapper';
-import { lucideIconsMap, defaultAboutMeDataForClient, defaultPortfolioItemsDataForClient, defaultSkillsDataForClient } from '@/lib/data';
-import StarryBackground from '@/components/layout/starry-background';
-import { PortfolioCard } from '@/components/portfolio/portfolio-card';
-import { getAboutMeDataAction } from '@/actions/getAboutMeDataAction';
-import { getPortfolioItemsAction } from '@/actions/admin/portfolioActions';
-import { getSkillsAction } from '@/actions/admin/skillsActions';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { 
+  ArrowRight, 
+  Code, 
+  Briefcase, 
+  User, 
+  Mail, 
+  Github, 
+  Linkedin, 
+  Twitter,
+  Star,
+  Zap,
+  Shield,
+  Heart
+} from 'lucide-react';
+import { fetchAllDataFromFirestore } from '@/actions/fetchAllDataAction';
+import { defaultAboutMeDataForClient } from '@/lib/data';
+import Starfield from '@/components/layout/starfield';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export default async function Home() {
-  const [aboutMeData, allPortfolioItems, allSkills] = await Promise.all([
-    getAboutMeDataAction(),
-    getPortfolioItemsAction(),
-    getSkillsAction()
-  ]);
+  // Fetch all data from Firestore
+  const appData = await fetchAllDataFromFirestore();
+  
+  const displayedAboutMe = appData.aboutMe;
+  const allPortfolioItems = appData.portfolioItems;
+  const allSkills = appData.skills;
 
-  const displayedAboutMe = aboutMeData || defaultAboutMeDataForClient;
-  const featuredProjects = (allPortfolioItems || defaultPortfolioItemsDataForClient).slice(0, 2);
-  const highlightedSkills = (allSkills || defaultSkillsDataForClient).slice(0, 6);
-  const firstParagraphBio = (displayedAboutMe.bio || '').split('\n\n')[0] || defaultAboutMeDataForClient.bio.split('\n\n')[0];
+  // Get featured items
+  const featuredProjects = allPortfolioItems.slice(0, 3);
+  const featuredSkills = allSkills.slice(0, 6);
+  // Create a short glimpse of the bio - first three sentences or up to 200 characters
+  const fullBio = displayedAboutMe.bio || '';
+  const sentences = fullBio.split('.');
+  const firstThreeSentences = sentences.length >= 3 
+    ? sentences.slice(0, 3).join('.') + '.'
+    : sentences.length >= 2 
+    ? sentences.slice(0, 2).join('.') + '.'
+    : fullBio;
+  const bioGlimpse = firstThreeSentences.length > 200 ? firstThreeSentences.substring(0, 200) + '...' : firstThreeSentences;
+  const firstParagraphBio = bioGlimpse || 'Passionate developer creating amazing digital experiences.';
+
+
+  const features = [
+    {
+      icon: Zap,
+      title: 'Lightning Fast',
+      description: 'Optimized for performance with modern web technologies and best practices.',
+    },
+    {
+      icon: Shield,
+      title: 'Secure & Reliable',
+      description: 'Built with security in mind, following industry standards and best practices.',
+    },
+    {
+      icon: Code,
+      title: 'Clean Code',
+      description: 'Well-structured, maintainable code that follows modern development principles.',
+    },
+  ];
 
   return (
-    <div className="flex flex-col">
-      <section className="relative w-full min-h-screen flex flex-col justify-center items-center py-20 md:py-32 bg-gradient-to-br from-primary/15 via-background to-accent/15 bg-animated-gradient overflow-hidden">
-        <StarryBackground />
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col justify-center items-center flex-grow">
-          <div>
-            <h1 className="font-headline text-5xl md:text-7xl font-bold tracking-tight text-foreground">
-              <span className="block animate-fadeInUp-1">Hi, I&apos;m <span className="text-foreground">{(displayedAboutMe.name || 'User').split(' ')[0]}</span></span>
-              <span className="block text-primary animate-fadeInUp-2">{displayedAboutMe.title || 'My Awesome Title'}</span>
+    <div className="flex flex-col min-h-screen">
+      {/* Hero Section */}
+      <section className="relative w-full py-20 sm:py-24 md:py-32 overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+        
+        {/* Animated Starfield */}
+        <Starfield density={0.6} speed={0.2} twinkleSpeed={0.01} />
+        
+        <div className="relative z-10 container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 text-center">
+          <div className="max-w-4xl mx-auto">
+            {/* Greeting Badge */}
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium border border-primary/20 mb-4 sm:mb-6 animate-fade-in">
+              <Code className="h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="hidden xs:inline">Welcome to my digital space</span>
+              <span className="xs:hidden">Welcome</span>
+            </div>
+
+            {/* Main Heading */}
+            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 sm:mb-6 animate-fade-in">
+              <span className="block text-foreground mb-2">
+                Hi, I&apos;m{' '}
+                <span className="text-gradient">
+                  {(displayedAboutMe.name || 'User').split(' ')[0]}
+                </span>
+              </span>
+              <span className="block text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl text-muted-foreground font-normal">
+                {displayedAboutMe.title || 'Full-Stack Developer'}
+              </span>
             </h1>
-            <p className="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground animate-fadeInUp-2" style={{ animationDelay: '0.5s' }}>
-              {(displayedAboutMe.bio || defaultAboutMeDataForClient.bio).substring(0, 150)}...
+
+            {/* Description */}
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-6 sm:mb-8 animate-fade-in px-4 sm:px-0">
+              {firstParagraphBio}
             </p>
-            <div className="mt-10 flex flex-col sm:flex-row flex-wrap justify-center items-center gap-4 animate-fadeInUp-2" style={{ animationDelay: '0.7s' }}>
-              <Button
-                asChild
-                className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-lg transition-all duration-300 rounded-md text-base leading-snug px-6 py-3"
-              >
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col xs:flex-row justify-center items-center gap-3 sm:gap-4 mb-8 sm:mb-12 animate-fade-in px-4 sm:px-0">
+              <Button asChild size="lg" className="btn-modern px-6 sm:px-8 py-2.5 sm:py-3 w-full xs:w-auto">
                 <Link href="/portfolio">
-                  <span className="inline-flex items-center">
+                  <span className="flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5" />
                     View My Work
-                    <ArrowRight className="h-5 w-5 ml-2" />
+                    <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
                   </span>
                 </Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="font-semibold shadow-lg transition-all duration-300 rounded-md text-base leading-snug px-6 py-3"
-              >
+              
+              <Button asChild size="lg" variant="outline" className="btn-modern-outline px-6 sm:px-8 py-2.5 sm:py-3 w-full xs:w-auto">
                 <Link href="/contact">
-                  <span className="inline-flex items-center">
+                  <span className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
                     Get in Touch
-                    <Mail className="h-5 w-5 ml-2" />
+                  </span>
+                </Link>
+              </Button>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 animate-bounce">
+          <div className="w-4 h-6 sm:w-5 sm:h-8 border-2 border-primary/30 rounded-full flex justify-center">
+            <div className="w-0.5 h-1.5 sm:w-1 sm:h-2 bg-primary/60 rounded-full mt-1 sm:mt-1.5 animate-pulse" />
+          </div>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className="py-16 sm:py-20 md:py-32 bg-muted/30">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 sm:gap-16 items-center">
+            <div className="space-y-6 sm:space-y-8">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium border border-primary/20 mb-4 sm:mb-6">
+                  <User className="h-3 w-3 sm:h-4 sm:w-4" />
+                  About Me
+                </div>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4 sm:mb-6">
+                  Passionate Developer &{' '}
+                  <span className="text-gradient">Problem Solver</span>
+                </h2>
+                <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-4 sm:mb-6">
+                  {firstParagraphBio}
+                </p>
+                <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+                  I believe in creating digital experiences that not only look great but also solve real-world problems. 
+                  Every project is an opportunity to learn, grow, and make a positive impact.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                <div className="text-center p-4 sm:p-6 card-modern">
+                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">3+</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">Years Experience</div>
+                </div>
+                <div className="text-center p-4 sm:p-6 card-modern">
+                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">50+</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">Projects Delivered</div>
+                </div>
+              </div>
+
+              <Button asChild size="lg" className="btn-modern px-6 sm:px-8 py-2.5 sm:py-3 w-full sm:w-auto">
+                <Link href="/about">
+                  <span className="flex items-center gap-2">
+                    Learn More About Me
+                    <ArrowRight className="h-4 w-4" />
+                  </span>
+                </Link>
+              </Button>
+            </div>
+            
+            <div className="flex justify-center order-first lg:order-last">
+              <div className="relative w-full max-w-sm sm:max-w-md">
+                <Image
+                  src={displayedAboutMe.profileImage || defaultAboutMeDataForClient.profileImage}
+                  alt={`Profile picture of ${(displayedAboutMe.name || defaultAboutMeDataForClient.name).split(' ')[0]}`}
+                  width={400}
+                  height={400}
+                  className="rounded-2xl shadow-modern-xl object-cover aspect-square border border-border w-full h-auto"
+                  data-ai-hint={displayedAboutMe.dataAiHint || defaultAboutMeDataForClient.dataAiHint}
+                  priority
+                />
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-primary/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-16 sm:py-20 md:py-32">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium border border-primary/20 mb-4 sm:mb-6">
+              <Star className="h-3 w-3 sm:h-4 sm:w-4" />
+              Why Choose Me
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4 sm:mb-6">
+              What Makes Me{' '}
+              <span className="text-gradient">Different</span>
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4 sm:px-0">
+              I bring a unique combination of technical expertise, creative thinking, and attention to detail to every project.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            {features.map((feature, index) => (
+              <Card key={feature.title} className="card-modern text-center">
+                <CardHeader className="pb-3 sm:pb-4">
+                  <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-2xl mx-auto mb-3 sm:mb-4">
+                    <feature.icon className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                  </div>
+                  <CardTitle className="text-lg sm:text-xl font-semibold">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                    {feature.description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Projects Section */}
+      <section className="py-16 sm:py-20 md:py-32 bg-muted/30">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium border border-primary/20 mb-4 sm:mb-6">
+              <Briefcase className="h-3 w-3 sm:h-4 sm:w-4" />
+              Featured Work
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4 sm:mb-6">
+              Recent{' '}
+              <span className="text-gradient">Projects</span>
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4 sm:px-0">
+              A showcase of my recent work and the technologies I love to work with.
+            </p>
+          </div>
+
+          {featuredProjects.length > 0 ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16">
+              {featuredProjects.map((project, index) => (
+                <Card key={project.id || `featured-${index}`} className="card-modern group overflow-hidden">
+                  <div className="relative aspect-video overflow-hidden">
+                    <Image
+                      src={Array.isArray(project.images) && project.images.length > 0 ? project.images[0] : 'https://placehold.co/600x400.png'}
+                      alt={`Screenshot of ${project.title || 'Project'}`}
+                      fill
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="text-base sm:text-lg">{project.title || 'Untitled Project'}</CardTitle>
+                    <CardDescription className="line-clamp-3 text-sm sm:text-base">
+                      {project.description || 'No description available.'}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-4 sm:p-6 pt-0">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                      {Array.isArray(project.tags) && project.tags.slice(0, 3).map((tag) => (
+                        <Badge key={tag} variant="secondary" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      {project.liveUrl && (
+                        <Button asChild size="sm" variant="outline" className="flex-1 text-xs sm:text-sm">
+                          <Link href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                            View Demo
+                          </Link>
+                        </Button>
+                      )}
+                      {project.repoUrl && (
+                        <Button asChild size="sm" variant="outline" className="flex-1 text-xs sm:text-sm">
+                          <Link href={project.repoUrl} target="_blank" rel="noopener noreferrer">
+                            View Code
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 sm:py-16">
+              <div className="max-w-md mx-auto px-4">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <Briefcase className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4">Projects Coming Soon</h3>
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  I'm currently working on some exciting projects. Check back soon to see what I've been building!
+                </p>
+              </div>
+            </div>
+          )}
+
+          <div className="text-center">
+            <Button asChild size="lg" variant="outline" className="btn-modern-outline px-6 sm:px-8 py-2.5 sm:py-3 w-full sm:w-auto">
+              <Link href="/portfolio">
+                <span className="flex items-center gap-2">
+                  View All Projects
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Skills Section */}
+      <section className="py-16 sm:py-20 md:py-32">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium border border-primary/20 mb-4 sm:mb-6">
+              <Code className="h-3 w-3 sm:h-4 sm:w-4" />
+              Technical Skills
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4 sm:mb-6">
+              My{' '}
+              <span className="text-gradient">Expertise</span>
+            </h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto px-4 sm:px-0">
+              Technologies and tools I use to bring ideas to life and solve complex problems.
+            </p>
+          </div>
+
+          {featuredSkills.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6 mb-12 sm:mb-16">
+              {featuredSkills.map((skill, index) => (
+                <Card key={skill.id || `skill-${index}`} className="card-modern text-center">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg mx-auto mb-3 sm:mb-4">
+                      <Code className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                    </div>
+                    <h3 className="text-xs sm:text-sm font-semibold text-foreground mb-2">
+                      {skill.name}
+                    </h3>
+                    {skill.proficiency && (
+                      <div className="w-full bg-muted rounded-full h-1 sm:h-1.5">
+                        <div 
+                          className="bg-primary h-1 sm:h-1.5 rounded-full transition-all duration-1000 ease-out"
+                          style={{ width: `${skill.proficiency}%` }}
+                        />
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 sm:py-16">
+              <div className="max-w-md mx-auto px-4">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 sm:mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <Code className="h-8 w-8 sm:h-10 sm:w-10 text-primary" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4">Skills Coming Soon</h3>
+                <p className="text-sm sm:text-base text-muted-foreground">
+                  I'm constantly learning and updating my skill set. Check back soon to see my technical expertise!
+                </p>
+              </div>
+            </div>
+          )}
+          
+          <div className="text-center">
+            <Button asChild size="lg" variant="outline" className="btn-modern-outline px-6 sm:px-8 py-2.5 sm:py-3 w-full sm:w-auto">
+              <Link href="/skills">
+                <span className="flex items-center gap-2">
+                  View All Skills
+                  <ArrowRight className="h-4 w-4" />
+                </span>
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 sm:py-20 md:py-32 bg-gradient-royal">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 text-center">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6">
+              Ready to Start Your{' '}
+              <span className="text-white/90">Next Project?</span>
+            </h2>
+            <p className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed mb-6 sm:mb-8 px-4 sm:px-0">
+              Let's work together to create something amazing. I'm always excited to take on new challenges and help bring your ideas to life.
+            </p>
+            <div className="flex flex-col xs:flex-row justify-center items-center gap-3 sm:gap-4">
+              <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 px-6 sm:px-8 py-2.5 sm:py-3 w-full xs:w-auto">
+                <Link href="/contact">
+                  <span className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
+                    Get in Touch
+                    <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </span>
+                </Link>
+              </Button>
+              
+              <Button asChild size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 px-6 sm:px-8 py-2.5 sm:py-3 w-full xs:w-auto">
+                <Link href="/portfolio">
+                  <span className="flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5" />
+                    View My Work
                   </span>
                 </Link>
               </Button>
@@ -65,120 +428,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      <ScrollAnimationWrapper className="w-full py-16 md:py-24">
-        <section>
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold text-center text-primary mb-12">
-              About Me
-            </h2>
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="md:order-2 flex justify-center">
-                <Image
-                  src={displayedAboutMe.profileImage || defaultAboutMeDataForClient.profileImage}
-                  alt={`Profile picture of ${(displayedAboutMe.name || defaultAboutMeDataForClient.name).split(' ')[0]}`}
-                  width={320}
-                  height={320}
-                  className="rounded-full shadow-2xl object-cover aspect-square"
-                  data-ai-hint={displayedAboutMe.dataAiHint || defaultAboutMeDataForClient.dataAiHint}
-                  priority
-                />
-              </div>
-              <div className="md:order-1">
-                <h3 className="font-headline text-2xl md:text-3xl font-bold text-primary/90 mb-6">A Glimpse Into My Story</h3>
-                <p className="text-muted-foreground text-lg mb-6">
-                  {firstParagraphBio}
-                </p>
-                <Button asChild variant="link" className="text-primary p-0 text-lg hover:text-accent">
-                  <Link href="/about">
-                    <span>
-                      Read More About Me <ArrowRight className="ml-2 h-5 w-5" />
-                    </span>
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </section>
-      </ScrollAnimationWrapper>
-
-      <ScrollAnimationWrapper className="w-full py-16 md:py-24 bg-primary/5">
-        <section>
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="font-headline text-3xl md:text-4xl font-bold text-center text-primary mb-12">
-              Featured Projects
-            </h2>
-            {featuredProjects.length > 0 ? (
-              <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-8">
-                {featuredProjects.map((project: PortfolioItem, index: number) => (
-                  <ScrollAnimationWrapper key={project.id || `featured-${index}`} delay={index * 150}>
-                    <PortfolioCard project={project} />
-                  </ScrollAnimationWrapper>
-                ))}
-              </div>
-            ) : (
-              <ScrollAnimationWrapper className="text-center">
-                <p className="text-muted-foreground">No featured projects to display at the moment. Check back soon!</p>
-              </ScrollAnimationWrapper>
-            )}
-            {(allPortfolioItems.length > featuredProjects.length || allPortfolioItems.length === 0 && featuredProjects.length === 0) && (
-                <ScrollAnimationWrapper className="mt-12 text-center" delay={(featuredProjects.length || 0) * 150}>
-                <Button asChild size="lg" variant="outline" className="text-lg">
-                    <Link href="/portfolio">
-                      <span>
-                        View All Projects <ArrowRight className="ml-2 h-5 w-5" />
-                      </span>
-                    </Link>
-                </Button>
-                </ScrollAnimationWrapper>
-            )}
-          </div>
-        </section>
-      </ScrollAnimationWrapper>
-
-      <ScrollAnimationWrapper className="w-full py-16 md:py-24">
-        <section>
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <ScrollAnimationWrapper>
-              <h2 className="font-headline text-3xl md:text-4xl font-bold text-center text-primary mb-12">
-                My Core Skills
-              </h2>
-            </ScrollAnimationWrapper>
-
-            {highlightedSkills.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 md:gap-8">
-                {highlightedSkills.map((skill, index) => {
-                  const IconComponent = lucideIconsMap[skill.iconName] || Package;
-                  return (
-                    <ScrollAnimationWrapper key={skill.id || `skill-${index}`} delay={index * 100} threshold={0.05}>
-                      <div className="flex flex-col items-center text-center p-4 md:p-6 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.03] bg-card h-full">
-                        <IconComponent className="h-10 w-10 md:h-12 md:w-12 text-primary mb-3" />
-                        <h3 className="text-sm md:text-base font-semibold text-card-foreground">{skill.name}</h3>
-                      </div>
-                    </ScrollAnimationWrapper>
-                  );
-                })}
-              </div>
-            ) : (
-               <ScrollAnimationWrapper className="text-center">
-                <p className="text-muted-foreground mb-8">Skills section is currently being updated. Check back soon!</p>
-               </ScrollAnimationWrapper>
-            )}
-            
-            {(allSkills.length > highlightedSkills.length || allSkills.length === 0 && highlightedSkills.length === 0) && (
-              <ScrollAnimationWrapper className="mt-12 text-center" delay={highlightedSkills.length * 100}>
-                <Button asChild size="lg" variant="outline" className="text-lg">
-                  <Link href="/skills">
-                    <span>
-                      Explore All My Skills <ArrowRight className="ml-2 h-5 w-5" />
-                    </span>
-                  </Link>
-                </Button>
-              </ScrollAnimationWrapper>
-            )}
-          </div>
-        </section>
-      </ScrollAnimationWrapper>
     </div>
   );
 }

@@ -1,112 +1,138 @@
+"use client";
 
 import Link from 'next/link';
-import { Github, Linkedin, Twitter, Mail } from 'lucide-react';
-import type { SocialLink } from '@/lib/types';
+import { Github, Linkedin, Twitter, Mail, Code, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getAboutMeDataAction } from '@/actions/getAboutMeDataAction';
-import { defaultAboutMeDataForClient } from '@/lib/data';
 
-const mainNavItems = [
-  { href: '/', label: 'Home' },
-  { href: '/about', label: 'About' },
-  { href: '/skills', label: 'Skills' },
-  { href: '/portfolio', label: 'Portfolio' },
-  { href: '/contact', label: 'Contact' },
-];
+const footerLinks = {
+  main: [
+    { href: '/', label: 'Home' },
+    { href: '/about', label: 'About' },
+    { href: '/portfolio', label: 'Portfolio' },
+    { href: '/skills', label: 'Skills' },
+    { href: '/contact', label: 'Contact' },
+  ],
+  social: [
+    { href: 'https://github.com', label: 'GitHub', icon: Github },
+    { href: 'https://linkedin.com', label: 'LinkedIn', icon: Linkedin },
+    { href: 'https://twitter.com', label: 'Twitter', icon: Twitter },
+    { href: 'mailto:contact@example.com', label: 'Email', icon: Mail },
+  ],
+  legal: [
+    { href: '/privacy', label: 'Privacy Policy' },
+    { href: '/terms', label: 'Terms of Service' },
+    { href: '/cookies', label: 'Cookie Policy' },
+  ],
+};
 
-export default async function Footer() {
+export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const aboutMeData = await getAboutMeDataAction();
-  const displayedData = aboutMeData || defaultAboutMeDataForClient;
 
-  const socialLinksToDisplay: SocialLink[] = [
-    ...(displayedData.githubUrl ? [{ id: 'github', name: 'GitHub', url: displayedData.githubUrl, icon: Github }] : []),
-    ...(displayedData.linkedinUrl ? [{ id: 'linkedin', name: 'LinkedIn', url: displayedData.linkedinUrl, icon: Linkedin }] : []),
-    ...(displayedData.twitterUrl ? [{ id: 'twitter', name: 'Twitter', url: displayedData.twitterUrl, icon: Twitter }] : []),
-    ...(displayedData.email ? [{ id: 'email', name: 'Email', url: `mailto:${displayedData.email}`, icon: Mail }] : []),
-  ].filter(link => link.url && link.url.trim() !== '');
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
-    <footer className="border-t bg-background text-foreground">
-      <div className="container mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3 lg:grid-cols-4 mb-10">
-          <div className="md:col-span-1 lg:col-span-2">
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 mb-4 group focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-background rounded-md"
-              aria-label="Go to Homepage"
-            >
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="text-primary group-hover:text-accent transition-colors">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span className="font-headline text-xl font-bold text-primary group-hover:text-accent transition-colors">
-                {displayedData.name ? `${displayedData.name.split(' ')[0]}'s Verse` : defaultAboutMeDataForClient.name.split(' ')[0] + "'s Verse"}
+    <footer className="border-t border-border bg-background">
+      {/* Main Footer Content */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+          {/* Brand Section */}
+          <div className="md:col-span-2">
+            <Link href="/" className="inline-flex items-center gap-3 mb-4 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg">
+              <div className="flex items-center justify-center w-10 h-10 bg-gradient-royal rounded-lg">
+                <Code className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold text-foreground">
+                AnandVerse
               </span>
             </Link>
-            <p className="text-sm text-muted-foreground max-w-md">
-              Crafting digital experiences, one line of code at a time. Passionate about building intuitive and performant web solutions.
+            
+            <p className="text-muted-foreground max-w-md leading-relaxed mb-6">
+              Full-Stack Developer crafting exceptional digital experiences through innovative design and cutting-edge technology.
             </p>
+            
+            {/* Social Links */}
+            <div className="flex items-center gap-3">
+              {footerLinks.social.map((social) => (
+                <Button
+                  key={social.href}
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 rounded-lg hover:bg-accent"
+                >
+                  <Link href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
+                    <social.icon className="h-5 w-5" />
+                  </Link>
+                </Button>
+              ))}
+            </div>
           </div>
 
-          <div className="md:col-span-1">
-            <h3 className="text-sm font-semibold text-foreground/80 uppercase tracking-wider mb-4">
-              Navigate
-            </h3>
+          {/* Navigation Links */}
+          <div>
+            <h3 className="text-lg font-semibold text-foreground mb-4">Navigation</h3>
             <ul className="space-y-3">
-              {mainNavItems.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-sm text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-1 focus:ring-ring rounded px-1 py-0.5"
+              {footerLinks.main.map((link) => (
+                <li key={link.href}>
+                  <Link 
+                    href={link.href}
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md"
                   >
-                    {item.label}
+                    {link.label}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {socialLinksToDisplay.length > 0 && (
-            <div className="md:col-span-1">
-              <h3 className="text-sm font-semibold text-foreground/80 uppercase tracking-wider mb-4">
-                Connect
-              </h3>
-              <div className="flex items-center space-x-2">
-                {socialLinksToDisplay.map((link) => (
-                  <Button
-                    key={link.id}
-                    asChild
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground hover:text-primary hover:bg-muted rounded-full focus:ring-offset-background"
-                    aria-label={link.name}
+          {/* Legal Links */}
+          <div>
+            <h3 className="text-lg font-semibold text-foreground mb-4">Legal</h3>
+            <ul className="space-y-3">
+              {footerLinks.legal.map((link) => (
+                <li key={link.href}>
+                  <Link 
+                    href={link.href}
+                    className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md"
                   >
-                    <Link
-                      href={link.url!}
-                      target={link.id === 'email' ? '_self' : '_blank'}
-                      rel="noopener noreferrer"
-                    >
-                      <span><link.icon className="h-5 w-5" /></span>
-                    </Link>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <div className="mt-10 border-t border-border pt-8 text-center">
-          <p className="text-sm text-muted-foreground">
-            &copy; {currentYear || new Date().getFullYear()}{' '}
-            {displayedData.name || defaultAboutMeDataForClient.name}. All rights reserved.
-          </p>
-          <p className="text-sm text-muted-foreground mt-2">
-            💻 Made with caffeine, code, and mild chaos — by <Link href="/admin/dashboard" className="text-primary hover:underline font-semibold">B.Anand</Link>
-          </p>
+        {/* Bottom Section */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border">
+          <div className="text-sm text-muted-foreground">
+            © {currentYear} AnandVerse. All rights reserved.
+          </div>
+          
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>Built by</span>
+            <Link
+              href="/admin"
+              className="font-semibold text-primary hover:text-primary/80 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-1"
+            >
+              Anand
+            </Link>
+          </div>
         </div>
       </div>
+
+      {/* Scroll to Top Button */}
+      <Button
+        onClick={scrollToTop}
+        variant="ghost"
+        size="icon"
+        className="fixed bottom-6 right-6 h-12 w-12 rounded-full bg-primary/10 hover:bg-primary/20 text-primary shadow-lg hover:shadow-xl transition-all duration-200 z-40"
+        aria-label="Scroll to top"
+      >
+        <ArrowUp className="h-5 w-5" />
+      </Button>
     </footer>
   );
 }

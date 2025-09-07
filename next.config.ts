@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: false, // Keep ESLint checks active
   },
+  output: 'standalone',
   images: {
     remotePatterns: [
       {

@@ -1,8 +1,8 @@
 
 "use client";
 
-import { useEffect } from 'react';
-import { useActionState, useFormStatus } from 'react-dom';
+import { useEffect, useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -40,13 +40,21 @@ function SubmitButton() {
 }
 
 export default function AdminAnnouncementPanel() {
-  const [state, formAction] = useActionState(submitAnnouncementAction, initialFormState);
+  const [state, setState] = useState<AnnouncementFormState>(initialFormState);
   const { toast } = useToast();
 
   const form = useForm<AnnouncementFormData>({
     resolver: zodResolver(announcementSchema),
     defaultValues: { message: '' },
   });
+
+  const handleSubmit = async (data: AnnouncementFormData) => {
+    const formData = new FormData();
+    formData.append('message', data.message);
+    
+    const result = await submitAnnouncementAction(state, formData);
+    setState(result);
+  };
 
   useEffect(() => {
     if (state.status === 'success') {
@@ -69,7 +77,7 @@ export default function AdminAnnouncementPanel() {
         </CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form action={formAction}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
           <CardContent>
             <FormField
               control={form.control}
