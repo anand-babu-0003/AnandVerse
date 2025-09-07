@@ -97,23 +97,23 @@ export default async function ContactPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-20 md:py-32 overflow-hidden">
+      <section className="relative py-16 sm:py-20 md:py-32 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
         
         {/* Animated Starfield */}
         <Starfield density={0.9} speed={0.2} twinkleSpeed={0.012} />
         
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20 mb-6">
-              <MessageCircle className="h-4 w-4" />
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium border border-primary/20 mb-4 sm:mb-6">
+              <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4" />
               Get in Touch
             </div>
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 sm:mb-6">
               <span className="text-gradient">Contact Me</span>
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground leading-relaxed">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed px-4 sm:px-0">
               Ready to start your next project? I'd love to hear from you. 
               Let's discuss how we can work together to bring your ideas to life.
             </p>
@@ -122,8 +122,8 @@ export default async function ContactPage() {
       </section>
 
       {/* Contact Form & Info */}
-      <section className="py-20 md:py-32">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-20 md:py-32">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="grid lg:grid-cols-3 gap-12">
             {/* Contact Form */}
             <div className="lg:col-span-2">

@@ -166,7 +166,7 @@ export default async function Home() {
                   <div className="text-xs sm:text-sm text-muted-foreground">Years Experience</div>
                 </div>
                 <div className="text-center p-4 sm:p-6 card-modern">
-                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">50+</div>
+                  <div className="text-2xl sm:text-3xl font-bold text-primary mb-1 sm:mb-2">{allPortfolioItems.length}+</div>
                   <div className="text-xs sm:text-sm text-muted-foreground">Projects Delivered</div>
                 </div>
               </div>

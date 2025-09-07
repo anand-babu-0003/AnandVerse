@@ -238,21 +238,21 @@ export default function AboutManagement() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold">About Me Management</h2>
           <p className="text-muted-foreground">
             Manage your personal information and professional background
           </p>
         </div>
-        <Button onClick={handleEdit}>
+        <Button onClick={handleEdit} className="w-full sm:w-auto">
           <Edit className="h-4 w-4 mr-2" />
           Edit Profile
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -331,7 +331,7 @@ export default function AboutManagement() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-sm font-medium">Name</Label>
                   <p className="text-sm text-muted-foreground mt-1">{aboutMe.name}</p>
@@ -353,26 +353,32 @@ export default function AboutManagement() {
                 <Label className="text-sm font-medium">Profile Image</Label>
                 <div className="mt-2">
                   {aboutMe.profileImage ? (
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                       <img 
                         src={aboutMe.profileImage} 
                         alt="Profile" 
-                        className="h-16 w-16 rounded-full object-cover"
+                        className="h-16 w-16 rounded-full object-cover flex-shrink-0"
+                        data-ai-hint={aboutMe.dataAiHint}
                       />
-                      <Button size="sm" variant="outline">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Change Image
-                      </Button>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-muted-foreground break-all">
+                          {aboutMe.profileImage}
+                        </p>
+                        {aboutMe.dataAiHint && (
+                          <p className="text-xs text-muted-foreground">
+                            AI Hint: {aboutMe.dataAiHint}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-4">
-                      <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                      <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                         <ImageIcon className="h-8 w-8 text-muted-foreground" />
                       </div>
-                      <Button size="sm" variant="outline">
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload Image
-                      </Button>
+                      <div className="flex-1">
+                        <p className="text-sm text-muted-foreground">No profile image set</p>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -383,9 +389,9 @@ export default function AboutManagement() {
 
         {/* Experience */}
         <TabsContent value="experience" className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h3 className="text-lg font-semibold">Work Experience</h3>
-            <Button onClick={handleAddExperience}>
+            <Button onClick={handleAddExperience} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Add Experience
             </Button>
@@ -424,9 +430,9 @@ export default function AboutManagement() {
 
         {/* Education */}
         <TabsContent value="education" className="space-y-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h3 className="text-lg font-semibold">Education</h3>
-            <Button onClick={handleAddEducation}>
+            <Button onClick={handleAddEducation} className="w-full sm:w-auto">
               <Plus className="h-4 w-4 mr-2" />
               Add Education
             </Button>
@@ -475,7 +481,7 @@ export default function AboutManagement() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="flex items-center gap-3">
                   <Linkedin className="h-5 w-5 text-blue-600" />
                   <div className="flex-1">
@@ -544,7 +550,7 @@ export default function AboutManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit About Me</DialogTitle>
             <DialogDescription>
@@ -631,7 +637,8 @@ function AboutMeForm({ aboutMe, onSubmit, onCancel, isSubmitting = false }: Abou
     linkedinUrl: aboutMe.linkedinUrl || '',
     githubUrl: aboutMe.githubUrl || '',
     twitterUrl: aboutMe.twitterUrl || '',
-    profileImage: aboutMe.profileImage,
+    profileImage: aboutMe.profileImage || '',
+    dataAiHint: aboutMe.dataAiHint || '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -641,7 +648,7 @@ function AboutMeForm({ aboutMe, onSubmit, onCancel, isSubmitting = false }: Abou
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="name">Name</Label>
           <Input
@@ -649,6 +656,7 @@ function AboutMeForm({ aboutMe, onSubmit, onCancel, isSubmitting = false }: Abou
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
             required
+            className="w-full"
           />
         </div>
         <div>
@@ -658,6 +666,7 @@ function AboutMeForm({ aboutMe, onSubmit, onCancel, isSubmitting = false }: Abou
             value={formData.title}
             onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
             required
+            className="w-full"
           />
         </div>
       </div>
@@ -683,7 +692,40 @@ function AboutMeForm({ aboutMe, onSubmit, onCancel, isSubmitting = false }: Abou
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div>
+        <Label htmlFor="profileImage">Profile Image URL</Label>
+        <Input
+          id="profileImage"
+          type="url"
+          value={formData.profileImage}
+          onChange={(e) => setFormData(prev => ({ ...prev, profileImage: e.target.value }))}
+          placeholder="https://example.com/your-photo.jpg"
+        />
+        {formData.profileImage && (
+          <div className="mt-2">
+            <img 
+              src={formData.profileImage} 
+              alt="Profile preview" 
+              className="h-20 w-20 rounded-full object-cover border"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </div>
+        )}
+      </div>
+
+      <div>
+        <Label htmlFor="dataAiHint">Profile Image AI Hint</Label>
+        <Input
+          id="dataAiHint"
+          value={formData.dataAiHint}
+          onChange={(e) => setFormData(prev => ({ ...prev, dataAiHint: e.target.value }))}
+          placeholder="e.g., developer portrait"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
           <Input
@@ -692,6 +734,7 @@ function AboutMeForm({ aboutMe, onSubmit, onCancel, isSubmitting = false }: Abou
             value={formData.linkedinUrl}
             onChange={(e) => setFormData(prev => ({ ...prev, linkedinUrl: e.target.value }))}
             placeholder="https://linkedin.com/in/username"
+            className="w-full"
           />
         </div>
         <div>
@@ -702,6 +745,7 @@ function AboutMeForm({ aboutMe, onSubmit, onCancel, isSubmitting = false }: Abou
             value={formData.githubUrl}
             onChange={(e) => setFormData(prev => ({ ...prev, githubUrl: e.target.value }))}
             placeholder="https://github.com/username"
+            className="w-full"
           />
         </div>
       </div>
@@ -717,12 +761,12 @@ function AboutMeForm({ aboutMe, onSubmit, onCancel, isSubmitting = false }: Abou
         />
       </div>
 
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
+      <div className="flex flex-col sm:flex-row justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting} className="w-full sm:w-auto">
           <X className="h-4 w-4 mr-2" />
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
           {isSubmitting ? (
             <>
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -761,7 +805,7 @@ function ExperienceForm({ experience, onSubmit, onCancel }: ExperienceFormProps)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="role">Role</Label>
           <Input
@@ -769,6 +813,7 @@ function ExperienceForm({ experience, onSubmit, onCancel }: ExperienceFormProps)
             value={formData.role}
             onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
             required
+            className="w-full"
           />
         </div>
         <div>
@@ -778,6 +823,7 @@ function ExperienceForm({ experience, onSubmit, onCancel }: ExperienceFormProps)
             value={formData.company}
             onChange={(e) => setFormData(prev => ({ ...prev, company: e.target.value }))}
             required
+            className="w-full"
           />
         </div>
       </div>
@@ -804,12 +850,12 @@ function ExperienceForm({ experience, onSubmit, onCancel }: ExperienceFormProps)
         />
       </div>
 
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onCancel}>
+      <div className="flex flex-col sm:flex-row justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
           <X className="h-4 w-4 mr-2" />
           Cancel
         </Button>
-        <Button type="submit">
+        <Button type="submit" className="w-full sm:w-auto">
           <Save className="h-4 w-4 mr-2" />
           Save
         </Button>
@@ -869,12 +915,12 @@ function EducationForm({ education, onSubmit, onCancel }: EducationFormProps) {
         />
       </div>
 
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline" onClick={onCancel}>
+      <div className="flex flex-col sm:flex-row justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel} className="w-full sm:w-auto">
           <X className="h-4 w-4 mr-2" />
           Cancel
         </Button>
-        <Button type="submit">
+        <Button type="submit" className="w-full sm:w-auto">
           <Save className="h-4 w-4 mr-2" />
           Save
         </Button>

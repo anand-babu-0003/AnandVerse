@@ -29,8 +29,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { getAboutMeDataAction } from '@/actions/getAboutMeDataAction';
 import type { AboutMeData } from '@/lib/types';
 import { defaultAboutMeDataForClient } from '@/lib/data';
@@ -40,8 +40,8 @@ function Header({
 }: {
   aboutMeData: AboutMeData | null;
 }) {
-  const { isMobile } = useIsMobile();
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
@@ -136,15 +136,26 @@ export default function AuthenticatedAdminLayout({
   const [aboutMeData, setAboutMeData] = React.useState<AboutMeData | null>(null);
 
   React.useEffect(() => {
+    let isMounted = true;
+    
     async function fetchData() {
         try {
             const data = await getAboutMeDataAction();
-            setAboutMeData(data || defaultAboutMeDataForClient);
+            if (isMounted) {
+                setAboutMeData(data || defaultAboutMeDataForClient);
+            }
         } catch {
-            setAboutMeData(defaultAboutMeDataForClient);
+            if (isMounted) {
+                setAboutMeData(defaultAboutMeDataForClient);
+            }
         }
     }
+    
     fetchData();
+    
+    return () => {
+        isMounted = false;
+    };
   }, []);
 
 

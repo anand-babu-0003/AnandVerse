@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Menu, X, Home, User, Briefcase, Code, Mail, Github, Linkedin, Twitter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { ThemeToggleButton } from './theme-toggle-button';
 
@@ -144,6 +144,7 @@ export default function Navbar() {
                 side="right" 
                 className="w-full max-w-xs sm:max-w-sm p-0 bg-background border-l border-border"
               >
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <div className="flex flex-col h-full">
                   {/* Mobile Header */}
                   <div className="flex justify-between items-center p-4 sm:p-6 border-b border-border">

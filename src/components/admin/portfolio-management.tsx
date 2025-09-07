@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Plus,
   Edit,
@@ -24,12 +25,39 @@ import {
   Image as ImageIcon,
   Save,
   X,
-  Upload
+  Upload,
+  EyeIcon,
+  Code,
+  Link as LinkIcon
 } from 'lucide-react';
 import { usePortfolioData } from '@/hooks/useFirestoreData';
 import { savePortfolioItemAction, deletePortfolioItemAction } from '@/actions/admin/portfolioActions';
 import { useToast } from '@/hooks/use-toast';
 import type { PortfolioItem } from '@/lib/types';
+
+// Simple Markdown Preview Component
+function MarkdownPreview({ content }: { content: string }) {
+  const formatMarkdown = (text: string) => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`(.*?)`/g, '<code class="bg-muted px-1 py-0.5 rounded text-sm">$1</code>')
+      .replace(/^### (.*$)/gim, '<h3 class="text-lg font-semibold mt-4 mb-2">$1</h3>')
+      .replace(/^## (.*$)/gim, '<h2 class="text-xl font-semibold mt-4 mb-2">$1</h2>')
+      .replace(/^# (.*$)/gim, '<h1 class="text-2xl font-bold mt-4 mb-2">$1</h1>')
+      .replace(/^\* (.*$)/gim, '<li class="ml-4">• $1</li>')
+      .replace(/^- (.*$)/gim, '<li class="ml-4">• $1</li>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary hover:underline" target="_blank" rel="noopener noreferrer">$1</a>')
+      .replace(/\n/g, '<br>');
+  };
+
+  return (
+    <div 
+      dangerouslySetInnerHTML={{ __html: formatMarkdown(content) }}
+      className="prose prose-sm max-w-none"
+    />
+  );
+}
 
 export default function PortfolioManagement() {
   const { portfolioItems, isLoading, error, refetch } = usePortfolioData();
@@ -114,6 +142,7 @@ export default function PortfolioManagement() {
           title: "Success",
           description: result.message,
         });
+        // Reset all dialog states
         setIsAddDialogOpen(false);
         setIsEditDialogOpen(false);
         setEditingItem(null);
@@ -126,6 +155,7 @@ export default function PortfolioManagement() {
         });
       }
     } catch (error) {
+      console.error('Error saving portfolio item:', error);
       toast({
         title: "Error",
         description: "Failed to save portfolio item",
@@ -175,7 +205,7 @@ export default function PortfolioManagement() {
               Add Item
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Add New Portfolio Item</DialogTitle>
               <DialogDescription>
@@ -183,6 +213,7 @@ export default function PortfolioManagement() {
               </DialogDescription>
             </DialogHeader>
             <PortfolioForm 
+              key="add-form"
               onSubmit={handleSave}
               onCancel={() => setIsAddDialogOpen(false)}
               isSubmitting={isSubmitting}
@@ -332,7 +363,7 @@ export default function PortfolioManagement() {
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Portfolio Item</DialogTitle>
             <DialogDescription>
@@ -341,6 +372,7 @@ export default function PortfolioManagement() {
           </DialogHeader>
           {editingItem && (
             <PortfolioForm 
+              key={`edit-form-${editingItem.id}`}
               item={editingItem}
               onSubmit={handleSave}
               onCancel={() => {
@@ -364,113 +396,215 @@ interface PortfolioFormProps {
 }
 
 function PortfolioForm({ item, onSubmit, onCancel, isSubmitting = false }: PortfolioFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => ({
     title: item?.title || '',
     description: item?.description || '',
     longDescription: item?.longDescription || '',
-    tags: item?.tags.join(', ') || '',
+    tags: item?.tags?.join(', ') || '',
     liveUrl: item?.liveUrl || '',
     repoUrl: item?.repoUrl || '',
     dataAiHint: item?.dataAiHint || '',
-  });
+    image1: item?.images?.[0] || '',
+    image2: item?.images?.[1] || '',
+  }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const images = [formData.image1, formData.image2].filter(Boolean);
     onSubmit({
       ...formData,
       tags: formData.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+      images: images,
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Basic Information */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Basic Information</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="slug">Slug</Label>
+            <Input
+              id="slug"
+              value={formData.title.toLowerCase().replace(/\s+/g, '-')}
+              disabled
+              className="bg-muted"
+            />
+          </div>
+        </div>
+
         <div>
-          <Label htmlFor="title">Title</Label>
-          <Input
-            id="title"
-            value={formData.title}
-            onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+          <Label htmlFor="description">Short Description</Label>
+          <Textarea
+            id="description"
+            value={formData.description}
+            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+            rows={3}
             required
+            placeholder="Brief description of your project..."
           />
         </div>
+
         <div>
-          <Label htmlFor="slug">Slug</Label>
+          <Label htmlFor="tags">Tags (comma-separated)</Label>
           <Input
-            id="slug"
-            value={formData.title.toLowerCase().replace(/\s+/g, '-')}
-            disabled
-            className="bg-muted"
+            id="tags"
+            value={formData.tags}
+            onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
+            placeholder="React, Next.js, TypeScript"
           />
         </div>
       </div>
 
-      <div>
-        <Label htmlFor="description">Short Description</Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-          rows={3}
-          required
-        />
+      {/* Images */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Project Images</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="image1">Image URL 1</Label>
+            <Input
+              id="image1"
+              type="url"
+              value={formData.image1}
+              onChange={(e) => setFormData(prev => ({ ...prev, image1: e.target.value }))}
+              placeholder="https://example.com/image1.jpg"
+            />
+            {formData.image1 && (
+              <div className="mt-2">
+                <img 
+                  src={formData.image1} 
+                  alt="Preview" 
+                  className="w-full h-32 object-cover rounded-md border"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+          </div>
+          <div>
+            <Label htmlFor="image2">Image URL 2</Label>
+            <Input
+              id="image2"
+              type="url"
+              value={formData.image2}
+              onChange={(e) => setFormData(prev => ({ ...prev, image2: e.target.value }))}
+              placeholder="https://example.com/image2.jpg"
+            />
+            {formData.image2 && (
+              <div className="mt-2">
+                <img 
+                  src={formData.image2} 
+                  alt="Preview" 
+                  className="w-full h-32 object-cover rounded-md border"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div>
-        <Label htmlFor="longDescription">Long Description</Label>
-        <Textarea
-          id="longDescription"
-          value={formData.longDescription}
-          onChange={(e) => setFormData(prev => ({ ...prev, longDescription: e.target.value }))}
-          rows={4}
-        />
+      {/* Long Description with Markdown */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Detailed Description</h3>
+        <Tabs defaultValue="write" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="write" className="flex items-center gap-2">
+              <Code className="h-4 w-4" />
+              Write
+            </TabsTrigger>
+            <TabsTrigger value="preview" className="flex items-center gap-2">
+              <EyeIcon className="h-4 w-4" />
+              Preview
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="write" className="space-y-2">
+            <Label htmlFor="longDescription">Markdown Content</Label>
+            <Textarea
+              id="longDescription"
+              value={formData.longDescription}
+              onChange={(e) => setFormData(prev => ({ ...prev, longDescription: e.target.value }))}
+              rows={8}
+              placeholder="Write your detailed project description using Markdown..."
+              className="font-mono text-sm"
+            />
+            <p className="text-xs text-muted-foreground">
+              Supports Markdown syntax: **bold**, *italic*, `code`, [links](url), # headers, - lists, etc.
+            </p>
+          </TabsContent>
+          <TabsContent value="preview" className="space-y-2">
+            <Label>Preview</Label>
+            <div className="min-h-[200px] p-4 border rounded-md bg-muted/50">
+              {formData.longDescription ? (
+                <div className="prose prose-sm max-w-none">
+                  <MarkdownPreview content={formData.longDescription} />
+                </div>
+              ) : (
+                <p className="text-muted-foreground italic">No content to preview</p>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
-      <div>
-        <Label htmlFor="tags">Tags (comma-separated)</Label>
-        <Input
-          id="tags"
-          value={formData.tags}
-          onChange={(e) => setFormData(prev => ({ ...prev, tags: e.target.value }))}
-          placeholder="React, Next.js, TypeScript"
-        />
+      {/* URLs */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Project Links</h3>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="liveUrl">Live URL</Label>
+            <Input
+              id="liveUrl"
+              type="url"
+              value={formData.liveUrl}
+              onChange={(e) => setFormData(prev => ({ ...prev, liveUrl: e.target.value }))}
+              placeholder="https://example.com"
+            />
+          </div>
+          <div>
+            <Label htmlFor="repoUrl">Repository URL</Label>
+            <Input
+              id="repoUrl"
+              type="url"
+              value={formData.repoUrl}
+              onChange={(e) => setFormData(prev => ({ ...prev, repoUrl: e.target.value }))}
+              placeholder="https://github.com/user/repo"
+            />
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      {/* AI Hint */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Additional Information</h3>
         <div>
-          <Label htmlFor="liveUrl">Live URL</Label>
-          <Input
-            id="liveUrl"
-            type="url"
-            value={formData.liveUrl}
-            onChange={(e) => setFormData(prev => ({ ...prev, liveUrl: e.target.value }))}
-            placeholder="https://example.com"
-          />
-        </div>
-        <div>
-          <Label htmlFor="repoUrl">Repository URL</Label>
-          <Input
-            id="repoUrl"
-            type="url"
-            value={formData.repoUrl}
-            onChange={(e) => setFormData(prev => ({ ...prev, repoUrl: e.target.value }))}
-            placeholder="https://github.com/user/repo"
+          <Label htmlFor="dataAiHint">AI Hint</Label>
+          <Textarea
+            id="dataAiHint"
+            value={formData.dataAiHint}
+            onChange={(e) => setFormData(prev => ({ ...prev, dataAiHint: e.target.value }))}
+            rows={2}
+            placeholder="Additional context for AI processing..."
           />
         </div>
       </div>
 
-      <div>
-        <Label htmlFor="dataAiHint">AI Hint</Label>
-        <Textarea
-          id="dataAiHint"
-          value={formData.dataAiHint}
-          onChange={(e) => setFormData(prev => ({ ...prev, dataAiHint: e.target.value }))}
-          rows={2}
-          placeholder="Additional context for AI processing..."
-        />
-      </div>
-
-      <div className="flex justify-end gap-2">
+      {/* Form Actions */}
+      <div className="flex justify-end gap-2 pt-4 border-t">
         <Button type="button" variant="outline" onClick={onCancel} disabled={isSubmitting}>
           <X className="h-4 w-4 mr-2" />
           Cancel
