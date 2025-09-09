@@ -16,10 +16,25 @@ import {
 } from 'lucide-react';
 import { fetchAllSkills } from '@/actions/fetchAllDataAction';
 import Starfield from '@/components/layout/starfield';
+import { generatePageMetadata } from '@/lib/seo';
+import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
+import type { Metadata } from 'next';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+
+// Generate dynamic metadata
+export async function generateMetadata(): Promise<Metadata> {
+  const siteSettings = await getSiteSettingsAction();
+  
+  return generatePageMetadata({
+    title: siteSettings.skillsPageMetaTitle || 'Skills & Expertise',
+    description: siteSettings.skillsPageMetaDescription || 'Explore my technical skills, expertise, and the technologies I use to build amazing digital experiences.',
+    keywords: ['skills', 'expertise', 'technologies', 'programming', 'development', 'frontend', 'backend'],
+    type: 'website',
+  });
+}
 
 export default async function SkillsPage() {
   const allSkills = await fetchAllSkills();

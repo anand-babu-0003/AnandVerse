@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 import { SKILL_CATEGORIES } from './constants'; 
 import { commonSkillNamesTuple } from './data'; 
@@ -136,3 +135,69 @@ export const notFoundPageAdminSchema = z.object({
 });
 export type NotFoundPageAdminFormData = z.infer<typeof notFoundPageAdminSchema>;
 
+// NEW BLOG SCHEMAS
+export const blogPostAdminSchema = z.object({
+  id: z.string().optional(),
+  title: z.string().min(5, { message: "Title must be at least 5 characters." }),
+  slug: z.string().min(1, "Slug is required.").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens." }),
+  excerpt: z.string().min(20, { message: "Excerpt must be at least 20 characters." }),
+  content: z.string().min(100, { message: "Content must be at least 100 characters." }),
+  featuredImage: z.string().url({ message: "Please enter a valid URL for the featured image." }).or(z.literal("")).optional(),
+  author: z.string().min(2, { message: "Author name is required." }),
+  status: z.enum(['draft', 'published', 'archived']),
+  tagsString: z.string().optional(),
+  category: z.string().min(1, { message: "Category is required." }),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
+  seoKeywordsString: z.string().optional(),
+});
+
+export type BlogPostAdminFormData = z.infer<typeof blogPostAdminSchema>;
+
+export const blogCategoryAdminSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().min(2, { message: "Category name must be at least 2 characters." }),
+  slug: z.string().min(1, "Slug is required.").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens." }),
+  description: z.string().optional(),
+  color: z.string().regex(/^#[0-9A-F]{6}$/i, { message: "Color must be a valid hex color code." }).optional(),
+});
+
+export type BlogCategoryAdminFormData = z.infer<typeof blogCategoryAdminSchema>;
+
+// NEW TESTIMONIAL SCHEMAS
+export const testimonialAdminSchema = z.object({
+  id: z.string().optional(),
+  clientName: z.string().min(2, { message: "Client name must be at least 2 characters." }),
+  clientTitle: z.string().min(2, { message: "Client title is required." }),
+  clientCompany: z.string().min(2, { message: "Client company is required." }),
+  clientImage: z.string().url({ message: "Please enter a valid URL for the client image." }).or(z.literal("")).optional(),
+  content: z.string().min(20, { message: "Testimonial content must be at least 20 characters." }),
+  rating: z.number().min(1).max(5),
+  projectId: z.string().optional(),
+  status: z.enum(['pending', 'approved', 'featured']),
+});
+
+export type TestimonialAdminFormData = z.infer<typeof testimonialAdminSchema>;
+
+// NEW ANALYTICS SCHEMAS
+export const analyticsFilterSchema = z.object({
+  dateRange: z.enum(['7d', '30d', '90d', '1y', 'custom']),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  page: z.string().optional(),
+  device: z.enum(['all', 'desktop', 'mobile', 'tablet']).optional(),
+  country: z.string().optional(),
+});
+
+export type AnalyticsFilterData = z.infer<typeof analyticsFilterSchema>;
+
+// NEW AI FEATURES SCHEMAS
+export const aiContentGenerationSchema = z.object({
+  type: z.enum(['blog_post', 'project_description', 'seo_meta', 'email_response']),
+  prompt: z.string().min(10, { message: "Prompt must be at least 10 characters." }),
+  context: z.string().optional(),
+  tone: z.enum(['professional', 'casual', 'technical', 'creative']).optional(),
+  length: z.enum(['short', 'medium', 'long']).optional(),
+});
+
+export type AIContentGenerationData = z.infer<typeof aiContentGenerationSchema>;

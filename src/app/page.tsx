@@ -69,7 +69,7 @@ export default async function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative w-full py-20 sm:py-24 md:py-32 overflow-hidden">
+      <section className="relative w-full py-16 sm:py-20 md:py-24 lg:py-32 xl:py-40 overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
@@ -77,49 +77,49 @@ export default async function Home() {
         {/* Animated Starfield */}
         <Starfield density={0.6} speed={0.2} twinkleSpeed={0.01} />
         
-        <div className="relative z-10 container mx-auto px-3 sm:px-4 md:px-6 lg:px-8 text-center">
-          <div className="max-w-4xl mx-auto">
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 text-center">
+          <div className="max-w-5xl mx-auto">
             {/* Greeting Badge */}
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium border border-primary/20 mb-4 sm:mb-6 animate-fade-in">
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium border border-primary/20 mb-6 sm:mb-8 animate-fade-in">
               <Code className="h-3 w-3 sm:h-4 sm:w-4" />
               <span className="hidden xs:inline">Welcome to my digital space</span>
               <span className="xs:hidden">Welcome</span>
             </div>
 
             {/* Main Heading */}
-            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 sm:mb-6 animate-fade-in">
-              <span className="block text-foreground mb-2">
+            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight mb-6 sm:mb-8 animate-fade-in">
+              <span className="block text-foreground mb-2 sm:mb-3">
                 Hi, I&apos;m{' '}
                 <span className="text-gradient">
                   {(displayedAboutMe.name || 'User').split(' ')[0]}
                 </span>
               </span>
-              <span className="block text-lg xs:text-xl sm:text-2xl md:text-3xl lg:text-4xl text-muted-foreground font-normal">
+              <span className="block text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl text-muted-foreground font-normal">
                 {displayedAboutMe.title || 'Full-Stack Developer'}
               </span>
             </h1>
 
             {/* Description */}
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-6 sm:mb-8 animate-fade-in px-4 sm:px-0">
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-8 sm:mb-10 lg:mb-12 animate-fade-in px-4 sm:px-6 md:px-0">
               {firstParagraphBio}
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col xs:flex-row justify-center items-center gap-3 sm:gap-4 mb-8 sm:mb-12 animate-fade-in px-4 sm:px-0">
-              <Button asChild size="lg" className="btn-modern px-6 sm:px-8 py-2.5 sm:py-3 w-full xs:w-auto">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6 mb-10 sm:mb-12 lg:mb-16 animate-fade-in px-4 sm:px-6 md:px-0">
+              <Button asChild size="lg" className="btn-modern px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto text-base sm:text-lg font-semibold">
                 <Link href="/portfolio">
-                  <span className="flex items-center gap-2">
-                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="flex items-center gap-2 sm:gap-3">
+                    <Briefcase className="h-5 w-5 sm:h-6 sm:w-6" />
                     View My Work
-                    <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                    <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
                   </span>
                 </Link>
               </Button>
               
-              <Button asChild size="lg" variant="outline" className="btn-modern-outline px-6 sm:px-8 py-2.5 sm:py-3 w-full xs:w-auto">
+              <Button asChild size="lg" variant="outline" className="btn-modern-outline px-8 sm:px-10 py-3 sm:py-4 w-full sm:w-auto text-base sm:text-lg font-semibold">
                 <Link href="/contact">
-                  <span className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span className="flex items-center gap-2 sm:gap-3">
+                    <Mail className="h-5 w-5 sm:h-6 sm:w-6" />
                     Get in Touch
                   </span>
                 </Link>

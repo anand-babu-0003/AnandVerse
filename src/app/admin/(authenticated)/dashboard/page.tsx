@@ -1,6 +1,6 @@
 
-import ProfessionalDashboard from '@/components/admin/professional-dashboard';
+import ComprehensiveDashboard from '@/components/admin/comprehensive-dashboard';
 
 export default function AdminDashboardPage() {
-  return <ProfessionalDashboard />;
+  return <ComprehensiveDashboard />;
 }

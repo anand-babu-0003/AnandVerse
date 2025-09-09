@@ -2,7 +2,7 @@
 "use server";
 
 import { firestore } from '@/lib/firebaseConfig';
-import { collection, getDocs, doc, deleteDoc, query, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, doc, deleteDoc, setDoc, query, orderBy, Timestamp, serverTimestamp } from 'firebase/firestore';
 import { revalidatePath } from 'next/cache';
 import type { ContactMessage } from '@/lib/types';
 
@@ -66,6 +66,29 @@ export async function deleteContactMessageAction(messageId: string): Promise<Del
     } catch (error) {
         console.error("Error deleting contact message from Firestore:", error);
         return { success: false, message: "Failed to delete message due to a server error." };
+    }
+}
+
+export type MarkMessageAsReadResult = {
+    success: boolean;
+    message: string;
+};
+
+export async function markMessageAsReadAction(messageId: string): Promise<MarkMessageAsReadResult> {
+    if (!messageId) {
+        return { success: false, message: "No message ID provided." };
+    }
+    if (!firestore) {
+        return { success: false, message: "Firestore not initialized. Cannot mark message as read." };
+    }
+    try {
+        const messageRef = messageDocRef(messageId);
+        await setDoc(messageRef, { isRead: true, readAt: serverTimestamp() }, { merge: true });
+        revalidatePath('/admin/messages');
+        return { success: true, message: `Message (ID: ${messageId}) marked as read successfully!` };
+    } catch (error) {
+        console.error("Error marking message as read in Firestore:", error);
+        return { success: false, message: "Failed to mark message as read due to a server error." };
     }
 }
 

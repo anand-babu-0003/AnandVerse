@@ -17,6 +17,7 @@ import { Switch } from '@/components/ui/switch';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Loader2, Save } from 'lucide-react';
+import { SEOPreview } from './seo-preview';
 
 interface AdminSettingsFormProps {
   siteSettings: SiteSettings;
@@ -54,8 +55,18 @@ export default function AdminSettingsForm({ siteSettings }: AdminSettingsFormPro
     },
   });
 
-  const onSubmit = (formData: FormData) => {
+  const onSubmit = (data: SiteSettingsAdminFormData) => {
     startTransition(async () => {
+      // Convert form data to FormData object
+      const formData = new FormData();
+      formData.append('siteName', data.siteName);
+      formData.append('defaultMetaDescription', data.defaultMetaDescription);
+      formData.append('defaultMetaKeywords', data.defaultMetaKeywords || '');
+      formData.append('siteOgImageUrl', data.siteOgImageUrl || '');
+      formData.append('maintenanceMode', data.maintenanceMode ? 'on' : '');
+      formData.append('skillsPageMetaTitle', data.skillsPageMetaTitle || '');
+      formData.append('skillsPageMetaDescription', data.skillsPageMetaDescription || '');
+
       const result = await updateSiteSettingsAction(formState, formData);
       setFormState(result);
       if (result.status === 'success') {
@@ -77,7 +88,7 @@ export default function AdminSettingsForm({ siteSettings }: AdminSettingsFormPro
 
   return (
     <Form {...form}>
-      <form action={onSubmit}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
         <Card>
           <CardHeader>
             <CardTitle>General Settings</CardTitle>
@@ -226,6 +237,9 @@ export default function AdminSettingsForm({ siteSettings }: AdminSettingsFormPro
                <SubmitButton isPending={isPending}/>
             </CardFooter>
         </Card>
+
+        {/* SEO Preview */}
+        <SEOPreview siteSettings={form.watch()} isLive={false} />
 
       </form>
     </Form>

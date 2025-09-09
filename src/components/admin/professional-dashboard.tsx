@@ -63,6 +63,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
+import { NotificationCenter } from './notification-center';
 
 interface DashboardStats {
   totalPortfolioItems: number;
@@ -310,13 +311,14 @@ export default function ProfessionalDashboard() {
 
         {/* Main Content Tabs */}
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4 sm:space-y-6">
-          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-7 h-auto">
             <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
             <TabsTrigger value="portfolio" className="text-xs sm:text-sm">Portfolio</TabsTrigger>
             <TabsTrigger value="skills" className="text-xs sm:text-sm">Skills</TabsTrigger>
             <TabsTrigger value="about" className="text-xs sm:text-sm">About</TabsTrigger>
             <TabsTrigger value="messages" className="text-xs sm:text-sm">Messages</TabsTrigger>
             <TabsTrigger value="announcements" className="text-xs sm:text-sm">Announcements</TabsTrigger>
+            <TabsTrigger value="notifications" className="text-xs sm:text-sm">Notifications</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -830,6 +832,11 @@ export default function ProfessionalDashboard() {
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          {/* Notifications Tab */}
+          <TabsContent value="notifications" className="space-y-6">
+            <NotificationCenter showUnreadOnly={false} limit={20} />
           </TabsContent>
         </Tabs>
       </div>

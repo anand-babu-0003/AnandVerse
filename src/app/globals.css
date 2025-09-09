@@ -426,19 +426,117 @@
 
   /* Modern Responsive Utilities */
   .responsive-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8;
+  }
+
+  .responsive-grid-2 {
+    @apply grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8;
+  }
+
+  .responsive-grid-3 {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8;
   }
 
   .responsive-flex {
-    @apply flex flex-col md:flex-row gap-6;
+    @apply flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8;
   }
 
   .responsive-text {
-    @apply text-lg md:text-xl lg:text-2xl;
+    @apply text-base sm:text-lg md:text-xl lg:text-2xl;
+  }
+
+  .responsive-text-large {
+    @apply text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl;
+  }
+
+  .responsive-text-hero {
+    @apply text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl;
   }
 
   .responsive-spacing {
-    @apply py-12 md:py-16 lg:py-20;
+    @apply py-12 sm:py-16 md:py-20 lg:py-24 xl:py-32;
+  }
+
+  .responsive-spacing-large {
+    @apply py-16 sm:py-20 md:py-24 lg:py-32 xl:py-40;
+  }
+
+  .responsive-padding {
+    @apply px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16;
+  }
+
+  .responsive-gap {
+    @apply gap-4 sm:gap-6 lg:gap-8 xl:gap-10;
+  }
+
+  .responsive-gap-large {
+    @apply gap-6 sm:gap-8 lg:gap-10 xl:gap-12;
+  }
+
+  /* Mobile-First Responsive Utilities */
+  .mobile-hidden {
+    @apply hidden sm:block;
+  }
+
+  .mobile-only {
+    @apply block sm:hidden;
+  }
+
+  .tablet-hidden {
+    @apply hidden md:block;
+  }
+
+  .tablet-only {
+    @apply block md:hidden;
+  }
+
+  .desktop-hidden {
+    @apply hidden lg:block;
+  }
+
+  .desktop-only {
+    @apply block lg:hidden;
+  }
+
+  /* Responsive Container */
+  .responsive-container {
+    @apply container mx-auto responsive-padding;
+  }
+
+  /* Responsive Button */
+  .responsive-button {
+    @apply px-4 sm:px-6 lg:px-8 py-2 sm:py-3 text-sm sm:text-base font-medium;
+  }
+
+  /* Responsive Card */
+  .responsive-card {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+
+  /* Responsive Image */
+  .responsive-image {
+    @apply w-full h-auto object-cover;
+  }
+
+  /* Responsive Typography */
+  .responsive-heading-1 {
+    @apply text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold;
+  }
+
+  .responsive-heading-2 {
+    @apply text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold;
+  }
+
+  .responsive-heading-3 {
+    @apply text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-semibold;
+  }
+
+  .responsive-body {
+    @apply text-sm sm:text-base md:text-lg leading-relaxed;
+  }
+
+  .responsive-body-large {
+    @apply text-base sm:text-lg md:text-xl lg:text-2xl leading-relaxed;
   }
 
   /* Modern Focus States */
@@ -507,5 +605,85 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+
+  /* Blog Content Styles */
+  .blog-content {
+    @apply text-foreground leading-relaxed;
+  }
+
+  .blog-content h1,
+  .blog-content h2,
+  .blog-content h3,
+  .blog-content h4,
+  .blog-content h5,
+  .blog-content h6 {
+    @apply font-semibold text-foreground mt-8 mb-4;
+  }
+
+  .blog-content h1 {
+    @apply text-3xl;
+  }
+
+  .blog-content h2 {
+    @apply text-2xl;
+  }
+
+  .blog-content h3 {
+    @apply text-xl;
+  }
+
+  .blog-content h4 {
+    @apply text-lg;
+  }
+
+  .blog-content p {
+    @apply mb-4 text-muted-foreground;
+  }
+
+  .blog-content a {
+    @apply text-primary hover:text-primary/80 underline;
+  }
+
+  .blog-content ul,
+  .blog-content ol {
+    @apply mb-4 pl-6;
+  }
+
+  .blog-content li {
+    @apply mb-2;
+  }
+
+  .blog-content blockquote {
+    @apply border-l-4 border-primary pl-4 italic text-muted-foreground my-6;
+  }
+
+  .blog-content code {
+    @apply bg-muted px-2 py-1 rounded text-sm font-mono;
+  }
+
+  .blog-content pre {
+    @apply bg-muted p-4 rounded-lg overflow-x-auto my-6;
+  }
+
+  .blog-content pre code {
+    @apply bg-transparent p-0;
+  }
+
+  .blog-content img {
+    @apply rounded-lg my-6 max-w-full h-auto;
+  }
+
+  .blog-content table {
+    @apply w-full border-collapse border border-border my-6;
+  }
+
+  .blog-content th,
+  .blog-content td {
+    @apply border border-border px-4 py-2 text-left;
+  }
+
+  .blog-content th {
+    @apply bg-muted font-semibold;
   }
 }

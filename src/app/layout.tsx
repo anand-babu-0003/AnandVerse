@@ -7,6 +7,8 @@ import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
+import { AnalyticsTracker } from '@/components/analytics/analytics-tracker';
+import { SecurityProvider, SecurityIndicator } from '@/components/security/security-provider';
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteSettings = await getSiteSettingsAction();
@@ -25,6 +27,20 @@ export async function generateMetadata(): Promise<Metadata> {
       images: settings.siteOgImageUrl ? [{ url: settings.siteOgImageUrl }] : [],
       type: 'website',
     },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+    verification: {
+      google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    },
   };
 }
 
@@ -42,17 +58,21 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
-          <Toaster />
-        </ThemeProvider>
+        <SecurityProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AnalyticsTracker />
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+            <Toaster />
+            <SecurityIndicator />
+          </ThemeProvider>
+        </SecurityProvider>
       </body>
     </html>
   );

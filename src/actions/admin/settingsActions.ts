@@ -121,14 +121,21 @@ export async function updateSiteSettingsAction(
 
     await setDoc(siteSettingsDocRef(), dataToSave, { merge: true });
 
+    // Revalidate all pages that use site settings for SEO
     revalidatePath('/', 'layout'); 
     revalidatePath('/'); 
     revalidatePath('/about');
     revalidatePath('/portfolio');
     revalidatePath('/portfolio/[slug]', 'page');
-    revalidatePath('/skills'); // Ensure skills page is revalidated
+    revalidatePath('/blog');
+    revalidatePath('/blog/[slug]', 'page');
+    revalidatePath('/skills');
     revalidatePath('/contact');
     revalidatePath('/admin/settings');
+    
+    // Revalidate SEO-related files
+    revalidatePath('/sitemap.xml');
+    revalidatePath('/robots.txt');
 
     return {
       message: "Site settings updated successfully!",

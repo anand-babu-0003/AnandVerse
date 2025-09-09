@@ -71,13 +71,6 @@ export default function AdminLoginPage() {
           <CardDescription>Please log in to continue.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-           <Alert variant="default" className="border-yellow-500/50 bg-yellow-500/10 text-yellow-700 dark:text-yellow-300">
-            <AlertCircle className="h-4 w-4 !text-yellow-500" />
-            <AlertTitle>Security Notice</AlertTitle>
-            <AlertDescription>
-              This is a basic auth system for a single-user panel. For multi-user or high-security needs, a dedicated provider like Firebase Auth is recommended.
-            </AlertDescription>
-          </Alert>
           <form action={formAction} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

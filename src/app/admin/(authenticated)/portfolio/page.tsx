@@ -1,6 +1,6 @@
 
-import PortfolioManagement from '@/components/admin/portfolio-management';
+import ComprehensivePortfolioManagement from '@/components/admin/comprehensive-portfolio-management';
 
 export default function AdminPortfolioPage() {
-  return <PortfolioManagement />;
+  return <ComprehensivePortfolioManagement />;
 }

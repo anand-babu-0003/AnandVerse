@@ -16,7 +16,10 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import {
+  BarChart3,
+  Bot,
   Briefcase,
+  BookOpen,
   Home,
   Inbox,
   LayoutDashboard,
@@ -53,23 +56,23 @@ function Header({
   return (
     <SidebarHeader
       data-sub-header="true"
-      className="flex h-12 flex-row items-center justify-between border-b bg-background px-4 py-2"
+      className="flex h-14 sm:h-16 flex-row items-center justify-between border-b bg-background px-3 sm:px-4 py-2"
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 sm:gap-3">
         <SidebarTrigger className={cn('md:hidden', isMobile && 'hidden')} />
         <Link
           href="/"
-          className="flex items-center gap-2 font-semibold text-primary hover:text-accent"
+          className="flex items-center gap-2 font-semibold text-primary hover:text-accent transition-colors duration-200"
         >
-          <Home className="h-5 w-5" />
-          <span className="text-sm font-medium">View Site</span>
+          <Home className="h-4 w-4 sm:h-5 sm:w-5" />
+          <span className="text-xs sm:text-sm font-medium">View Site</span>
         </Link>
       </div>
-      <div className="flex items-center gap-4">
-        <span className="text-sm text-muted-foreground hidden sm:inline">
+      <div className="flex items-center gap-2 sm:gap-4">
+        <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">
           Welcome, {aboutMeData?.name?.split(' ')[0] || 'Admin'}
         </span>
-        <Avatar className="h-8 w-8">
+        <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
           <AvatarImage src={aboutMeData?.profileImage} alt={aboutMeData?.name} />
           <AvatarFallback>
             {aboutMeData?.name
@@ -102,9 +105,12 @@ function NavMenu() {
   
   const adminNavItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/admin/messages', label: 'Messages', icon: Inbox },
+    { href: '/admin/blog', label: 'Blog', icon: BookOpen },
     { href: '/admin/portfolio', label: 'Portfolio', icon: Briefcase },
     { href: '/admin/skills', label: 'Skills', icon: Sparkles },
+    { href: '/admin/ai-tools', label: 'AI Tools', icon: Bot },
     { href: '/admin/about', label: 'About Page', icon: UserCircle },
     { href: '/admin/settings', label: 'Site Settings', icon: Settings },
   ];
@@ -117,9 +123,11 @@ function NavMenu() {
             <SidebarMenuButton
               isActive={pathname === item.href || (item.href !== '/admin/dashboard' && pathname.startsWith(item.href))}
               tooltip={item.label}
+              className="text-sm sm:text-base"
             >
-              <item.icon />
-              {item.label}
+              <item.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="hidden sm:inline">{item.label}</span>
+              <span className="sm:hidden text-xs">{item.label.split(' ')[0]}</span>
             </SidebarMenuButton>
           </Link>
         </SidebarMenuItem>

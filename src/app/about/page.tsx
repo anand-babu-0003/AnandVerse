@@ -20,15 +20,33 @@ import {
 import { fetchAllDataFromFirestore } from '@/actions/fetchAllDataAction';
 import Starfield from '@/components/layout/starfield';
 import { defaultAboutMeDataForClient } from '@/lib/data';
+import { generatePageMetadata, generatePersonStructuredData } from '@/lib/seo';
+import type { Metadata } from 'next';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+// Generate dynamic metadata
+export async function generateMetadata(): Promise<Metadata> {
+  const appData = await fetchAllDataFromFirestore();
+  const aboutMe = appData.aboutMe;
+  
+  return generatePageMetadata({
+    title: 'About Me',
+    description: aboutMe.bio || 'Learn about my journey, passion, and what drives me to create amazing digital experiences.',
+    keywords: ['about', 'developer', 'portfolio', 'experience', 'skills'],
+    type: 'website',
+  });
+}
+
 export default async function AboutPage() {
   // Fetch all data from Firestore
   const appData = await fetchAllDataFromFirestore();
   const displayedData = appData.aboutMe;
+  
+  // Generate structured data
+  const structuredData = await generatePersonStructuredData(displayedData);
   
 
   const bioParagraphs = (displayedData.bio || 'Passionate developer creating amazing digital experiences.').split('\n\n');
@@ -42,16 +60,23 @@ export default async function AboutPage() {
 
   return (
     <div className="min-h-screen">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData),
+        }}
+      />
       {/* Hero Section */}
-      <section className="relative py-16 sm:py-20 md:py-32 overflow-hidden">
+      <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 xl:py-40 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
         
         {/* Animated Starfield */}
         <Starfield density={0.7} speed={0.25} twinkleSpeed={0.018} />
         
-        <div className="relative container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <div className="text-center max-w-4xl mx-auto">
+        <div className="relative container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+          <div className="text-center max-w-5xl mx-auto">
             <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium border border-primary/20 mb-4 sm:mb-6">
               <User className="h-3 w-3 sm:h-4 sm:w-4" />
               About Me
@@ -68,9 +93,9 @@ export default async function AboutPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-20 md:py-32">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-3 gap-16 items-start">
+      <section className="py-16 sm:py-20 md:py-24 lg:py-32 xl:py-40">
+        <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+          <div className="grid lg:grid-cols-3 gap-12 sm:gap-16 lg:gap-20 items-start">
             {/* Profile Section */}
             <div className="lg:col-span-1">
               <Card className="card-modern text-center">

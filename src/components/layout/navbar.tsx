@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { Menu, X, Home, User, Briefcase, Code, Mail, Github, Linkedin, Twitter } from 'lucide-react';
+import { Menu, X, Home, User, Briefcase, BookOpen, Code, Mail, Github, Linkedin, Twitter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose, SheetTitle } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,7 @@ const navItems = [
   { href: '/', label: 'Home', icon: Home },
   { href: '/about', label: 'About', icon: User },
   { href: '/portfolio', label: 'Portfolio', icon: Briefcase },
+  { href: '/blog', label: 'Blog', icon: BookOpen },
   { href: '/skills', label: 'Skills', icon: Code },
   { href: '/contact', label: 'Contact', icon: Mail },
 ];
