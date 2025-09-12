@@ -24,7 +24,8 @@ import {
   BookOpen,
   Bot,
   Bell,
-  UserCircle
+  UserCircle,
+  RefreshCw
 } from 'lucide-react';
 import { fetchAllDataFromFirestore } from '@/actions/fetchAllDataAction';
 import { getPublishedBlogPostsActionOptimized } from '@/actions/admin/blogActionsOptimized';
@@ -61,6 +62,7 @@ export default function ComprehensiveDashboard() {
     const loadDashboardData = async () => {
       try {
         setLoading(true);
+        console.log('🔄 Loading dashboard data...');
         
         // Fetch all data in parallel
         const [
@@ -75,6 +77,14 @@ export default function ComprehensiveDashboard() {
           fetchAllAnnouncements()
         ]);
 
+        console.log('📊 Fetched data:', {
+          portfolioItems: data.portfolioItems.length,
+          skills: data.skills.length,
+          blogPosts: blogPosts.length,
+          messages: messages.length,
+          announcements: announcements.length
+        });
+
         setAppData(data);
 
         // Calculate recent activity
@@ -88,7 +98,7 @@ export default function ComprehensiveDashboard() {
           ...messages.slice(0, 2).map(msg => ({
             type: 'message' as const,
             title: `Message from ${msg.name}`,
-            date: msg.createdAt,
+            date: msg.submittedAt || msg.createdAt,
             status: 'new'
           })),
           ...announcements.slice(0, 2).map(ann => ({
@@ -113,9 +123,24 @@ export default function ComprehensiveDashboard() {
           }
         };
 
+        console.log('✅ Dashboard stats calculated:', dashboardStats);
         setStats(dashboardStats);
       } catch (error) {
-        console.error('Error loading dashboard data:', error);
+        console.error('❌ Error loading dashboard data:', error);
+        // Set default stats on error
+        setStats({
+          totalPortfolioItems: 0,
+          totalSkills: 0,
+          totalBlogPosts: 0,
+          totalMessages: 0,
+          totalAnnouncements: 0,
+          recentActivity: [],
+          siteHealth: {
+            firestoreConnected: false,
+            lastDataFetch: new Date().toISOString(),
+            totalDataSize: 0
+          }
+        });
       } finally {
         setLoading(false);
       }
@@ -152,6 +177,15 @@ export default function ComprehensiveDashboard() {
           <p className="text-muted-foreground">Welcome back! Here's what's happening with your site.</p>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.location.reload()}
+            className="flex items-center gap-1"
+          >
+            <RefreshCw className="h-3 w-3" />
+            Refresh
+          </Button>
           <Badge variant="outline" className="flex items-center gap-1">
             <Activity className="h-3 w-3" />
             Live Data
