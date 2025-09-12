@@ -33,6 +33,7 @@ import { fetchAllContactMessages } from '@/actions/fetchAllDataAction';
 import { fetchAllAnnouncements } from '@/actions/fetchAllDataAction';
 import type { AppData, BlogPost, ContactMessage, Announcement } from '@/lib/types';
 import Link from 'next/link';
+import FirebaseConnectionStatus from '@/components/firebase-connection-status';
 
 interface DashboardStats {
   totalPortfolioItems: number;
@@ -186,14 +187,7 @@ export default function ComprehensiveDashboard() {
             <RefreshCw className="h-3 w-3" />
             Refresh
           </Button>
-          <Badge variant="outline" className="flex items-center gap-1">
-            <Activity className="h-3 w-3" />
-            Live Data
-          </Badge>
-          <Badge variant="secondary" className="flex items-center gap-1">
-            <Database className="h-3 w-3" />
-            Firestore Connected
-          </Badge>
+          <FirebaseConnectionStatus showDetails={true} />
         </div>
       </div>
 

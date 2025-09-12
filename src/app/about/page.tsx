@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { 
   ArrowRight, 
   User, 
@@ -15,7 +16,18 @@ import {
   Linkedin,
   Twitter,
   Download,
-  ExternalLink
+  ExternalLink,
+  Heart,
+  Code,
+  Zap,
+  Target,
+  Users,
+  CheckCircle,
+  Sparkles,
+  Rocket,
+  Coffee,
+  Globe,
+  Lightbulb
 } from 'lucide-react';
 import { fetchAllDataFromFirestore } from '@/actions/fetchAllDataAction';
 import Starfield from '@/components/layout/starfield';
@@ -44,22 +56,49 @@ export default async function AboutPage() {
   // Fetch all data from Firestore
   const appData = await fetchAllDataFromFirestore();
   const displayedData = appData.aboutMe;
+  const skills = appData.skills || [];
   
   // Generate structured data
   const structuredData = await generatePersonStructuredData(displayedData);
   
-
   const bioParagraphs = (displayedData.bio || 'Passionate developer creating amazing digital experiences.').split('\n\n');
-  
-  // Use real experience data from Firestore
   const experience = displayedData.experience || [];
-
-  // Use real education data from Firestore
   const education = displayedData.education || [];
 
+  // Personal values and philosophy
+  const values = [
+    {
+      icon: Heart,
+      title: 'Passion-Driven',
+      description: 'I believe in creating solutions that matter, driven by genuine passion for technology and its potential to make a difference.'
+    },
+    {
+      icon: Target,
+      title: 'Results-Oriented',
+      description: 'Every project is approached with clear goals and measurable outcomes, ensuring client satisfaction and project success.'
+    },
+    {
+      icon: Users,
+      title: 'Collaborative',
+      description: 'Great products come from great partnerships. I work closely with clients to understand their vision and bring it to life.'
+    },
+    {
+      icon: Zap,
+      title: 'Innovation',
+      description: 'Staying ahead of the curve with cutting-edge technologies and modern development practices to deliver exceptional results.'
+    }
+  ];
+
+  // Fun facts
+  const funFacts = [
+    { icon: Coffee, text: 'Coffee enthusiast' },
+    { icon: Globe, text: 'Remote work advocate' },
+    { icon: Code, text: 'Open source contributor' },
+    { icon: Lightbulb, text: 'Problem solver at heart' }
+  ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Structured Data */}
       <script
         type="application/ld+json"
@@ -67,242 +106,308 @@ export default async function AboutPage() {
           __html: JSON.stringify(structuredData),
         }}
       />
+
       {/* Hero Section */}
-      <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 xl:py-40 overflow-hidden">
+      <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden">
+        {/* Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
         
         {/* Animated Starfield */}
-        <Starfield density={0.7} speed={0.25} twinkleSpeed={0.018} />
+        <Starfield density={0.4} speed={0.3} twinkleSpeed={0.01} />
         
-        <div className="relative container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-          <div className="text-center max-w-5xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium border border-primary/20 mb-4 sm:mb-6">
-              <User className="h-3 w-3 sm:h-4 sm:w-4" />
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+          <div className="max-w-5xl mx-auto">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20 mb-8 backdrop-blur-sm">
+              <User className="h-4 w-4" />
               About Me
             </div>
-            <h1 className="text-3xl xs:text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 sm:mb-6">
-              <span className="text-gradient">About Me</span>
+
+            {/* Main Heading */}
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-6 leading-tight">
+              <span className="block bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+                Get to Know
+              </span>
+              <span className="block bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent mt-2">
+                The Developer
+              </span>
             </h1>
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed px-4 sm:px-0">
-              Get to know the person behind the code: {displayedData.name || 'User'}. 
-              Learn about my journey, passion, and what drives me to create amazing digital experiences.
+
+            {/* Subtitle */}
+            <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-10">
+              Learn about my journey, passion, and what drives me to create{' '}
+              <span className="font-semibold text-primary">amazing</span> digital experiences
             </p>
-          </div>
-        </div>
-      </section>
 
-      {/* Main Content */}
-      <section className="py-16 sm:py-20 md:py-24 lg:py-32 xl:py-40">
-        <div className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-          <div className="grid lg:grid-cols-3 gap-12 sm:gap-16 lg:gap-20 items-start">
-            {/* Profile Section */}
-            <div className="lg:col-span-1">
-              <Card className="card-modern text-center">
-                <CardContent className="p-8">
-                  <div className="relative mb-8">
-          <Image
-            src={displayedData.profileImage || defaultAboutMeDataForClient.profileImage}
-            alt={`Profile picture of ${displayedData.name || defaultAboutMeDataForClient.name}`}
-                      width={200}
-                      height={200}
-                      className="rounded-2xl shadow-modern-lg object-cover aspect-square border border-border mx-auto"
-            data-ai-hint={displayedData.dataAiHint || defaultAboutMeDataForClient.dataAiHint}
-            priority
-          />
-                  </div>
-                  
-                  <h2 className="text-2xl font-bold text-foreground mb-2">
-                    {displayedData.name || defaultAboutMeDataForClient.name}
-                  </h2>
-                  <p className="text-lg text-muted-foreground mb-6">
-                    {displayedData.title || defaultAboutMeDataForClient.title}
-                  </p>
-                  
-                  <div className="space-y-4 mb-8">
-                    <div className="flex items-center gap-3 text-muted-foreground">
-                      <MapPin className="h-5 w-5" />
-                      <span>Remote</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-muted-foreground">
-                      <Calendar className="h-5 w-5" />
-                      <span>Available for projects</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-3">
-                    <Button asChild className="btn-modern w-full">
-                      <Link href="/contact">
-                        <span className="flex items-center gap-2">
-                          <Mail className="h-4 w-4" />
-                          Get in Touch
-                        </span>
-                      </Link>
-                    </Button>
-                    
-                    <Button asChild variant="outline" className="btn-modern-outline w-full">
-                      <Link href="/portfolio">
-                        <span className="flex items-center gap-2">
-                          <Briefcase className="h-4 w-4" />
-                          View My Work
-                        </span>
-                      </Link>
-                    </Button>
-                  </div>
-
-                  {/* Social Links */}
-                  <div className="flex items-center justify-center gap-3 mt-8 pt-8 border-t border-border">
-                    {displayedData.githubUrl && (
-                      <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
-                        <Link href={displayedData.githubUrl} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                          <Github className="h-5 w-5" />
-                        </Link>
-                      </Button>
-                    )}
-                    {displayedData.linkedinUrl && (
-                      <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
-                        <Link href={displayedData.linkedinUrl} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
-                          <Linkedin className="h-5 w-5" />
-                        </Link>
-                      </Button>
-                    )}
-                    {displayedData.twitterUrl && (
-                      <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
-                        <Link href={displayedData.twitterUrl} target="_blank" rel="noopener noreferrer" aria-label="Twitter">
-                          <Twitter className="h-5 w-5" />
-                        </Link>
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Content Section */}
-            <div className="lg:col-span-2 space-y-16">
-              {/* My Story */}
-              <Card className="card-modern">
-            <CardHeader>
-                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                    <User className="h-6 w-6 text-primary" />
-                    My Story
-                  </CardTitle>
-            </CardHeader>
-                <CardContent className="space-y-6">
-                  {bioParagraphs.map((paragraph, index) => (
-                    <p key={index} className="text-muted-foreground leading-relaxed">
-                      {paragraph}
-                    </p>
-              ))}
-            </CardContent>
-          </Card>
-
-
-              {/* Experience */}
-              <Card className="card-modern">
-                        <CardHeader>
-                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                    <Briefcase className="h-6 w-6 text-primary" />
-                    Professional Experience
-                  </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                  <div className="space-y-6">
-                    {experience.length > 0 ? experience.map((exp, index) => (
-                      <div key={index} className="flex gap-4">
-                        <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg flex-shrink-0">
-                          <Briefcase className="h-6 w-6 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-foreground mb-1">{exp.title}</h3>
-                          <p className="text-primary font-medium mb-2">{exp.company}</p>
-                          <p className="text-sm text-muted-foreground mb-2">{exp.period}</p>
-                          <p className="text-muted-foreground">{exp.description}</p>
-                        </div>
-                      </div>
-                    )) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>No experience data available yet.</p>
-                      </div>
-                    )}
-                  </div>
-                        </CardContent>
-                      </Card>
-
-              {/* Education */}
-              <Card className="card-modern">
-                <CardHeader>
-                  <CardTitle className="text-2xl font-bold flex items-center gap-3">
-                    <GraduationCap className="h-6 w-6 text-primary" />
-                    Education
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    {education.length > 0 ? education.map((edu, index) => (
-                      <div key={index} className="flex gap-4">
-                        <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg flex-shrink-0">
-                          <GraduationCap className="h-6 w-6 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-foreground mb-1">{edu.degree}</h3>
-                          <p className="text-primary font-medium mb-2">{edu.institution}</p>
-                          <p className="text-sm text-muted-foreground mb-2">{edu.period}</p>
-                        <p className="text-muted-foreground">{edu.description}</p>
-                        </div>
-                      </div>
-                    )) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        <GraduationCap className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                        <p>No education data available yet.</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 md:py-32 bg-gradient-royal">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-              Let&apos;s Work{' '}
-              <span className="text-white/90">Together</span>
-            </h2>
-            <p className="text-xl text-white/90 leading-relaxed mb-8">
-              I'm always excited to work on new projects and help bring your ideas to life. 
-              Whether you have a specific project in mind or just want to chat about possibilities, 
-              I'd love to hear from you.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-              <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 px-8 py-3">
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-12">
+              <Button asChild size="lg" className="btn-modern px-8 py-3 text-lg font-semibold">
                 <Link href="/contact">
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-3">
                     <Mail className="h-5 w-5" />
                     Get in Touch
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className="h-5 w-5" />
                   </span>
                 </Link>
               </Button>
               
-              <Button asChild size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 px-8 py-3">
+              <Button asChild size="lg" variant="outline" className="px-8 py-3 text-lg">
                 <Link href="/portfolio">
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-3">
                     <Briefcase className="h-5 w-5" />
                     View My Work
                   </span>
                 </Link>
               </Button>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+              <div className="text-center p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-xl transition-all duration-300 hover-glow">
+                <div className="text-3xl font-bold text-primary mb-2">3+</div>
+                <div className="text-sm text-muted-foreground">Years</div>
+              </div>
+              
+              <div className="text-center p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-xl transition-all duration-300 hover-glow">
+                <div className="text-3xl font-bold text-primary mb-2">50+</div>
+                <div className="text-sm text-muted-foreground">Projects</div>
+              </div>
+              
+              <div className="text-center p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-xl transition-all duration-300 hover-glow">
+                <div className="text-3xl font-bold text-primary mb-2">100%</div>
+                <div className="text-sm text-muted-foreground">Satisfaction</div>
+              </div>
+              
+              <div className="text-center p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-xl transition-all duration-300 hover-glow">
+                <div className="text-3xl font-bold text-primary mb-2">24/7</div>
+                <div className="text-sm text-muted-foreground">Support</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Personal Story Section */}
+      <section className="py-16 sm:py-20 md:py-24 lg:py-32 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/50 dark:via-slate-900/50 to-transparent" />
+        
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+              {/* Profile Image */}
+              <div className="text-center lg:text-left">
+                <div className="relative inline-block">
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-3xl blur-xl"></div>
+                  <Image
+                    src={displayedData.profileImage || defaultAboutMeDataForClient.profileImage}
+                    alt={`Profile picture of ${displayedData.name || defaultAboutMeDataForClient.name}`}
+                    width={400}
+                    height={400}
+                    className="relative rounded-3xl shadow-modern-lg object-cover aspect-square border border-border"
+                    data-ai-hint={displayedData.dataAiHint || defaultAboutMeDataForClient.dataAiHint}
+                    priority
+                  />
+                </div>
+              </div>
+
+              {/* Story Content */}
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20 mb-6">
+                  <Sparkles className="h-4 w-4" />
+                  My Story
+                </div>
+
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
+                  <span className="bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+                    Hi, I'm {displayedData.name?.split(' ')[0] || 'Anand'}
+                  </span>
+                </h2>
+
+                <div className="space-y-4">
+                  {bioParagraphs.map((paragraph, index) => (
+                    <p key={index} className="text-lg text-muted-foreground leading-relaxed">
+                      {paragraph}
+                    </p>
+                  ))}
+                </div>
+
+                {/* Fun Facts */}
+                <div className="grid grid-cols-2 gap-4 mt-8">
+                  {funFacts.map((fact, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 rounded-lg bg-card/50 backdrop-blur-sm border border-border/50">
+                      <fact.icon className="h-5 w-5 text-primary" />
+                      <span className="text-sm font-medium">{fact.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Values Section */}
+      <section className="py-16 sm:py-20 md:py-32">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12 sm:mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20 mb-6">
+                <Heart className="h-4 w-4" />
+                Values & Philosophy
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
+                <span className="bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+                  What Drives Me
+                </span>
+              </h2>
+
+              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                These core values guide every project and interaction, ensuring exceptional results and meaningful partnerships.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+              {values.map((value, index) => (
+                <Card key={value.title} className="card-modern text-center group hover:shadow-xl transition-all duration-300">
+                  <CardHeader className="pb-3 sm:pb-4">
+                    <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-primary/10 rounded-2xl mx-auto mb-3 sm:mb-4 group-hover:bg-primary/20 transition-colors duration-300">
+                      <value.icon className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg sm:text-xl font-semibold">{value.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+                      {value.description}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      {/* Experience Timeline */}
+      {(experience.length > 0 || education.length > 0) && (
+        <section className="py-16 sm:py-20 md:py-32">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12 sm:mb-16">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20 mb-6">
+                  <Award className="h-4 w-4" />
+                  Journey & Experience
+                </div>
+
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
+                  <span className="bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+                    My Professional Journey
+                  </span>
+                </h2>
+
+                <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                  A timeline of my professional growth, education, and key milestones that shaped my career.
+                </p>
+              </div>
+
+              <div className="space-y-8">
+                {/* Experience */}
+                {experience.length > 0 && experience.map((exp, index) => (
+                  <div key={index} className="flex gap-6">
+                    <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-xl flex-shrink-0">
+                      <Briefcase className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                        <h3 className="text-xl font-bold text-foreground mb-2">{exp.title}</h3>
+                        <p className="text-primary font-semibold mb-2">{exp.company}</p>
+                        <p className="text-sm text-muted-foreground mb-3">{exp.period}</p>
+                        <p className="text-muted-foreground leading-relaxed">{exp.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Education */}
+                {education.length > 0 && education.map((edu, index) => (
+                  <div key={index} className="flex gap-6">
+                    <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-xl flex-shrink-0">
+                      <GraduationCap className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 hover:shadow-lg transition-all duration-300">
+                        <h3 className="text-xl font-bold text-foreground mb-2">{edu.degree}</h3>
+                        <p className="text-primary font-semibold mb-2">{edu.institution}</p>
+                        <p className="text-sm text-muted-foreground mb-3">{edu.period}</p>
+                        <p className="text-muted-foreground leading-relaxed">{edu.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Empty State */}
+                {experience.length === 0 && education.length === 0 && (
+                  <div className="text-center py-16">
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
+                      <Award className="h-10 w-10 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-bold text-foreground mb-3">Experience Coming Soon</h3>
+                    <p className="text-muted-foreground mb-6">
+                      I'm currently building my professional journey. Check back soon for updates!
+                    </p>
+                    <Button asChild className="btn-modern">
+                      <Link href="/contact">
+                        <span className="flex items-center gap-2">
+                          <Mail className="h-4 w-4" />
+                          Let's Connect
+                        </span>
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </section>
+      )}
+
+      {/* CTA Section */}
+      <section className="py-16 sm:py-20 md:py-32 bg-gradient-royal">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6">
+              Ready to Start Your{' '}
+              <span className="text-white/90">Next Project?</span>
+            </h2>
+            <p className="text-base sm:text-lg md:text-xl text-white/90 leading-relaxed mb-6 sm:mb-8 px-4 sm:px-0">
+              I'm always excited to work on new challenges and help bring your ideas to life. Let's create something amazing together.
+            </p>
+            <div className="flex flex-col xs:flex-row justify-center items-center gap-3 sm:gap-4">
+              <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 px-6 sm:px-8 py-2.5 sm:py-3 w-full xs:w-auto">
+                <Link href="/contact">
+                  <span className="flex items-center gap-2">
+                    <Rocket className="h-4 w-4 sm:h-5 sm:w-5" />
+                    Get in Touch
+                    <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                  </span>
+                </Link>
+              </Button>
+
+              <Button asChild size="lg" variant="outline" className="border-white/20 text-white hover:bg-white/10 px-6 sm:px-8 py-2.5 sm:py-3 w-full xs:w-auto">
+                <Link href="/portfolio">
+                  <span className="flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 sm:h-5 sm:w-5" />
+                    View My Work
+                  </span>
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

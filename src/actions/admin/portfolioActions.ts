@@ -153,9 +153,12 @@ export async function savePortfolioItemAction(
     readmeContent: String(formData.get('readmeContent') || ''),
   };
 
+  console.log('Portfolio save - Raw form data:', rawData);
+
   const validatedFields = portfolioItemAdminSchema.safeParse(rawData);
 
   if (!validatedFields.success) {
+    console.error('Portfolio validation failed:', validatedFields.error.flatten());
     return {
       message: "Failed to save project. Please check errors.",
       status: 'error',

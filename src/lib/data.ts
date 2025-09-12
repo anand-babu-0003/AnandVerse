@@ -115,7 +115,10 @@ export const defaultPortfolioItemsDataForClient: PortfolioItem[] = [
     title: 'My Personal Portfolio (This Site!)',
     description: 'The very site you are browsing, built with Next.js, Tailwind CSS, Firebase, and a focus on modern web practices.',
     longDescription: 'This portfolio is a dynamic showcase of my skills and projects. It features a modern design, responsive layout, and an admin panel for easy content management. Built using Next.js for server-side rendering and static generation, Tailwind CSS for styling, and Firebase for backend services including Firestore database. All data is dynamically fetched and managed.',
-    images: ['https://placehold.co/600x400.png?text=PortfolioSite1', 'https://placehold.co/600x400.png?text=PortfolioSite2'],
+    images: [
+      'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&h=600&fit=crop&crop=center'
+    ],
     tags: ['Next.js', 'React', 'Tailwind CSS', 'Firebase', 'TypeScript', 'ShadCN UI'],
     slug: 'personal-portfolio-vermaverse',
     dataAiHint: 'website design code modern',
@@ -130,7 +133,10 @@ export const defaultPortfolioItemsDataForClient: PortfolioItem[] = [
     title: 'E-commerce Platform Concept',
     description: 'A conceptual design and feature plan for a modern, scalable e-commerce platform with a focus on user experience.',
     longDescription: 'This project involved the conceptualization and high-level design of a scalable e-commerce platform. Key considerations included user experience (intuitive navigation, personalized recommendations), product management (variants, inventory), order processing (secure checkout, shipment tracking), and payment gateway integration. While not fully implemented, it demonstrates strategic thinking in platform architecture and an understanding of e-commerce best practices.',
-    images: ['https://placehold.co/600x400.png?text=EcomConcept1', 'https://placehold.co/600x400.png?text=EcomUX'],
+    images: [
+      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1556742111-a301076d9d18?w=800&h=600&fit=crop&crop=center'
+    ],
     tags: ['UX Design', 'System Architecture', 'E-commerce Strategy', 'Product Management'],
     slug: 'ecommerce-platform-concept',
     dataAiHint: 'online store shopping cart',
@@ -139,6 +145,42 @@ export const defaultPortfolioItemsDataForClient: PortfolioItem[] = [
     repoUrl: '',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
     updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 7).toISOString(),
+  },
+  {
+    id: 'proj_default_task_manager_client',
+    title: 'Task Management Dashboard',
+    description: 'A modern task management application built with React and Node.js, featuring real-time collaboration and project tracking.',
+    longDescription: 'This full-stack task management application provides teams with a comprehensive solution for project organization and collaboration. Features include real-time updates, drag-and-drop task organization, team member assignments, deadline tracking, and progress visualization. The application uses WebSocket connections for live updates and includes advanced filtering and search capabilities.',
+    images: [
+      'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=800&h=600&fit=crop&crop=center'
+    ],
+    tags: ['React', 'Node.js', 'WebSocket', 'MongoDB', 'Real-time', 'Dashboard'],
+    slug: 'task-management-dashboard',
+    dataAiHint: 'productivity app project management',
+    readmeContent: '# Task Management Dashboard\n\nA modern, collaborative task management application designed for teams and individuals.\n\n## Features\n- Real-time task updates and notifications\n- Drag-and-drop task organization\n- Team collaboration and assignment\n- Project progress tracking\n- Advanced filtering and search\n- Responsive design for all devices\n\n## Technology Stack\n- Frontend: React, TypeScript, Tailwind CSS\n- Backend: Node.js, Express\n- Database: MongoDB\n- Real-time: Socket.io\n- Authentication: JWT',
+    liveUrl: 'https://taskmanager-demo.vercel.app',
+    repoUrl: 'https://github.com/anandverma/task-manager',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 14).toISOString(),
+  },
+  {
+    id: 'proj_default_mobile_app_client',
+    title: 'Weather Mobile App',
+    description: 'A beautiful weather application for mobile devices with location-based forecasts and interactive weather maps.',
+    longDescription: 'This mobile weather application provides users with accurate weather forecasts, interactive maps, and location-based weather alerts. The app features a clean, intuitive interface with smooth animations and supports multiple locations. Built with React Native for cross-platform compatibility.',
+    images: [
+      'https://images.unsplash.com/photo-1504608524841-42fe6f032b4b?w=800&h=600&fit=crop&crop=center',
+      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop&crop=center'
+    ],
+    tags: ['React Native', 'Weather API', 'Mobile', 'iOS', 'Android', 'Location Services'],
+    slug: 'weather-mobile-app',
+    dataAiHint: 'weather forecast mobile application',
+    readmeContent: '# Weather Mobile App\n\nA cross-platform mobile weather application with beautiful UI and accurate forecasts.\n\n## Features\n- Current weather and 7-day forecast\n- Interactive weather maps\n- Location-based weather alerts\n- Multiple location support\n- Beautiful animations and transitions\n- Offline mode support\n\n## Technology Stack\n- React Native\n- Weather API integration\n- Location services\n- AsyncStorage for offline data\n- Vector icons and animations',
+    liveUrl: '',
+    repoUrl: 'https://github.com/anandverma/weather-app',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21).toISOString(),
+    updatedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 21).toISOString(),
   }
 ];
 

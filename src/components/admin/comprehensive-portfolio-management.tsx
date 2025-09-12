@@ -40,27 +40,36 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
   const [portfolioItems, setPortfolioItems] = useState<PortfolioItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'published' | 'draft'>('all');
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
-  // Form state
-  const [itemForm, setItemForm] = useState<Partial<PortfolioItem>>({
+  // Form state - ensure all fields have default values to prevent controlled/uncontrolled input errors
+  const [itemForm, setItemForm] = useState({
     title: '',
     description: '',
     longDescription: '',
     imageUrl: '',
     liveUrl: '',
     githubUrl: '',
-    technologies: [],
-    category: 'Web Development',
-    status: 'published',
-    featured: false,
-    order: 0
+    technologies: [] as string[],
+    slug: '',
+    dataAiHint: '',
+    readmeContent: ''
   });
+
+  // Separate state for technologies input to allow typing commas and spaces
+  const [technologiesInput, setTechnologiesInput] = useState('');
+
+  // Function to process technologies input
+  const processTechnologies = () => {
+    const technologies = technologiesInput
+      .split(',')
+      .map(t => t.trim())
+      .filter(Boolean);
+    setItemForm({ ...itemForm, technologies });
+  };
 
   useEffect(() => {
     loadPortfolioItems();
@@ -70,9 +79,18 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
     try {
       setLoading(true);
       const items = await fetchAllPortfolioItems();
-      setPortfolioItems(items);
+      // Ensure items is an array and each item has required properties
+      const safeItems = Array.isArray(items) ? items.map(item => ({
+        ...item,
+        technologies: Array.isArray(item.technologies) ? item.technologies : [],
+        status: item.status || 'draft',
+        featured: Boolean(item.featured),
+        order: Number(item.order) || 0
+      })) : [];
+      setPortfolioItems(safeItems);
     } catch (error) {
       console.error('Error loading portfolio items:', error);
+      setPortfolioItems([]); // Set empty array on error
       toast({
         title: "Error",
         description: "Failed to load portfolio items",
@@ -95,19 +113,33 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
 
     startTransition(async () => {
       try {
+        // Generate slug if not provided
+        const generatedSlug = itemForm.slug || itemForm.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || '';
+        
+        // Validate slug format
+        const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+        if (!slugRegex.test(generatedSlug)) {
+          toast({
+            title: "Error",
+            description: "Invalid slug format. Slug must contain only lowercase letters, numbers, and hyphens.",
+            variant: "destructive"
+          });
+          return;
+        }
+
         const formData = new FormData();
         formData.append('id', selectedItem?.id || '');
         formData.append('title', itemForm.title || '');
         formData.append('description', itemForm.description || '');
         formData.append('longDescription', itemForm.longDescription || '');
-        formData.append('imageUrl', itemForm.imageUrl || '');
+        formData.append('image1', itemForm.imageUrl || '');
+        formData.append('image2', ''); // Second image field
+        formData.append('tagsString', technologiesInput);
         formData.append('liveUrl', itemForm.liveUrl || '');
-        formData.append('githubUrl', itemForm.githubUrl || '');
-        formData.append('technologiesString', (itemForm.technologies || []).join(', '));
-        formData.append('category', itemForm.category || 'Web Development');
-        formData.append('status', itemForm.status || 'published');
-        formData.append('featured', itemForm.featured ? 'on' : '');
-        formData.append('order', String(itemForm.order || 0));
+        formData.append('repoUrl', itemForm.githubUrl || '');
+        formData.append('slug', generatedSlug);
+        formData.append('dataAiHint', itemForm.dataAiHint || itemForm.title || '');
+        formData.append('readmeContent', itemForm.readmeContent || itemForm.longDescription || '');
 
         const result = await savePortfolioItemAction({ message: '', status: 'idle' }, formData);
         
@@ -120,16 +152,27 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
           setSelectedItem(null);
           loadPortfolioItems();
         } else {
+          console.error('Portfolio save error:', result);
           toast({
             title: "Error",
-            description: result.message,
+            description: result.message || "Failed to save project",
             variant: "destructive"
           });
+          
+          // Show field-specific errors if available
+          if (result.errors) {
+            Object.entries(result.errors).forEach(([field, errors]) => {
+              if (errors && errors.length > 0) {
+                console.error(`Field ${field} errors:`, errors);
+              }
+            });
+          }
         }
       } catch (error) {
+        console.error('Portfolio save exception:', error);
         toast({
           title: "Error",
-          description: "Failed to save portfolio item",
+          description: `Failed to save portfolio item: ${error instanceof Error ? error.message : 'Unknown error'}`,
           variant: "destructive"
         });
       }
@@ -167,9 +210,18 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
     if (item) {
       setSelectedItem(item);
       setItemForm({
-        ...item,
-        technologies: item.technologies || []
+        title: item.title || '',
+        description: item.description || '',
+        longDescription: item.longDescription || '',
+        imageUrl: item.imageUrl || '',
+        liveUrl: item.liveUrl || '',
+        githubUrl: item.githubUrl || '',
+        technologies: item.technologies || [],
+        slug: item.slug || item.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || '',
+        dataAiHint: item.dataAiHint || item.title || '',
+        readmeContent: item.readmeContent || item.longDescription || ''
       });
+      setTechnologiesInput((item.technologies || []).join(', '));
     } else {
       setSelectedItem(null);
       setItemForm({
@@ -180,24 +232,21 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
         liveUrl: '',
         githubUrl: '',
         technologies: [],
-        category: 'Web Development',
-        status: 'published',
-        featured: false,
-        order: 0
+        slug: '',
+        dataAiHint: '',
+        readmeContent: ''
       });
+      setTechnologiesInput('');
     }
     setIsEditDialogOpen(true);
   };
 
-  const categories = Array.from(new Set(portfolioItems.map(item => item.category)));
-  const filteredItems = portfolioItems.filter(item => {
+  const filteredItems = (portfolioItems || []).filter(item => {
     const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          item.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.technologies.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase()));
-    const matchesCategory = categoryFilter === 'all' || item.category === categoryFilter;
-    const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
+                         (item.technologies && Array.isArray(item.technologies) && item.technologies.some(tech => tech.toLowerCase().includes(searchTerm.toLowerCase())));
     
-    return matchesSearch && matchesCategory && matchesStatus;
+    return matchesSearch;
   });
 
   if (loading) {
@@ -226,46 +275,18 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
             <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{portfolioItems.length}</div>
+            <div className="text-2xl font-bold">{portfolioItems?.length || 0}</div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Published</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{portfolioItems.filter(p => p.status === 'published').length}</div>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Featured</CardTitle>
-            <Star className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{portfolioItems.filter(p => p.featured).length}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Categories</CardTitle>
-            <Code className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{categories.length}</div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Filters */}
@@ -289,29 +310,6 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
                 />
               </div>
             </div>
-            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Filter by category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map(category => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="published">Published</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </CardContent>
       </Card>
@@ -319,26 +317,14 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
       {/* Portfolio Items Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredItems.length > 0 ? (
-          filteredItems.map((item) => (
-            <Card key={item.id} className="overflow-hidden">
+          filteredItems.map((item, index) => (
+            <Card key={item.id || `portfolio-item-${index}`} className="overflow-hidden">
               <div className="relative aspect-video">
                 <img
-                  src={item.imageUrl || 'https://placehold.co/400x300.png?text=Project'}
+                  src={item.images?.[0] || 'https://placehold.co/400x300.png?text=Project'}
                   alt={item.title}
                   className="w-full h-full object-cover"
                 />
-                {item.featured && (
-                  <Badge className="absolute top-2 left-2 bg-yellow-500">
-                    <Star className="h-3 w-3 mr-1" />
-                    Featured
-                  </Badge>
-                )}
-                <Badge 
-                  variant={item.status === 'published' ? 'default' : 'secondary'}
-                  className="absolute top-2 right-2"
-                >
-                  {item.status}
-                </Badge>
               </div>
               <CardContent className="p-4">
                 <div className="space-y-3">
@@ -348,12 +334,12 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
                   </div>
                   
                   <div className="flex flex-wrap gap-1">
-                    {item.technologies.slice(0, 3).map((tech) => (
-                      <Badge key={tech} variant="outline" className="text-xs">
+                    {item.technologies && Array.isArray(item.technologies) && item.technologies.slice(0, 3).map((tech, techIndex) => (
+                      <Badge key={`${item.id || 'item'}-tech-${techIndex}-${tech}`} variant="outline" className="text-xs">
                         {tech}
                       </Badge>
                     ))}
-                    {item.technologies.length > 3 && (
+                    {item.technologies && Array.isArray(item.technologies) && item.technologies.length > 3 && (
                       <Badge variant="outline" className="text-xs">
                         +{item.technologies.length - 3} more
                       </Badge>
@@ -433,24 +419,6 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
                   placeholder="Project title"
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium">Category</label>
-                <Select value={itemForm.category} onValueChange={(value) => setItemForm({ ...itemForm, category: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Web Development">Web Development</SelectItem>
-                    <SelectItem value="Mobile Development">Mobile Development</SelectItem>
-                    <SelectItem value="Desktop Application">Desktop Application</SelectItem>
-                    <SelectItem value="UI/UX Design">UI/UX Design</SelectItem>
-                    <SelectItem value="Data Science">Data Science</SelectItem>
-                    <SelectItem value="Machine Learning">Machine Learning</SelectItem>
-                    <SelectItem value="DevOps">DevOps</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
 
             <div>
@@ -485,8 +453,15 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
               <div>
                 <label className="text-sm font-medium">Technologies (comma-separated)</label>
                 <Input
-                  value={(itemForm.technologies || []).join(', ')}
-                  onChange={(e) => setItemForm({ ...itemForm, technologies: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
+                  value={technologiesInput}
+                  onChange={(e) => setTechnologiesInput(e.target.value)}
+                  onBlur={processTechnologies}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      processTechnologies();
+                    }
+                  }}
                   placeholder="React, TypeScript, Node.js"
                 />
               </div>
@@ -511,39 +486,35 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium">Status</label>
-                <Select value={itemForm.status} onValueChange={(value: any) => setItemForm({ ...itemForm, status: value })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="published">Published</SelectItem>
-                    <SelectItem value="draft">Draft</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Order</label>
+                <label className="text-sm font-medium">Slug</label>
                 <Input
-                  type="number"
-                  value={itemForm.order}
-                  onChange={(e) => setItemForm({ ...itemForm, order: parseInt(e.target.value) || 0 })}
-                  placeholder="0"
+                  value={itemForm.slug}
+                  onChange={(e) => setItemForm({ ...itemForm, slug: e.target.value })}
+                  placeholder="my-awesome-project"
                 />
               </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="featured"
-                  checked={itemForm.featured}
-                  onChange={(e) => setItemForm({ ...itemForm, featured: e.target.checked })}
-                  className="rounded"
+              <div>
+                <label className="text-sm font-medium">AI Hint (for content generation)</label>
+                <Input
+                  value={itemForm.dataAiHint}
+                  onChange={(e) => setItemForm({ ...itemForm, dataAiHint: e.target.value })}
+                  placeholder="e.g., 'a modern e-commerce platform'"
                 />
-                <label htmlFor="featured" className="text-sm font-medium">Featured</label>
               </div>
             </div>
+
+            <div>
+              <label className="text-sm font-medium">README Content (Markdown)</label>
+              <Textarea
+                value={itemForm.readmeContent}
+                onChange={(e) => setItemForm({ ...itemForm, readmeContent: e.target.value })}
+                placeholder="## Project Overview\n\nThis project..."
+                rows={8}
+              />
+            </div>
+
           </div>
 
           <div className="flex justify-end gap-2 pt-4">

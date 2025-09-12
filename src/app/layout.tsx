@@ -9,6 +9,7 @@ import Footer from '@/components/layout/footer';
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { AnalyticsTracker } from '@/components/analytics/analytics-tracker';
 import { SecurityProvider, SecurityIndicator } from '@/components/security/security-provider';
+import '@/lib/firebase-logger-config';
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteSettings = await getSiteSettingsAction();
@@ -65,7 +66,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <AnalyticsTracker />
+            {/* <AnalyticsTracker /> */}
             <ConditionalLayout>
               {children}
             </ConditionalLayout>

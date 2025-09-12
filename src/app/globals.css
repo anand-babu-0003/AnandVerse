@@ -4,6 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import modern portfolio styles */
+@import '../styles/portfolio-modern.css';
+
 @layer base {
   :root {
     /* Royal Blue Design System - Light Mode */

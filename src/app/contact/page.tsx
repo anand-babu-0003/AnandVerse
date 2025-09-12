@@ -97,26 +97,83 @@ export default async function ContactPage() {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 xl:py-40 overflow-hidden">
+      <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden">
+        {/* Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
         
         {/* Animated Starfield */}
-        <Starfield density={0.9} speed={0.2} twinkleSpeed={0.012} />
+        <Starfield density={0.4} speed={0.3} twinkleSpeed={0.01} />
         
-        <div className="relative container mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-          <div className="text-center max-w-5xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium border border-primary/20 mb-6 sm:mb-8">
-              <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+          <div className="max-w-5xl mx-auto">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20 mb-8 backdrop-blur-sm">
+              <MessageCircle className="h-4 w-4" />
               Get in Touch
             </div>
-            <h1 className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-bold tracking-tight mb-6 sm:mb-8">
-              <span className="text-gradient">Contact Me</span>
+
+            {/* Main Heading */}
+            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-6 leading-tight">
+              <span className="block bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
+                Let's Start
+              </span>
+              <span className="block bg-gradient-to-r from-primary via-blue-500 to-primary bg-clip-text text-transparent mt-2">
+                Your Project
+              </span>
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-muted-foreground leading-relaxed px-4 sm:px-6 md:px-0">
-              Ready to start your next project? I'd love to hear from you. 
-              Let's discuss how we can work together to bring your ideas to life.
+
+            {/* Subtitle */}
+            <p className="text-lg md:text-xl lg:text-2xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-10">
+              Ready to bring your ideas to life? I'd love to hear from you and discuss how we can{' '}
+              <span className="font-semibold text-primary">work together</span> to create something amazing
             </p>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mb-12">
+              <Button asChild size="lg" className="btn-modern px-8 py-3 text-lg font-semibold">
+                <Link href="#contact-form">
+                  <span className="flex items-center gap-3">
+                    <Send className="h-5 w-5" />
+                    Send Message
+                    <ArrowRight className="h-5 w-5" />
+                  </span>
+                </Link>
+              </Button>
+              
+              <Button asChild size="lg" variant="outline" className="px-8 py-3 text-lg">
+                <Link href="/portfolio">
+                  <span className="flex items-center gap-3">
+                    <ExternalLink className="h-5 w-5" />
+                    View My Work
+                  </span>
+                </Link>
+              </Button>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
+              <div className="text-center p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-xl transition-all duration-300 hover-glow">
+                <div className="text-3xl font-bold text-primary mb-2">24h</div>
+                <div className="text-sm text-muted-foreground">Response</div>
+              </div>
+              
+              <div className="text-center p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-xl transition-all duration-300 hover-glow">
+                <div className="text-3xl font-bold text-primary mb-2">100%</div>
+                <div className="text-sm text-muted-foreground">Satisfaction</div>
+              </div>
+              
+              <div className="text-center p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-xl transition-all duration-300 hover-glow">
+                <div className="text-3xl font-bold text-primary mb-2">Global</div>
+                <div className="text-sm text-muted-foreground">Remote</div>
+              </div>
+              
+              <div className="text-center p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-xl transition-all duration-300 hover-glow">
+                <div className="text-3xl font-bold text-primary mb-2">Free</div>
+                <div className="text-sm text-muted-foreground">Consultation</div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

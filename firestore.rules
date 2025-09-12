@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Portfolio items - public read, admin write
+    match /portfolioItems/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Skills - public read, admin write
+    match /skills/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Blog posts - public read, admin write
+    match /blogPosts/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Blog categories - public read, admin write
+    match /blogCategories/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Announcements - public read, admin write
+    match /announcements/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Testimonials - public read, admin write
+    match /testimonials/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Contact messages - admin only
+    match /contactMessages/{document} {
+      allow read, write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Notifications - admin only
+    match /notifications/{document} {
+      allow read, write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // AI content - admin only
+    match /aiContent/{document} {
+      allow read, write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Visitor sessions - admin only
+    match /visitorSessions/{document} {
+      allow read, write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // App configuration - admin only
+    match /app_config/{document} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Analytics - admin only
+    match /analytics/{document} {
+      allow read, write: if request.auth != null && request.auth.token.admin == true;
+    }
+    
+    // Default deny rule
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

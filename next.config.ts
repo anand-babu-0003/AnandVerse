@@ -1,5 +1,6 @@
 
 import type {NextConfig} from 'next';
+import { generateCSPHeader } from './src/lib/security';
 
 const nextConfig: NextConfig = {
   typescript: {
@@ -40,6 +41,24 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'cdn.dribbble.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.google.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'firebase.googleapis.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**',
       },
@@ -92,6 +111,10 @@ const nextConfig: NextConfig = {
           {
             key: 'Cross-Origin-Resource-Policy',
             value: 'same-origin'
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: generateCSPHeader()
           }
         ]
       }

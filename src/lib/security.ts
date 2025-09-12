@@ -32,6 +32,10 @@ export const CSP_POLICY = {
     'https://cdn.dribbble.com',
     'https://www.google-analytics.com',
     'https://www.googletagmanager.com',
+    'https://www.google.com', // Google images
+    'https://firebase.googleapis.com', // Firebase images
+    'https://*.googleusercontent.com', // Google user content
+    'https://*.googleapis.com', // Google APIs images
   ],
   'font-src': [
     "'self'",
@@ -45,6 +49,12 @@ export const CSP_POLICY = {
     'https://www.googletagmanager.com',
     'https://analytics.google.com',
     'https://vitals.vercel-insights.com',
+    'https://firestore.googleapis.com', // Firebase Firestore
+    'https://firebase.googleapis.com', // Firebase services
+    'https://identitytoolkit.googleapis.com', // Firebase Auth
+    'https://securetoken.googleapis.com', // Firebase Auth tokens
+    'https://www.googleapis.com', // Google APIs
+    'https://*.googleapis.com', // All Google APIs
     'wss://localhost:*', // For development
     'ws://localhost:*', // For development
   ],
@@ -77,9 +87,9 @@ export const SECURITY_HEADERS = {
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
-  'Cross-Origin-Embedder-Policy': 'require-corp',
-  'Cross-Origin-Opener-Policy': 'same-origin',
-  'Cross-Origin-Resource-Policy': 'same-origin',
+  'Cross-Origin-Embedder-Policy': 'unsafe-none',
+  'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+  'Cross-Origin-Resource-Policy': 'cross-origin',
 } as const;
 
 // Input sanitization utilities
