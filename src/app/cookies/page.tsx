@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Cookie, Settings, Eye, Shield, AlertTriangle, Database } from 'lucide-react';
+import Starfield from '@/components/layout/starfield';
 
 export default function CookiePolicyPage() {
   return (
@@ -10,7 +11,10 @@ export default function CookiePolicyPage() {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
         
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Animated Starfield */}
+        <Starfield density={0.4} speed={0.3} twinkleSpeed={0.01} />
+        
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 z-10">
           <div className="text-center max-w-4xl mx-auto">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20 mb-6">
               <Cookie className="h-4 w-4" />

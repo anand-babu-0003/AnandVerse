@@ -9,7 +9,6 @@ const footerLinks = {
     { href: '/', label: 'Home' },
     { href: '/about', label: 'About' },
     { href: '/portfolio', label: 'Portfolio' },
-    { href: '/skills', label: 'Skills' },
     { href: '/contact', label: 'Contact' },
   ],
   social: [
@@ -29,11 +28,12 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   const scrollToTop = () => {
+    console.log('Scroll to top clicked!');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <footer className="border-t border-border bg-background">
+    <footer className="border-t border-border bg-background" style={{ pointerEvents: 'auto', zIndex: 10 }}>
       {/* Main Footer Content */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
@@ -62,7 +62,13 @@ export default function Footer() {
                   size="icon"
                   className="h-10 w-10 rounded-lg hover:bg-accent"
                 >
-                  <Link href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
+                  <Link 
+                    href={social.href} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    aria-label={social.label}
+                    onClick={() => console.log(`Social button clicked: ${social.label}`)}
+                  >
                     <social.icon className="h-5 w-5" />
                   </Link>
                 </Button>
@@ -79,6 +85,7 @@ export default function Footer() {
                   <Link 
                     href={link.href}
                     className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md"
+                    onClick={() => console.log(`Navigation link clicked: ${link.label}`)}
                   >
                     {link.label}
                   </Link>
@@ -96,6 +103,7 @@ export default function Footer() {
                   <Link 
                     href={link.href}
                     className="text-muted-foreground hover:text-foreground transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md"
+                    onClick={() => console.log(`Legal link clicked: ${link.label}`)}
                   >
                     {link.label}
                   </Link>
@@ -116,6 +124,7 @@ export default function Footer() {
             <Link
               href="/admin"
               className="font-semibold text-primary hover:text-primary/80 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-md px-1"
+              onClick={() => console.log('Admin link clicked')}
             >
               Anand
             </Link>
@@ -128,8 +137,9 @@ export default function Footer() {
         onClick={scrollToTop}
         variant="ghost"
         size="icon"
-        className="fixed bottom-6 right-6 h-12 w-12 rounded-full bg-primary/10 hover:bg-primary/20 text-primary shadow-lg hover:shadow-xl transition-all duration-200 z-40"
+        className="fixed bottom-6 right-6 h-12 w-12 rounded-full bg-primary/10 hover:bg-primary/20 text-primary shadow-lg hover:shadow-xl transition-all duration-200 z-50"
         aria-label="Scroll to top"
+        style={{ pointerEvents: 'auto' }}
       >
         <ArrowUp className="h-5 w-5" />
       </Button>

@@ -153,20 +153,29 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
           loadPortfolioItems();
         } else {
           console.error('Portfolio save error:', result);
-          toast({
-            title: "Error",
-            description: result.message || "Failed to save project",
-            variant: "destructive"
-          });
           
-          // Show field-specific errors if available
+          // Show detailed error messages
+          let errorMessage = result.message || "Failed to save project";
+          
+          // Add field-specific errors to the main error message
           if (result.errors) {
-            Object.entries(result.errors).forEach(([field, errors]) => {
-              if (errors && errors.length > 0) {
-                console.error(`Field ${field} errors:`, errors);
-              }
-            });
+            const fieldErrors = Object.entries(result.errors)
+              .filter(([_, errors]) => errors && errors.length > 0)
+              .map(([field, errors]) => `${field}: ${errors.join(', ')}`)
+              .join('\n');
+            
+            if (fieldErrors) {
+              errorMessage += `\n\nValidation errors:\n${fieldErrors}`;
+              console.error('Field validation errors:', fieldErrors);
+            }
           }
+          
+          toast({
+            title: "Error Saving Project",
+            description: errorMessage,
+            variant: "destructive",
+            duration: 8000 // Show longer for detailed errors
+          });
         }
       } catch (error) {
         console.error('Portfolio save exception:', error);
@@ -473,8 +482,11 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
                 <Input
                   value={itemForm.liveUrl}
                   onChange={(e) => setItemForm({ ...itemForm, liveUrl: e.target.value })}
-                  placeholder="https://example.com"
+                  placeholder="https://example.com or example.com"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Enter the full URL (https://example.com) or just the domain (example.com)
+                </p>
               </div>
               <div>
                 <label className="text-sm font-medium">GitHub URL</label>
@@ -483,6 +495,9 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
                   onChange={(e) => setItemForm({ ...itemForm, githubUrl: e.target.value })}
                   placeholder="https://github.com/username/repo"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Enter the full GitHub repository URL
+                </p>
               </div>
             </div>
 

@@ -15,7 +15,8 @@ import {
   Sparkles,
   Rocket,
   Mail,
-  User
+  User,
+  ExternalLink
 } from 'lucide-react';
 import { fetchAllPortfolioItems } from '@/actions/fetchAllDataAction';
 import Starfield from '@/components/layout/starfield';
@@ -59,7 +60,7 @@ export default async function PortfolioPage() {
         {/* Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
+        <div className="absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)] [background-size:20px_20px] [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
         
         {/* Animated Starfield */}
         <Starfield density={0.4} speed={0.3} twinkleSpeed={0.01} />
@@ -195,21 +196,41 @@ export default async function PortfolioPage() {
                           </Badge>
                         ))}
                       </div>
-                      <div className="flex flex-col sm:flex-row gap-2">
-                        {item.liveUrl && (
-                          <Button asChild size="sm" variant="outline" className="flex-1 text-xs sm:text-sm">
-                            <Link href={item.liveUrl} target="_blank" rel="noopener noreferrer">
-                              View Demo
-                            </Link>
-                          </Button>
-                        )}
-                        {item.repoUrl && (
-                          <Button asChild size="sm" variant="outline" className="flex-1 text-xs sm:text-sm">
-                            <Link href={item.repoUrl} target="_blank" rel="noopener noreferrer">
-                              View Code
-                            </Link>
-                          </Button>
-                        )}
+                      <div className="flex flex-col gap-2">
+                        {/* Project Details Button - Always visible */}
+                        <Button asChild size="sm" className="w-full text-xs sm:text-sm bg-primary hover:bg-primary/90">
+                          <Link href={`/portfolio/${item.slug || 'project'}`}>
+                            <span className="flex items-center gap-2">
+                              <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
+                              Project Details
+                              <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4" />
+                            </span>
+                          </Link>
+                        </Button>
+                        
+                        {/* Secondary buttons */}
+                        <div className="flex flex-col sm:flex-row gap-2">
+                          {item.liveUrl && (
+                            <Button asChild size="sm" variant="outline" className="flex-1 text-xs sm:text-sm">
+                              <Link href={item.liveUrl} target="_blank" rel="noopener noreferrer">
+                                <span className="flex items-center gap-1">
+                                  <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4" />
+                                  Live Demo
+                                </span>
+                              </Link>
+                            </Button>
+                          )}
+                          {item.repoUrl && (
+                            <Button asChild size="sm" variant="outline" className="flex-1 text-xs sm:text-sm">
+                              <Link href={item.repoUrl} target="_blank" rel="noopener noreferrer">
+                                <span className="flex items-center gap-1">
+                                  <Github className="h-3 w-3 sm:h-4 sm:w-4" />
+                                  View Code
+                                </span>
+                              </Link>
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>

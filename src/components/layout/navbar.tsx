@@ -14,7 +14,6 @@ const navItems = [
   { href: '/about', label: 'About', icon: User },
   { href: '/portfolio', label: 'Portfolio', icon: Briefcase },
   { href: '/blog', label: 'Blog', icon: BookOpen },
-  { href: '/skills', label: 'Skills', icon: Code },
   { href: '/contact', label: 'Contact', icon: Mail },
 ];
 

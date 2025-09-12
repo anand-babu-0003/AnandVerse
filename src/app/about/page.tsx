@@ -27,7 +27,9 @@ import {
   Rocket,
   Coffee,
   Globe,
-  Lightbulb
+  Lightbulb,
+  TrendingUp,
+  Clock
 } from 'lucide-react';
 import { fetchAllDataFromFirestore } from '@/actions/fetchAllDataAction';
 import Starfield from '@/components/layout/starfield';
@@ -57,6 +59,7 @@ export default async function AboutPage() {
   const appData = await fetchAllDataFromFirestore();
   const displayedData = appData.aboutMe;
   const skills = appData.skills || [];
+  const portfolioItems = appData.portfolioItems || [];
   
   // Generate structured data
   const structuredData = await generatePersonStructuredData(displayedData);
@@ -112,7 +115,7 @@ export default async function AboutPage() {
         {/* Background Elements */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/10" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
+        <div className="absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)] [background-size:20px_20px] [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
         
         {/* Animated Starfield */}
         <Starfield density={0.4} speed={0.3} twinkleSpeed={0.01} />
@@ -171,7 +174,7 @@ export default async function AboutPage() {
               </div>
               
               <div className="text-center p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-xl transition-all duration-300 hover-glow">
-                <div className="text-3xl font-bold text-primary mb-2">50+</div>
+                <div className="text-3xl font-bold text-primary mb-2">{portfolioItems.length}+</div>
                 <div className="text-sm text-muted-foreground">Projects</div>
               </div>
               
@@ -368,6 +371,82 @@ export default async function AboutPage() {
                     </Button>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Skills Section */}
+      {skills.length > 0 && (
+        <section className="py-16 sm:py-20 md:py-32">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-6xl mx-auto">
+              <div className="text-center mb-12 sm:mb-16">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium border border-primary/20 mb-6">
+                  <TrendingUp className="h-4 w-4" />
+                  Technical Skills
+                </div>
+
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
+                  <span className="bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+                    Skills & Expertise
+                  </span>
+                </h2>
+
+                <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+                  Here's a comprehensive overview of my technical skills and proficiency levels across different technologies.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {skills.map((skill, index) => (
+                  <Card key={skill.id || `skill-${index}`} className="card-modern group hover:shadow-xl transition-all duration-300">
+                    <CardContent className="p-6 text-center">
+                      <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mx-auto mb-4 group-hover:bg-primary/20 transition-colors duration-200">
+                        <Code className="h-6 w-6 text-primary" />
+                      </div>
+                      <h4 className="font-semibold text-foreground mb-3">{skill.name}</h4>
+                      {skill.proficiency !== undefined && skill.proficiency !== null ? (
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center text-sm text-muted-foreground">
+                            <span>Proficiency</span>
+                            <span className="font-semibold text-primary">{skill.proficiency}%</span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-2">
+                            <div 
+                              className="bg-gradient-to-r from-primary to-blue-500 h-2 rounded-full transition-all duration-1000 ease-out"
+                              style={{ width: `${skill.proficiency}%` }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                            {skill.proficiency >= 80 ? (
+                              <>
+                                <CheckCircle className="h-3 w-3 text-green-500" />
+                                <span className="text-green-600">Expert</span>
+                              </>
+                            ) : skill.proficiency >= 60 ? (
+                              <>
+                                <Zap className="h-3 w-3 text-yellow-500" />
+                                <span className="text-yellow-600">Proficient</span>
+                              </>
+                            ) : (
+                              <>
+                                <Clock className="h-3 w-3 text-blue-500" />
+                                <span className="text-blue-600">Learning</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <Badge variant="secondary" className="text-xs">
+                          <Heart className="h-3 w-3 mr-1" />
+                          Experienced
+                        </Badge>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
           </div>

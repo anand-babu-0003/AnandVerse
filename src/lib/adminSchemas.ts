@@ -85,8 +85,44 @@ export const portfolioItemAdminSchema = z.object({
   image1: z.string().url({ message: "Image 1: Please enter a valid URL or leave blank for default." }).or(z.literal("")).optional(),
   image2: z.string().url({ message: "Image 2: Please enter a valid URL or leave blank." }).or(z.literal("")).optional(),
   tagsString: z.string().optional(),
-  liveUrl: z.string().url({ message: "Live Demo: Please enter a valid URL or leave blank." }).or(z.literal("")).optional(),
-  repoUrl: z.string().url({ message: "Code Repo: Please enter a valid URL or leave blank." }).or(z.literal("")).optional(),
+  liveUrl: z.string()
+    .transform((val) => {
+      if (!val || val.trim() === '') return '';
+      // If it doesn't start with http:// or https://, add https://
+      if (!val.match(/^https?:\/\//i)) {
+        return `https://${val}`;
+      }
+      return val;
+    })
+    .refine((val) => {
+      if (!val || val.trim() === '') return true;
+      try {
+        new URL(val);
+        return true;
+      } catch {
+        return false;
+      }
+    }, { message: "Live Demo: Please enter a valid URL or leave blank." })
+    .optional(),
+  repoUrl: z.string()
+    .transform((val) => {
+      if (!val || val.trim() === '') return '';
+      // If it doesn't start with http:// or https://, add https://
+      if (!val.match(/^https?:\/\//i)) {
+        return `https://${val}`;
+      }
+      return val;
+    })
+    .refine((val) => {
+      if (!val || val.trim() === '') return true;
+      try {
+        new URL(val);
+        return true;
+      } catch {
+        return false;
+      }
+    }, { message: "Code Repo: Please enter a valid URL or leave blank." })
+    .optional(),
   slug: z.string().min(1, "Slug is required.").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens." }),
   dataAiHint: z.string().max(50, "AI hint too long").optional(),
   readmeContent: z.string().optional(),
