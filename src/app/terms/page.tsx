@@ -2,6 +2,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { FileText, Scale, AlertTriangle, Shield, Users, Gavel } from 'lucide-react';
 import Starfield from '@/components/layout/starfield';
+import { generatePageMetadata } from '@/lib/seo';
+import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
+import type { Metadata } from 'next';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Generate dynamic metadata
+export async function generateMetadata(): Promise<Metadata> {
+  const siteSettings = await getSiteSettingsAction();
+  
+  return generatePageMetadata({
+    title: siteSettings.termsPageMetaTitle || 'Terms of Service',
+    description: siteSettings.termsPageMetaDescription || 'Read our terms of service to understand the rules and guidelines for using our website and services. Updated regularly to ensure clarity and compliance.',
+    keywords: ['terms of service', 'terms and conditions', 'legal terms', 'website terms', 'user agreement', 'service agreement'],
+    type: 'website',
+    pageMetaTags: siteSettings.termsPageMetaTags,
+  });
+}
 
 export default function TermsOfServicePage() {
   return (

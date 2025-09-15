@@ -2,6 +2,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Eye, Lock, Database, UserCheck, AlertTriangle } from 'lucide-react';
 import Starfield from '@/components/layout/starfield';
+import { generatePageMetadata } from '@/lib/seo';
+import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
+import type { Metadata } from 'next';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Generate dynamic metadata
+export async function generateMetadata(): Promise<Metadata> {
+  const siteSettings = await getSiteSettingsAction();
+  
+  return generatePageMetadata({
+    title: siteSettings.privacyPageMetaTitle || 'Privacy Policy',
+    description: siteSettings.privacyPageMetaDescription || 'Learn how we collect, use, and protect your personal information. Our privacy policy explains our commitment to your data security and privacy rights.',
+    keywords: ['privacy policy', 'data protection', 'privacy rights', 'data security', 'GDPR', 'personal information'],
+    type: 'website',
+    pageMetaTags: siteSettings.privacyPageMetaTags,
+  });
+}
 
 export default function PrivacyPolicyPage() {
   return (

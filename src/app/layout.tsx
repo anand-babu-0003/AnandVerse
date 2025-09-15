@@ -8,6 +8,7 @@ import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { AnalyticsTracker } from '@/components/analytics/analytics-tracker';
+import { GoogleAnalytics } from '@/components/analytics/google-analytics';
 import { SecurityProvider, SecurityIndicator } from '@/components/security/security-provider';
 import '@/lib/firebase-logger-config';
 
@@ -59,6 +60,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
+        <GoogleAnalytics />
         <SecurityProvider>
           <ThemeProvider
             attribute="class"
@@ -66,7 +68,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {/* <AnalyticsTracker /> */}
+            <AnalyticsTracker />
             <ConditionalLayout>
               {children}
             </ConditionalLayout>

@@ -2,6 +2,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Cookie, Settings, Eye, Shield, AlertTriangle, Database } from 'lucide-react';
 import Starfield from '@/components/layout/starfield';
+import { generatePageMetadata } from '@/lib/seo';
+import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
+import type { Metadata } from 'next';
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Generate dynamic metadata
+export async function generateMetadata(): Promise<Metadata> {
+  const siteSettings = await getSiteSettingsAction();
+  
+  return generatePageMetadata({
+    title: siteSettings.cookiesPageMetaTitle || 'Cookie Policy',
+    description: siteSettings.cookiesPageMetaDescription || 'Learn about how we use cookies and similar technologies on our website. Understand your cookie preferences and how to manage them.',
+    keywords: ['cookie policy', 'cookies', 'tracking', 'privacy', 'web analytics', 'user preferences'],
+    type: 'website',
+    pageMetaTags: siteSettings.cookiesPageMetaTags,
+  });
+}
 
 export default function CookiePolicyPage() {
   return (

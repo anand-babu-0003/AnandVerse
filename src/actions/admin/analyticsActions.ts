@@ -43,12 +43,18 @@ export async function trackPageViewAction(
 
   try {
     const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
+    const now = new Date();
+    const hour = now.getHours();
     
-    // Check if analytics data exists for today
+    // Create a more specific key to prevent rapid duplicate tracking
+    const trackingKey = `${today}_${hour}_${page}`;
+    
+    // Check if we've already tracked this page in the current hour
     const todayQuery = query(
       analyticsCollectionRef(),
       where('date', '==', today),
-      where('page', '==', page)
+      where('page', '==', page),
+      where('hour', '==', hour)
     );
     
     const existingDocs = await getDocs(todayQuery);
@@ -57,12 +63,18 @@ export async function trackPageViewAction(
       // Update existing record
       const doc = existingDocs.docs[0];
       const data = doc.data();
-      await setDoc(doc.ref, {
-        ...data,
-        views: data.views + 1,
-        uniqueVisitors: data.uniqueVisitors + 1, // Simplified - in real app, you'd track unique visitors properly
-        updatedAt: serverTimestamp(),
-      });
+      const lastUpdate = data.lastUpdate?.toDate?.() || new Date(0);
+      
+      // Only update if it's been at least 30 seconds since last update
+      if (now.getTime() - lastUpdate.getTime() > 30000) {
+        await setDoc(doc.ref, {
+          ...data,
+          views: data.views + 1,
+          uniqueVisitors: data.uniqueVisitors + 1, // Simplified - in real app, you'd track unique visitors properly
+          lastUpdate: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      }
     } else {
       // Create new record
       await addDoc(analyticsCollectionRef(), {
@@ -72,10 +84,12 @@ export async function trackPageViewAction(
         bounceRate: 0,
         avgTimeOnPage: 0,
         date: today,
+        hour: hour,
         referrer: referrer || '',
         userAgent: userAgent || '',
         country: country || '',
         device: device || '',
+        lastUpdate: serverTimestamp(),
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       });

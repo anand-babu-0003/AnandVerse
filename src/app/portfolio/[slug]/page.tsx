@@ -26,12 +26,67 @@ import { defaultPortfolioItemsDataForClient } from '@/lib/data';
 import type { PortfolioItem } from '@/lib/types';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import Starfield from '@/components/layout/starfield';
+import { generatePortfolioItemMetadata } from '@/lib/seo';
+import type { Metadata } from 'next';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// Remove static generation - use dynamic routes instead
+// Generate dynamic metadata for portfolio item
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  
+  try {
+    const project = await getPortfolioItemBySlugAction(slug);
+    if (project) {
+      const metadata = generatePortfolioItemMetadata(project);
+      
+      // Add structured data to metadata
+      const structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'CreativeWork',
+        name: project.title,
+        description: project.description,
+        image: project.images,
+        creator: {
+          '@type': 'Person',
+          name: 'Anand Verma',
+        },
+        dateCreated: project.createdAt,
+        dateModified: project.updatedAt,
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://anandverse.com'}/portfolio/${project.slug}`,
+        keywords: project.tags?.join(', '),
+        ...(project.liveUrl && {
+          mainEntity: {
+            '@type': 'WebApplication',
+            url: project.liveUrl,
+            applicationCategory: 'WebApplication',
+          },
+        }),
+      };
+
+      return {
+        ...metadata,
+        other: {
+          'application/ld+json': JSON.stringify(structuredData),
+        },
+      };
+    }
+  } catch (error) {
+    console.error('Error generating portfolio metadata:', error);
+  }
+  
+  // Fallback metadata
+  return {
+    title: 'Project Not Found',
+    description: 'The requested project could not be found.',
+  };
+}
 
 export default async function PortfolioDetailPage({
   params,
@@ -65,12 +120,11 @@ export default async function PortfolioDetailPage({
   // Process tags
   const projectTags = Array.isArray(project.tags) ? project.tags : [];
 
-
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      <Starfield />
-      
-      <div className="relative z-10">
+        <Starfield />
+        
+        <div className="relative z-10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           {/* Back Button */}
           <Button asChild variant="outline" className="mb-8">

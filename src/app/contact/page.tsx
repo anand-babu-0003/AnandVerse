@@ -17,10 +17,26 @@ import {
 import { fetchAllDataFromFirestore } from '@/actions/fetchAllDataAction';
 import Starfield from '@/components/layout/starfield';
 import { ContactForm } from '@/components/contact/contact-form';
+import { generatePageMetadata } from '@/lib/seo';
+import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
+import type { Metadata } from 'next';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+
+// Generate dynamic metadata
+export async function generateMetadata(): Promise<Metadata> {
+  const siteSettings = await getSiteSettingsAction();
+  
+  return generatePageMetadata({
+    title: siteSettings.contactPageMetaTitle || 'Contact Me',
+    description: siteSettings.contactPageMetaDescription || 'Get in touch with me for your next web development project. I\'m available for freelance work, consultations, and collaborations.',
+    keywords: ['contact', 'web developer', 'freelance', 'hire developer', 'consultation', 'collaboration'],
+    type: 'website',
+    pageMetaTags: siteSettings.contactPageMetaTags,
+  });
+}
 
 export default async function ContactPage() {
   // Fetch all data from Firestore

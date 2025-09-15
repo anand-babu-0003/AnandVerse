@@ -43,6 +43,7 @@ export async function generatePageMetadata({
   image,
   url,
   type = 'website',
+  pageMetaTags,
 }: {
   title?: string;
   description?: string;
@@ -50,13 +51,26 @@ export async function generatePageMetadata({
   image?: string;
   url?: string;
   type?: 'website' | 'article';
+  pageMetaTags?: import('./types').PageMetaTags;
 }): Promise<Metadata> {
   const dynamicSEO = await getDynamicSEO();
-  const fullTitle = title ? `${title} | ${dynamicSEO.title}` : dynamicSEO.title;
-  const fullDescription = description || dynamicSEO.description;
-  const fullKeywords = [...dynamicSEO.keywords, ...keywords];
-  const fullImage = image || dynamicSEO.image;
-  const fullUrl = url || dynamicSEO.url;
+  
+  // Use page-specific meta tags if available, otherwise fall back to parameters
+  const finalTitle = pageMetaTags?.title || title;
+  const finalDescription = pageMetaTags?.description || description;
+  const finalKeywords = pageMetaTags?.keywords ? pageMetaTags.keywords.split(',').map(k => k.trim()) : keywords;
+  const finalOgTitle = pageMetaTags?.ogTitle || finalTitle;
+  const finalOgDescription = pageMetaTags?.ogDescription || finalDescription;
+  const finalOgImage = pageMetaTags?.ogImage || image;
+  const finalTwitterTitle = pageMetaTags?.twitterTitle || finalOgTitle || finalTitle;
+  const finalTwitterDescription = pageMetaTags?.twitterDescription || finalOgDescription || finalDescription;
+  const finalTwitterImage = pageMetaTags?.twitterImage || finalOgImage || image;
+  
+  const fullTitle = finalTitle ? `${finalTitle} | ${dynamicSEO.title}` : dynamicSEO.title;
+  const fullDescription = finalDescription || dynamicSEO.description;
+  const fullKeywords = [...dynamicSEO.keywords, ...finalKeywords];
+  const fullImage = finalOgImage || dynamicSEO.image;
+  const fullUrl = pageMetaTags?.canonicalUrl || url || dynamicSEO.url;
 
   return {
     title: fullTitle,
@@ -66,11 +80,11 @@ export async function generatePageMetadata({
     creator: dynamicSEO.author,
     publisher: dynamicSEO.author,
     robots: {
-      index: true,
-      follow: true,
+      index: pageMetaTags?.noIndex ? false : true,
+      follow: pageMetaTags?.noFollow ? false : true,
       googleBot: {
-        index: true,
-        follow: true,
+        index: pageMetaTags?.noIndex ? false : true,
+        follow: pageMetaTags?.noFollow ? false : true,
         'max-video-preview': -1,
         'max-image-preview': 'large',
         'max-snippet': -1,
@@ -80,23 +94,23 @@ export async function generatePageMetadata({
       type,
       locale: 'en_US',
       url: fullUrl,
-      title: fullTitle,
-      description: fullDescription,
+      title: finalOgTitle || fullTitle,
+      description: finalOgDescription || fullDescription,
       siteName: dynamicSEO.title,
       images: [
         {
-          url: fullImage,
+          url: finalOgImage || fullImage,
           width: 1200,
           height: 630,
-          alt: fullTitle,
+          alt: finalOgTitle || fullTitle,
         },
       ],
     },
     twitter: {
       card: 'summary_large_image',
-      title: fullTitle,
-      description: fullDescription,
-      images: [fullImage],
+      title: finalTwitterTitle || fullTitle,
+      description: finalTwitterDescription || fullDescription,
+      images: [finalTwitterImage || fullImage],
       creator: dynamicSEO.twitter,
     },
     alternates: {

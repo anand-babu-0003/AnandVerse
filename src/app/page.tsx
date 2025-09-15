@@ -20,14 +20,59 @@ import {
 import { fetchAllDataFromFirestore } from '@/actions/fetchAllDataAction';
 import { defaultAboutMeDataForClient } from '@/lib/data';
 import Starfield from '@/components/layout/starfield';
+import { generatePageMetadata } from '@/lib/seo';
+import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
+import type { Metadata } from 'next';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+// Generate dynamic metadata
+export async function generateMetadata(): Promise<Metadata> {
+  const siteSettings = await getSiteSettingsAction();
+  
+  const metadata = generatePageMetadata({
+    title: siteSettings.homePageMetaTitle || 'Professional Web Developer & Designer',
+    description: siteSettings.homePageMetaDescription || 'Professional web developer specializing in modern web technologies. Creating beautiful, responsive, and user-friendly websites and applications.',
+    keywords: ['web developer', 'frontend developer', 'react', 'nextjs', 'typescript', 'portfolio', 'web design', 'full stack developer'],
+    type: 'website',
+    pageMetaTags: siteSettings.homePageMetaTags,
+  });
+
+  // Add website structured data
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: siteSettings.siteName || 'AnandVerse',
+    description: siteSettings.defaultMetaDescription || 'Professional web developer specializing in modern web technologies.',
+    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://anandverse.com',
+    author: {
+      '@type': 'Person',
+      name: 'Anand Verma',
+    },
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://anandverse.com'}/search?q={search_term_string}`,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
+
+  return {
+    ...metadata,
+    other: {
+      'application/ld+json': JSON.stringify(structuredData),
+    },
+  };
+}
+
 export default async function Home() {
   // Fetch all data from Firestore
   const appData = await fetchAllDataFromFirestore();
+  const siteSettings = await getSiteSettingsAction();
   
   const displayedAboutMe = appData.aboutMe;
   const allPortfolioItems = appData.portfolioItems;

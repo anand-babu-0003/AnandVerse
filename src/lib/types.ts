@@ -64,14 +64,54 @@ export interface AboutMeData {
   twitterUrl?: string;
 }
 
+export interface PageMetaTags {
+  title?: string;
+  description?: string;
+  keywords?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImage?: string;
+  canonicalUrl?: string;
+  noIndex?: boolean;
+  noFollow?: boolean;
+}
+
 export interface SiteSettings {
   siteName: string;
   defaultMetaDescription: string;
   defaultMetaKeywords?: string;
   siteOgImageUrl?: string;
   maintenanceMode?: boolean;
+  
+  // Global meta tags
+  globalMetaTags?: PageMetaTags;
+  
+  // Page-specific meta tags
+  homePageMetaTags?: PageMetaTags;
+  aboutPageMetaTags?: PageMetaTags;
+  portfolioPageMetaTags?: PageMetaTags;
+  blogPageMetaTags?: PageMetaTags;
+  contactPageMetaTags?: PageMetaTags;
+  privacyPageMetaTags?: PageMetaTags;
+  termsPageMetaTags?: PageMetaTags;
+  cookiesPageMetaTags?: PageMetaTags;
+  
+  // Legacy fields (for backward compatibility)
   skillsPageMetaTitle?: string; 
-  skillsPageMetaDescription?: string; 
+  skillsPageMetaDescription?: string;
+  homePageMetaTitle?: string;
+  homePageMetaDescription?: string;
+  contactPageMetaTitle?: string;
+  contactPageMetaDescription?: string;
+  privacyPageMetaTitle?: string;
+  privacyPageMetaDescription?: string;
+  termsPageMetaTitle?: string;
+  termsPageMetaDescription?: string;
+  cookiesPageMetaTitle?: string;
+  cookiesPageMetaDescription?: string;
 }
 
 export interface NotFoundPageData {

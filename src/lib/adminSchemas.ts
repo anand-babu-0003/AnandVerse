@@ -151,14 +151,55 @@ export const skillAdminSchema = z.object({
 export type SkillAdminFormData = z.infer<typeof skillAdminSchema>;
 
 
+// Meta tags schema for individual pages
+export const pageMetaTagsSchema = z.object({
+  title: z.string().min(5, "Title must be at least 5 characters.").max(70, "Title should not exceed 70 characters.").optional(),
+  description: z.string().min(10, "Description must be at least 10 characters.").max(160, "Description should not exceed 160 characters.").optional(),
+  keywords: z.string().max(200, "Keywords should not exceed 200 characters.").optional(),
+  ogTitle: z.string().min(5, "OG Title must be at least 5 characters.").max(95, "OG Title should not exceed 95 characters.").optional(),
+  ogDescription: z.string().min(10, "OG Description must be at least 10 characters.").max(200, "OG Description should not exceed 200 characters.").optional(),
+  ogImage: z.string().url({ message: "Please enter a valid URL for the OG image." }).or(z.literal("")).optional(),
+  twitterTitle: z.string().min(5, "Twitter Title must be at least 5 characters.").max(70, "Twitter Title should not exceed 70 characters.").optional(),
+  twitterDescription: z.string().min(10, "Twitter Description must be at least 10 characters.").max(200, "Twitter Description should not exceed 200 characters.").optional(),
+  twitterImage: z.string().url({ message: "Please enter a valid URL for the Twitter image." }).or(z.literal("")).optional(),
+  canonicalUrl: z.string().url({ message: "Please enter a valid canonical URL." }).or(z.literal("")).optional(),
+  noIndex: z.boolean().optional(),
+  noFollow: z.boolean().optional(),
+});
+
 export const siteSettingsAdminSchema = z.object({
   siteName: z.string().min(3, { message: "Site Name must be at least 3 characters." }),
   defaultMetaDescription: z.string().min(10, { message: "Meta Description must be at least 10 characters." }).max(160, {message: "Meta Description should not exceed 160 characters."}),
   defaultMetaKeywords: z.string().optional(),
   siteOgImageUrl: z.string().url({ message: "Please enter a valid URL for the Open Graph image or leave blank." }).or(z.literal("")).optional(),
   maintenanceMode: z.boolean().optional(),
+  
+  // Global meta tags
+  globalMetaTags: pageMetaTagsSchema.optional(),
+  
+  // Page-specific meta tags
+  homePageMetaTags: pageMetaTagsSchema.optional(),
+  aboutPageMetaTags: pageMetaTagsSchema.optional(),
+  portfolioPageMetaTags: pageMetaTagsSchema.optional(),
+  blogPageMetaTags: pageMetaTagsSchema.optional(),
+  contactPageMetaTags: pageMetaTagsSchema.optional(),
+  privacyPageMetaTags: pageMetaTagsSchema.optional(),
+  termsPageMetaTags: pageMetaTagsSchema.optional(),
+  cookiesPageMetaTags: pageMetaTagsSchema.optional(),
+  
+  // Legacy fields (for backward compatibility)
   skillsPageMetaTitle: z.string().min(5, "Skills page meta title is too short.").max(70, "Skills page meta title is too long.").optional(),
   skillsPageMetaDescription: z.string().min(10, "Skills page meta description is too short.").max(160, "Skills page meta description is too long.").optional(),
+  homePageMetaTitle: z.string().min(5, "Home page meta title is too short.").max(70, "Home page meta title is too long.").optional(),
+  homePageMetaDescription: z.string().min(10, "Home page meta description is too short.").max(160, "Home page meta description is too long.").optional(),
+  contactPageMetaTitle: z.string().min(5, "Contact page meta title is too short.").max(70, "Contact page meta title is too long.").optional(),
+  contactPageMetaDescription: z.string().min(10, "Contact page meta description is too short.").max(160, "Contact page meta description is too long.").optional(),
+  privacyPageMetaTitle: z.string().min(5, "Privacy page meta title is too short.").max(70, "Privacy page meta title is too long.").optional(),
+  privacyPageMetaDescription: z.string().min(10, "Privacy page meta description is too short.").max(160, "Privacy page meta description is too long.").optional(),
+  termsPageMetaTitle: z.string().min(5, "Terms page meta title is too short.").max(70, "Terms page meta title is too long.").optional(),
+  termsPageMetaDescription: z.string().min(10, "Terms page meta description is too short.").max(160, "Terms page meta description is too long.").optional(),
+  cookiesPageMetaTitle: z.string().min(5, "Cookies page meta title is too short.").max(70, "Cookies page meta title is too long.").optional(),
+  cookiesPageMetaDescription: z.string().min(10, "Cookies page meta description is too short.").max(160, "Cookies page meta description is too long.").optional(),
 });
 export type SiteSettingsAdminFormData = z.infer<typeof siteSettingsAdminSchema>;
 

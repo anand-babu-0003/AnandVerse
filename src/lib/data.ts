@@ -72,8 +72,33 @@ export const defaultSiteSettingsForClient: SiteSettings = {
   defaultMetaKeywords: 'portfolio, web developer, react, nextjs, anand verma, full-stack',
   siteOgImageUrl: 'https://placehold.co/1200x630.png?text=VermaVerse',
   maintenanceMode: false,
+  
+  // Global meta tags
+  globalMetaTags: undefined,
+  
+  // Page-specific meta tags
+  homePageMetaTags: undefined,
+  aboutPageMetaTags: undefined,
+  portfolioPageMetaTags: undefined,
+  blogPageMetaTags: undefined,
+  contactPageMetaTags: undefined,
+  privacyPageMetaTags: undefined,
+  termsPageMetaTags: undefined,
+  cookiesPageMetaTags: undefined,
+  
+  // Legacy fields (for backward compatibility)
   skillsPageMetaTitle: 'My Skills | VermaVerse',
   skillsPageMetaDescription: 'Explore my diverse skill set including programming languages, frameworks, and tools used in VermaVerse.',
+  homePageMetaTitle: undefined,
+  homePageMetaDescription: undefined,
+  contactPageMetaTitle: undefined,
+  contactPageMetaDescription: undefined,
+  privacyPageMetaTitle: undefined,
+  privacyPageMetaDescription: undefined,
+  termsPageMetaTitle: undefined,
+  termsPageMetaDescription: undefined,
+  cookiesPageMetaTitle: undefined,
+  cookiesPageMetaDescription: undefined,
 };
 
 export const defaultExperienceForClient: Experience[] = [
