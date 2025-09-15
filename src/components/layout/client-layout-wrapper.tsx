@@ -14,7 +14,8 @@ import LiveAnnouncementBanner from '@/components/announcements/LiveAnnouncementB
 import { cn } from '@/lib/utils';
 
 import { firestore } from '@/lib/firebaseConfig';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc } from 'firebase/firestore';
+import { createManagedListener } from '@/lib/firestore-cleanup';
 
 export function ClientLayoutWrapper({
   children,
@@ -38,16 +39,20 @@ export function ClientLayoutWrapper({
     }
 
     const settingsDocRef = doc(firestore, 'app_config', 'siteSettingsDoc');
-    const unsubscribe = onSnapshot(settingsDocRef, (docSnap) => {
-      if (docSnap.exists()) {
-        setCurrentSiteSettings(docSnap.data() as SiteSettings);
-      } else {
+    const unsubscribe = createManagedListener<SiteSettings>(
+      settingsDocRef,
+      (data) => {
+        if (data) {
+          setCurrentSiteSettings(data);
+        } else {
+          setCurrentSiteSettings(defaultSiteSettingsForClient);
+        }
+      },
+      (error) => {
+        console.error("Error listening to site settings:", error);
         setCurrentSiteSettings(defaultSiteSettingsForClient);
       }
-    }, (error) => {
-      console.error("Error listening to site settings:", error);
-      setCurrentSiteSettings(defaultSiteSettingsForClient);
-    });
+    );
 
     return () => unsubscribe();
   }, []);

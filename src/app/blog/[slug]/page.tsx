@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import EnhancedImage from '@/components/ui/enhanced-image';
 import { notFound } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -161,13 +162,14 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
               <div className="relative aspect-video overflow-hidden rounded-2xl bg-muted/20">
-                <Image
+                <EnhancedImage
                   src={post.featuredImage}
                   alt={post.title}
                   width={1200}
                   height={630}
                   className="w-full h-full object-cover border border-border rounded-lg"
                   priority
+                  fallbackSrc="https://placehold.co/1200x630/3b82f6/ffffff?text=Blog+Post"
                 />
               </div>
             </div>
@@ -257,12 +259,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 {relatedPosts.map((relatedPost) => (
                   <Card key={relatedPost.id} className="card-modern group overflow-hidden">
                     <div className="relative aspect-video overflow-hidden bg-muted/10">
-                      <Image
+                      <EnhancedImage
                         src={relatedPost.featuredImage || 'https://placehold.co/600x400.png?text=Blog+Post'}
                         alt={relatedPost.title}
                         width={600}
                         height={400}
                         className="w-full h-full object-cover border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
+                        fallbackSrc="https://placehold.co/600x400/3b82f6/ffffff?text=Related+Post"
                       />
                     </div>
                     

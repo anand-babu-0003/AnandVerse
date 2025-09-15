@@ -17,6 +17,8 @@ export const CSP_POLICY = {
     'https://pagead2.googlesyndication.com', // Google AdSense
     'https://www.google.com', // Google services
     'https://*.google.com', // All Google subdomains
+    'https://googleads.g.doubleclick.net', // Google AdSense
+    'https://tpc.googlesyndication.com', // Google AdSense
   ],
   'style-src': [
     "'self'",
@@ -40,7 +42,10 @@ export const CSP_POLICY = {
     'https://*.googleusercontent.com', // Google user content
     'https://*.googleapis.com', // Google APIs images
     'https://pagead2.googlesyndication.com', // Google AdSense images
+    'https://googleads.g.doubleclick.net', // Google AdSense
+    'https://tpc.googlesyndication.com', // Google AdSense
     'https://*.google.com', // All Google subdomains for images
+    'https://www.guvi.in', // External blog images
   ],
   'font-src': [
     "'self'",
@@ -61,6 +66,8 @@ export const CSP_POLICY = {
     'https://www.googleapis.com', // Google APIs
     'https://*.googleapis.com', // All Google APIs
     'https://pagead2.googlesyndication.com', // Google AdSense
+    'https://googleads.g.doubleclick.net', // Google AdSense
+    'https://tpc.googlesyndication.com', // Google AdSense
     'https://*.google.com', // All Google subdomains
     'wss://localhost:*', // For development
     'ws://localhost:*', // For development
@@ -70,6 +77,12 @@ export const CSP_POLICY = {
   'base-uri': ["'self'"],
   'form-action': ["'self'"],
   'frame-ancestors': ["'none'"],
+  'frame-src': [
+    "'self'",
+    'https://googleads.g.doubleclick.net',
+    'https://tpc.googlesyndication.com',
+    'https://pagead2.googlesyndication.com',
+  ],
   'upgrade-insecure-requests': [],
 } as const;
 
