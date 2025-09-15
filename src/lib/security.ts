@@ -14,6 +14,9 @@ export const CSP_POLICY = {
     'https://www.gstatic.com',
     'https://fonts.googleapis.com',
     'https://fonts.gstatic.com',
+    'https://pagead2.googlesyndication.com', // Google AdSense
+    'https://www.google.com', // Google services
+    'https://*.google.com', // All Google subdomains
   ],
   'style-src': [
     "'self'",
@@ -36,6 +39,8 @@ export const CSP_POLICY = {
     'https://firebase.googleapis.com', // Firebase images
     'https://*.googleusercontent.com', // Google user content
     'https://*.googleapis.com', // Google APIs images
+    'https://pagead2.googlesyndication.com', // Google AdSense images
+    'https://*.google.com', // All Google subdomains for images
   ],
   'font-src': [
     "'self'",
@@ -55,6 +60,8 @@ export const CSP_POLICY = {
     'https://securetoken.googleapis.com', // Firebase Auth tokens
     'https://www.googleapis.com', // Google APIs
     'https://*.googleapis.com', // All Google APIs
+    'https://pagead2.googlesyndication.com', // Google AdSense
+    'https://*.google.com', // All Google subdomains
     'wss://localhost:*', // For development
     'ws://localhost:*', // For development
   ],
