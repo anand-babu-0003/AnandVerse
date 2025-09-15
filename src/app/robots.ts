@@ -15,45 +15,14 @@ export default function robots(): MetadataRoute.Robots {
           '/private/',
           '/firebase-test/',
           '/*.json$',
-          '/cookies',
-          '/terms',
+          // ✅ Removed /cookies and /terms from disallow - Allow all search engines to index these pages
           // ✅ Removed /_next/ from disallow - Essential for Next.js functionality
           // ✅ Removed /privacy from disallow - Google likes to see Privacy Policy indexed for trust
+          // ✅ Removed all AI bot restrictions - Allow all search engines and AI crawlers
         ],
         // ✅ Removed crawlDelay for faster crawling on strong hosting (Vercel/Netlify/Cloudflare)
       },
-      {
-        userAgent: 'GPTBot',
-        disallow: '/',
-      },
-      {
-        userAgent: 'ChatGPT-User',
-        disallow: '/',
-      },
-      {
-        userAgent: 'CCBot',
-        disallow: '/',
-      },
-      {
-        userAgent: 'anthropic-ai',
-        disallow: '/',
-      },
-      {
-        userAgent: 'Claude-Web',
-        disallow: '/',
-      },
-      {
-        userAgent: 'Google-Extended',
-        disallow: '/',
-      },
-      {
-        userAgent: 'PerplexityBot',
-        disallow: '/',
-      },
-      {
-        userAgent: 'YouBot',
-        disallow: '/',
-      },
+      // ✅ Removed all specific user agent blocks - Allow all search engines and AI bots
     ],
     sitemap: `${baseUrl}/sitemap.xml`, // ✅ Main sitemap (Next.js dynamic route with smart priorities)
     host: baseUrl,
