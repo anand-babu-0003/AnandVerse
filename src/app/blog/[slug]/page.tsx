@@ -160,13 +160,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <section className="py-8">
           <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
-              <div className="relative overflow-hidden rounded-2xl bg-muted/20">
+              <div className="relative overflow-hidden rounded-2xl bg-muted/20 p-4">
                 <Image
                   src={post.featuredImage}
                   alt={post.title}
                   width={1200}
                   height={630}
-                  className="w-full h-auto object-contain border border-border rounded-lg"
+                  className="w-full h-full object-contain border border-border rounded-lg"
                   priority
                 />
               </div>
@@ -256,13 +256,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {relatedPosts.map((relatedPost) => (
                   <Card key={relatedPost.id} className="card-modern group overflow-hidden">
-                    <div className="relative aspect-video overflow-hidden bg-muted/10 flex items-center justify-center">
+                    <div className="relative aspect-video overflow-hidden bg-muted/10 flex items-center justify-center p-2">
                       <Image
                         src={relatedPost.featuredImage || 'https://placehold.co/600x400.png?text=Blog+Post'}
                         alt={relatedPost.title}
                         width={600}
                         height={400}
-                        className="max-w-full max-h-full w-auto h-auto object-contain border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
+                        className="w-full h-full object-contain border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>
                     

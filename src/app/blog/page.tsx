@@ -146,13 +146,13 @@ export default async function BlogPage() {
             
             <Card className="card-modern overflow-hidden">
               <div className="grid lg:grid-cols-2 gap-0">
-                <div className="relative min-h-[300px] lg:min-h-[400px] overflow-hidden bg-muted/10 flex items-center justify-center">
+                <div className="relative min-h-[300px] lg:min-h-[400px] overflow-hidden bg-muted/10 flex items-center justify-center p-4">
                   <Image
                     src={featuredPost.featuredImage || 'https://placehold.co/800x600.png?text=Featured+Post'}
                     alt={featuredPost.title}
                     width={800}
                     height={600}
-                    className="max-w-full max-h-full w-auto h-auto object-contain border border-border rounded-lg"
+                    className="w-full h-full object-contain border border-border rounded-lg"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
@@ -224,13 +224,13 @@ export default async function BlogPage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {recentPosts.map((post) => (
                 <Card key={post.id} className="card-modern group overflow-hidden">
-                  <div className="relative aspect-video overflow-hidden bg-muted/10 flex items-center justify-center">
+                  <div className="relative aspect-video overflow-hidden bg-muted/10 flex items-center justify-center p-2">
                     <Image
                       src={post.featuredImage || 'https://placehold.co/600x400.png?text=Blog+Post'}
                       alt={post.title}
                       width={600}
                       height={400}
-                      className="max-w-full max-h-full w-auto h-auto object-contain border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-full object-contain border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                   
@@ -306,13 +306,13 @@ export default async function BlogPage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {olderPosts.map((post) => (
                 <Card key={post.id} className="card-modern group overflow-hidden">
-                  <div className="relative aspect-video overflow-hidden bg-muted/10 flex items-center justify-center">
+                  <div className="relative aspect-video overflow-hidden bg-muted/10 flex items-center justify-center p-2">
                     <Image
                       src={post.featuredImage || 'https://placehold.co/600x400.png?text=Blog+Post'}
                       alt={post.title}
                       width={600}
                       height={400}
-                      className="max-w-full max-h-full w-auto h-auto object-contain border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
+                      className="w-full h-full object-contain border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                   
