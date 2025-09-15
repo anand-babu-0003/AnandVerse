@@ -152,7 +152,7 @@ export default async function BlogPage() {
                     alt={featuredPost.title}
                     width={800}
                     height={600}
-                    className="max-w-full max-h-full w-auto h-auto object-contain"
+                    className="max-w-full max-h-full w-auto h-auto object-contain border border-border rounded-lg"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
@@ -230,7 +230,7 @@ export default async function BlogPage() {
                       alt={post.title}
                       width={600}
                       height={400}
-                      className="max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                      className="max-w-full max-h-full w-auto h-auto object-contain border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                   
@@ -312,7 +312,7 @@ export default async function BlogPage() {
                       alt={post.title}
                       width={600}
                       height={400}
-                      className="max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                      className="max-w-full max-h-full w-auto h-auto object-contain border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                   

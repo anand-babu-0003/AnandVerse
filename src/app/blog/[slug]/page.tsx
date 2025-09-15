@@ -166,7 +166,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                   alt={post.title}
                   width={1200}
                   height={630}
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain border border-border rounded-lg"
                   priority
                 />
               </div>
@@ -256,12 +256,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {relatedPosts.map((relatedPost) => (
                   <Card key={relatedPost.id} className="card-modern group overflow-hidden">
-                    <div className="relative aspect-video overflow-hidden bg-muted/10">
+                    <div className="relative aspect-video overflow-hidden bg-muted/10 flex items-center justify-center">
                       <Image
                         src={relatedPost.featuredImage || 'https://placehold.co/600x400.png?text=Blog+Post'}
                         alt={relatedPost.title}
-                        fill
-                        className="object-contain transition-transform duration-300 group-hover:scale-105"
+                        width={600}
+                        height={400}
+                        className="max-w-full max-h-full w-auto h-auto object-contain border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>
                     
