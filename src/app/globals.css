@@ -7,6 +7,101 @@
 /* Import modern portfolio styles */
 @import '../styles/portfolio-modern.css';
 
+/* Import markdown styles */
+@import '../styles/github-markdown.css';
+
+/* Custom markdown blog content styles */
+.blog-content {
+  @apply text-foreground leading-relaxed;
+}
+
+.blog-content h1,
+.blog-content h2,
+.blog-content h3,
+.blog-content h4,
+.blog-content h5,
+.blog-content h6 {
+  @apply font-bold text-foreground mt-8 mb-4 first:mt-0;
+}
+
+.blog-content h1 {
+  @apply text-3xl border-b border-border pb-2;
+}
+
+.blog-content h2 {
+  @apply text-2xl border-b border-border pb-2;
+}
+
+.blog-content h3 {
+  @apply text-xl;
+}
+
+.blog-content h4 {
+  @apply text-lg;
+}
+
+.blog-content p {
+  @apply mb-4 text-foreground/90;
+}
+
+.blog-content ul,
+.blog-content ol {
+  @apply mb-4 pl-6;
+}
+
+.blog-content li {
+  @apply mb-2;
+}
+
+.blog-content ul li {
+  @apply list-disc;
+}
+
+.blog-content ol li {
+  @apply list-decimal;
+}
+
+.blog-content blockquote {
+  @apply border-l-4 border-primary/30 pl-4 italic text-muted-foreground my-6;
+}
+
+.blog-content code {
+  @apply bg-muted px-2 py-1 rounded text-sm font-mono;
+}
+
+.blog-content pre {
+  @apply bg-muted p-4 rounded-lg overflow-x-auto my-6;
+}
+
+.blog-content pre code {
+  @apply bg-transparent p-0;
+}
+
+.blog-content a {
+  @apply text-primary hover:text-primary/80 underline;
+}
+
+.blog-content table {
+  @apply w-full border-collapse border border-border my-6;
+}
+
+.blog-content th,
+.blog-content td {
+  @apply border border-border px-4 py-2 text-left;
+}
+
+.blog-content th {
+  @apply bg-muted font-semibold;
+}
+
+.blog-content img {
+  @apply max-w-full h-auto rounded-lg my-6;
+}
+
+.blog-content hr {
+  @apply border-border my-8;
+}
+
 @layer base {
   :root {
     /* Royal Blue Design System - Light Mode */

@@ -20,6 +20,7 @@ import { getBlogPostBySlugActionOptimized, getPublishedBlogPostsActionOptimized 
 import Starfield from '@/components/layout/starfield';
 import type { BlogPost } from '@/lib/types';
 import { generateBlogPostMetadata, generateBlogPostStructuredData } from '@/lib/seo';
+import { markdownToHtml } from '@/lib/markdown';
 import type { Metadata } from 'next';
 
 interface BlogPostPageProps {
@@ -53,6 +54,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   if (!post) {
     notFound();
   }
+
+  // Convert markdown content to HTML
+  const htmlContent = await markdownToHtml(post.content);
 
   // Generate structured data
   const structuredData = await generateBlogPostStructuredData(post);
@@ -175,7 +179,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <div className="prose prose-lg max-w-none dark:prose-invert">
               <div 
                 className="blog-content"
-                dangerouslySetInnerHTML={{ __html: post.content }}
+                dangerouslySetInnerHTML={{ __html: htmlContent }}
               />
             </div>
           </div>
