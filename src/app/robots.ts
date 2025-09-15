@@ -12,12 +12,12 @@ export default function robots(): MetadataRoute.Robots {
           '/admin/',
           '/admin-debug/',
           '/api/',
-          '/_next/',
           '/private/',
           '/firebase-test/',
           '/*.json$',
           '/cookies',
           '/terms',
+          // ✅ Removed /_next/ from disallow - Essential for Next.js functionality
           // ✅ Removed /privacy from disallow - Google likes to see Privacy Policy indexed for trust
         ],
         // ✅ Removed crawlDelay for faster crawling on strong hosting (Vercel/Netlify/Cloudflare)
