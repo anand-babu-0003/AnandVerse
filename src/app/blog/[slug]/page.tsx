@@ -164,8 +164,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 <Image
                   src={post.featuredImage}
                   alt={post.title}
-                  fill
-                  className="object-cover border border-border rounded-lg"
+                  width={1200}
+                  height={630}
+                  className="w-full h-full object-cover border border-border rounded-lg"
                   priority
                 />
               </div>
@@ -259,8 +260,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                       <Image
                         src={relatedPost.featuredImage || 'https://placehold.co/600x400.png?text=Blog+Post'}
                         alt={relatedPost.title}
-                        fill
-                        className="object-cover border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
+                        width={600}
+                        height={400}
+                        className="w-full h-full object-cover border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>
                     

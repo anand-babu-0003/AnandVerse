@@ -150,8 +150,9 @@ export default async function BlogPage() {
                   <Image
                     src={featuredPost.featuredImage || 'https://placehold.co/800x600.png?text=Featured+Post'}
                     alt={featuredPost.title}
-                    fill
-                    className="object-cover border border-border rounded-lg"
+                    width={800}
+                    height={600}
+                    className="w-full h-full object-cover border border-border rounded-lg"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                 </div>
@@ -227,8 +228,9 @@ export default async function BlogPage() {
                     <Image
                       src={post.featuredImage || 'https://placehold.co/600x400.png?text=Blog+Post'}
                       alt={post.title}
-                      fill
-                      className="object-cover border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
+                      width={600}
+                      height={400}
+                      className="w-full h-full object-cover border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                   
@@ -308,8 +310,9 @@ export default async function BlogPage() {
                     <Image
                       src={post.featuredImage || 'https://placehold.co/600x400.png?text=Blog+Post'}
                       alt={post.title}
-                      fill
-                      className="object-cover border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
+                      width={600}
+                      height={400}
+                      className="w-full h-full object-cover border border-border rounded-lg transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                   
