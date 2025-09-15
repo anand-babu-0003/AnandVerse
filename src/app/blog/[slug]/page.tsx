@@ -35,7 +35,8 @@ export const revalidate = 0;
 
 // Generate dynamic metadata for blog posts
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-  const post = await getBlogPostBySlugActionOptimized(params.slug);
+  const { slug } = await params;
+  const post = await getBlogPostBySlugActionOptimized(slug);
   
   if (!post) {
     return {
@@ -49,7 +50,8 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = await getBlogPostBySlugActionOptimized(params.slug);
+  const { slug } = await params;
+  const post = await getBlogPostBySlugActionOptimized(slug);
   
   if (!post) {
     notFound();
@@ -158,12 +160,13 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         <section className="py-8">
           <div className="container mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
-              <div className="relative aspect-video overflow-hidden rounded-2xl">
+              <div className="relative overflow-hidden rounded-2xl bg-muted/20">
                 <Image
                   src={post.featuredImage}
                   alt={post.title}
-                  fill
-                  className="object-cover"
+                  width={1200}
+                  height={630}
+                  className="w-full h-auto object-contain"
                   priority
                 />
               </div>
@@ -253,12 +256,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {relatedPosts.map((relatedPost) => (
                   <Card key={relatedPost.id} className="card-modern group overflow-hidden">
-                    <div className="relative aspect-video overflow-hidden">
+                    <div className="relative aspect-video overflow-hidden bg-muted/10">
                       <Image
                         src={relatedPost.featuredImage || 'https://placehold.co/600x400.png?text=Blog+Post'}
                         alt={relatedPost.title}
                         fill
-                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        className="object-contain transition-transform duration-300 group-hover:scale-105"
                       />
                     </div>
                     

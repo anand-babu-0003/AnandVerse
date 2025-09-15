@@ -222,12 +222,12 @@ export default async function BlogPage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {recentPosts.map((post) => (
                 <Card key={post.id} className="card-modern group overflow-hidden">
-                  <div className="relative aspect-video overflow-hidden">
+                  <div className="relative aspect-video overflow-hidden bg-muted/10">
                     <Image
                       src={post.featuredImage || 'https://placehold.co/600x400.png?text=Blog+Post'}
                       alt={post.title}
                       fill
-                      className="object-cover transition-transform duration-300 group-hover:scale-105"
+                      className="object-contain transition-transform duration-300 group-hover:scale-105"
                     />
                   </div>
                   
