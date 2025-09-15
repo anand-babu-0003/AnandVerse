@@ -9,6 +9,7 @@ import Footer from '@/components/layout/footer';
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { AnalyticsTracker } from '@/components/analytics/analytics-tracker';
 import { GoogleAnalytics } from '@/components/analytics/google-analytics';
+import { GoogleAdSense } from '@/components/analytics/google-adsense';
 import { SecurityProvider, SecurityIndicator } from '@/components/security/security-provider';
 import '@/lib/firebase-logger-config';
 
@@ -43,6 +44,9 @@ export async function generateMetadata(): Promise<Metadata> {
     verification: {
       google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
     },
+    other: {
+      'google-adsense-account': 'ca-pub-8910859726727829',
+    },
   };
 }
 
@@ -61,6 +65,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <GoogleAnalytics />
+        <GoogleAdSense />
         <SecurityProvider>
           <ThemeProvider
             attribute="class"
