@@ -10,10 +10,17 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: [
           '/admin/',
+          '/admin-debug/',
           '/api/',
           '/_next/',
           '/private/',
+          '/firebase-test/',
+          '/*.json$',
+          '/cookies',
+          '/terms',
+          // ✅ Removed /privacy from disallow - Google likes to see Privacy Policy indexed for trust
         ],
+        // ✅ Removed crawlDelay for faster crawling on strong hosting (Vercel/Netlify/Cloudflare)
       },
       {
         userAgent: 'GPTBot',
@@ -35,8 +42,20 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: 'Claude-Web',
         disallow: '/',
       },
+      {
+        userAgent: 'Google-Extended',
+        disallow: '/',
+      },
+      {
+        userAgent: 'PerplexityBot',
+        disallow: '/',
+      },
+      {
+        userAgent: 'YouBot',
+        disallow: '/',
+      },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${baseUrl}/sitemap.xml`, // ✅ Main sitemap (Next.js dynamic route with smart priorities)
     host: baseUrl,
   };
 }

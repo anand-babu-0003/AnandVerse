@@ -23,10 +23,15 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
       <CardHeader className="p-0 relative aspect-video overflow-hidden">
         <Image
           src={imageUrl}
-          alt={`Screenshot of ${project.title || 'Project'}`}
+          alt={`Screenshot of ${project.title || 'Project'} - ${project.description || 'Portfolio project'}`}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
+          quality={85}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           data-ai-hint={project.dataAiHint || 'project technology'}
+          placeholder="blur"
+          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
         />
         
         {/* Overlay Actions */}

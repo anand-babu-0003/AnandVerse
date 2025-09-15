@@ -205,12 +205,16 @@ export default async function AboutPage() {
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-blue-500/20 rounded-3xl blur-xl"></div>
                   <Image
                     src={displayedData.profileImage || defaultAboutMeDataForClient.profileImage}
-                    alt={`Profile picture of ${displayedData.name || defaultAboutMeDataForClient.name}`}
+                    alt={`Profile picture of ${displayedData.name || defaultAboutMeDataForClient.name} - ${displayedData.title || 'Developer'} from ${displayedData.location || 'India'}`}
                     width={400}
                     height={400}
                     className="relative rounded-3xl shadow-modern-lg object-cover aspect-square border border-border"
                     data-ai-hint={displayedData.dataAiHint || defaultAboutMeDataForClient.dataAiHint}
                     priority
+                    quality={90}
+                    sizes="(max-width: 768px) 300px, (max-width: 1200px) 400px, 400px"
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
                   />
                 </div>
               </div>
