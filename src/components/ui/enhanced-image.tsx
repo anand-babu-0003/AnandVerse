@@ -2,6 +2,8 @@
  * Enhanced Image component with fallback handling for external URLs
  */
 
+"use client";
+
 import Image, { ImageProps } from 'next/image';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
