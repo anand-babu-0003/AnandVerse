@@ -13,6 +13,9 @@ const nextConfig: NextConfig = {
   poweredByHeader: false, // Remove X-Powered-By header
   compress: true, // Enable gzip compression
   
+  // Disable source maps in production to prevent 404 errors
+  productionBrowserSourceMaps: false,
+  
   // Performance optimizations for SEO
   experimental: {
     optimizeCss: true, // Optimize CSS
@@ -30,17 +33,24 @@ const nextConfig: NextConfig = {
     },
   },
   
-  // Bundle analyzer (only in development)
-  ...(process.env.ANALYZE === 'true' && {
-    webpack: (config: any) => {
+  // Webpack configuration
+  webpack: (config: any, { dev, isServer }) => {
+    // Disable source maps in production
+    if (!dev) {
+      config.devtool = false;
+    }
+    
+    // Bundle analyzer (only in development)
+    if (process.env.ANALYZE === 'true') {
       config.plugins.push(
         new (require('@next/bundle-analyzer'))({
           enabled: true,
         })
       );
-      return config;
-    },
-  }),
+    }
+    
+    return config;
+  },
   images: {
     remotePatterns: [
       {
