@@ -127,9 +127,13 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
               <head>
+                <meta charSet="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+                <meta name="format-detection" content="telephone=no" />
                 <link rel="icon" href="/favicon.ico" sizes="any" />
                 <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-                <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+                <link rel="apple-touch-icon" href="/icon.svg" />
                 <link rel="manifest" href="/manifest.json" />
                 <meta name="theme-color" content="#3b82f6" />
                 <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -137,6 +141,57 @@ export default async function RootLayout({
                 <meta name="apple-mobile-web-app-title" content="AnandVerse" />
                 <link rel="preconnect" href="https://fonts.googleapis.com" />
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+                <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
+                <link rel="preconnect" href="https://googleads.g.doubleclick.net" />
+                <script
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                      // Ensure standards mode and proper AdSense initialization
+                      (function() {
+                        // Ensure document is in standards mode
+                        if (document.compatMode !== 'CSS1Compat') {
+                          console.warn('Document not in standards mode');
+                        }
+                        
+                        // Initialize adsbygoogle array early
+                        window.adsbygoogle = window.adsbygoogle || [];
+                        
+                        // Monitor for AdSense iframes and apply basic fixes
+                        var observer = new MutationObserver(function(mutations) {
+                          mutations.forEach(function(mutation) {
+                            if (mutation.type === 'childList') {
+                              mutation.addedNodes.forEach(function(node) {
+                                if (node.tagName === 'IFRAME' && node.src && node.src.includes('doubleclick.net')) {
+                                  // Apply basic iframe fixes
+                                  node.style.border = 'none';
+                                  node.style.display = 'block';
+                                  node.style.width = '100%';
+                                  node.style.maxWidth = '100%';
+                                  node.style.overflow = 'hidden';
+                                }
+                              });
+                            }
+                          });
+                        });
+                        
+                        // Start observing when DOM is ready
+                        if (document.readyState === 'loading') {
+                          document.addEventListener('DOMContentLoaded', function() {
+                            observer.observe(document.body, {
+                              childList: true,
+                              subtree: true
+                            });
+                          });
+                        } else {
+                          observer.observe(document.body, {
+                            childList: true,
+                            subtree: true
+                          });
+                        }
+                      })();
+                    `,
+                  }}
+                />
               </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
         <LazyGoogleAnalytics />

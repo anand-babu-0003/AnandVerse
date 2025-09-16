@@ -287,9 +287,10 @@ export async function fetchAllContactMessages(): Promise<ContactMessage[]> {
       });
     });
 
-    // Only log in development and if there are issues
+    // Only log in development and if there are critical issues
     if (process.env.NODE_ENV === 'development' && messages.length === 0) {
-      console.warn('No contact messages found in Firestore');
+      // Don't warn about empty contact messages - this is normal for new sites
+      // console.warn('No contact messages found in Firestore');
     }
     return messages;
   } catch (error) {
@@ -323,9 +324,10 @@ export async function fetchAllAnnouncements(): Promise<any[]> {
       });
     });
 
-    // Only log in development and if there are issues
+    // Only log in development and if there are critical issues
     if (process.env.NODE_ENV === 'development' && announcements.length === 0) {
-      console.warn('No announcements found in Firestore');
+      // Don't warn about empty announcements - this is normal for new sites
+      // console.warn('No announcements found in Firestore');
     }
     return announcements;
   } catch (error) {
@@ -338,10 +340,10 @@ export async function fetchAllAnnouncements(): Promise<any[]> {
  * Fetch ALL data from Firestore in parallel
  */
 export async function fetchAllDataFromFirestore(): Promise<AppData> {
-  // Only log in development and if there are issues
-  if (process.env.NODE_ENV === 'development') {
-    console.log("Starting comprehensive data fetch from Firestore...");
-  }
+  // Only log in development and if there are critical issues
+  // if (process.env.NODE_ENV === 'development') {
+  //   console.log("Starting comprehensive data fetch from Firestore...");
+  // }
   
   try {
     // Fetch all data in parallel for better performance
@@ -419,14 +421,14 @@ export async function fetchDataWithCache<T>(
   const cached = cache.get(cacheKey);
   
   if (cached && (now - cached.timestamp) < cacheTimeout) {
-    console.log(`Using cached data for ${cacheKey}`);
+    // console.log(`Using cached data for ${cacheKey}`);
     return cached.data;
   }
 
   try {
     const data = await fetchFunction();
     cache.set(cacheKey, { data, timestamp: now });
-    console.log(`Cached data for ${cacheKey}`);
+    // console.log(`Cached data for ${cacheKey}`);
     return data;
   } catch (error) {
     console.error(`Error fetching data for ${cacheKey}:`, error);

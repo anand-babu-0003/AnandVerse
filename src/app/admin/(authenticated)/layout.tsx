@@ -16,7 +16,6 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import {
-  BarChart3,
   Bot,
   Briefcase,
   BookOpen,
@@ -105,7 +104,6 @@ function NavMenu() {
   
   const adminNavItems = [
     { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
     { href: '/admin/messages', label: 'Messages', icon: Inbox },
     { href: '/admin/blog', label: 'Blog', icon: BookOpen },
     { href: '/admin/portfolio', label: 'Portfolio', icon: Briefcase },

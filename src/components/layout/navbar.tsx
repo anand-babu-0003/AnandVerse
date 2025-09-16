@@ -43,14 +43,14 @@ export default function Navbar() {
   if (!isMounted) {
     return (
       <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur-sm">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg">
-            <div className="flex items-center justify-center w-8 h-8 bg-gradient-royal rounded-lg">
-              <Code className="h-5 w-5 text-white" />
+        <div className="container mx-auto flex h-14 xs:h-16 items-center justify-between px-3 xs:px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="flex items-center gap-2 xs:gap-3 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg">
+            <div className="flex items-center justify-center w-7 h-7 xs:w-8 xs:h-8 bg-gradient-royal rounded-lg">
+              <Code className="h-4 w-4 xs:h-5 xs:w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-foreground">AnandVerse</span>
+            <span className="text-lg xs:text-xl font-bold text-foreground">AnandVerse</span>
           </Link>
-          <div className="h-8 w-8" />
+          <div className="h-7 w-7 xs:h-8 xs:w-8" />
         </div>
       </header>
     );
@@ -61,7 +61,7 @@ export default function Navbar() {
       href={href}
       onClick={onClick}
       className={cn(
-        "group relative flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+        "group relative flex items-center gap-2 xs:gap-3 px-2 xs:px-3 sm:px-4 py-2 rounded-lg text-xs xs:text-sm font-medium transition-all duration-200",
         pathname === href
           ? "text-primary bg-primary/10"
           : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
@@ -69,8 +69,8 @@ export default function Navbar() {
       )}
       aria-current={pathname === href ? "page" : undefined}
     >
-      <Icon className="h-4 w-4 flex-shrink-0" />
-      <span className="truncate">{label}</span>
+      <Icon className="h-3 w-3 xs:h-4 xs:w-4 flex-shrink-0" />
+      <span className="truncate hidden xs:inline">{label}</span>
       {pathname === href && (
         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full" />
       )}
@@ -84,41 +84,41 @@ export default function Navbar() {
           ? "border-b border-border/50 bg-background/95 backdrop-blur-sm shadow-modern" 
           : "border-b border-border/20 bg-background/80 backdrop-blur-sm" 
       )}>
-      <div className="container mx-auto flex h-14 sm:h-16 items-center justify-between px-3 sm:px-4 md:px-6 lg:px-8">
+      <div className="container mx-auto flex h-14 xs:h-16 items-center justify-between px-3 xs:px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link 
           href="/" 
-          className="group flex items-center gap-2 sm:gap-3 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg transition-all duration-200 hover:scale-105"
+          className="group flex items-center gap-2 xs:gap-3 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded-lg transition-all duration-200 hover:scale-105"
         >
-          <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 bg-gradient-royal rounded-lg group-hover:shadow-lg transition-all duration-200">
-            <Code className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+          <div className="flex items-center justify-center w-7 h-7 xs:w-8 xs:h-8 bg-gradient-royal rounded-lg group-hover:shadow-lg transition-all duration-200">
+            <Code className="h-4 w-4 xs:h-5 xs:w-5 text-white" />
           </div>
-          <span className="text-lg sm:text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+          <span className="text-lg xs:text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-200">
             AnandVerse
           </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-2">
+        <nav className="hidden lg:flex items-center space-x-1 xs:space-x-2">
           {navItems.map((item) => (
             <NavLink key={item.href} {...item} />
           ))}
         </nav>
 
         {/* Right Side */}
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-1 xs:gap-2 sm:gap-4">
           {/* Social Links - Desktop */}
-          <div className="hidden lg:flex items-center gap-1 sm:gap-2">
+          <div className="hidden xl:flex items-center gap-1 xs:gap-2">
             {socialLinks.map((social) => (
               <Button
                 key={social.href}
                 asChild
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg hover:bg-accent/50 transition-colors duration-200"
+                className="h-7 w-7 xs:h-8 xs:w-8 sm:h-9 sm:w-9 rounded-lg hover:bg-accent/50 transition-colors duration-200"
               >
                 <Link href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
-                  <social.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <social.icon className="h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-4 sm:w-4" />
                 </Link>
               </Button>
             ))}
@@ -128,16 +128,16 @@ export default function Navbar() {
           <ThemeToggleButton />
           
           {/* Mobile Menu */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="icon" 
                   aria-label="Open menu"
-                  className="h-8 w-8 sm:h-9 sm:w-9 rounded-lg hover:bg-accent/50 transition-colors duration-200"
+                  className="h-7 w-7 xs:h-8 xs:w-8 sm:h-9 sm:w-9 rounded-lg hover:bg-accent/50 transition-colors duration-200"
                 >
-                  <Menu className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <Menu className="h-3.5 w-3.5 xs:h-4 xs:w-4 sm:h-5 sm:w-5" />
                 </Button>
               </SheetTrigger>
               <SheetContent 
@@ -147,51 +147,65 @@ export default function Navbar() {
                 <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <div className="flex flex-col h-full">
                   {/* Mobile Header */}
-                  <div className="flex justify-between items-center p-4 sm:p-6 border-b border-border">
+                  <div className="flex justify-between items-center p-3 xs:p-4 sm:p-6 border-b border-border">
                     <Link 
                       href="/" 
-                      className="flex items-center gap-2 sm:gap-3" 
+                      className="flex items-center gap-2 xs:gap-3" 
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 bg-gradient-royal rounded-lg">
-                        <Code className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                      <div className="flex items-center justify-center w-6 h-6 xs:w-7 xs:h-7 sm:w-8 sm:h-8 bg-gradient-royal rounded-lg">
+                        <Code className="h-3.5 w-3.5 xs:h-4 xs:w-4 sm:h-5 sm:w-5 text-white" />
                       </div>
-                      <span className="text-lg sm:text-xl font-bold text-foreground">AnandVerse</span>
+                      <span className="text-base xs:text-lg sm:text-xl font-bold text-foreground">AnandVerse</span>
                     </Link>
                     <SheetClose asChild>
                       <Button 
                         variant="ghost" 
                         size="icon" 
                         aria-label="Close menu"
-                        className="h-8 w-8 rounded-lg hover:bg-accent/50"
+                        className="h-7 w-7 xs:h-8 xs:w-8 rounded-lg hover:bg-accent/50"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-3.5 w-3.5 xs:h-4 xs:w-4" />
                       </Button>
                     </SheetClose>
                   </div>
                   
                   {/* Mobile Navigation */}
-                  <nav className="flex-1 p-4 sm:p-6 space-y-1 sm:space-y-2">
+                  <nav className="flex-1 p-3 xs:p-4 sm:p-6 space-y-1 xs:space-y-2">
                     {navItems.map((item) => (
                       <SheetClose asChild key={item.href}>
-                        <NavLink {...item} onClick={() => setIsMobileMenuOpen(false)} />
+                        <div className="flex items-center gap-2 xs:gap-3 px-2 xs:px-3 py-2 rounded-lg text-sm xs:text-base font-medium transition-all duration-200 hover:bg-accent/50">
+                          <item.icon className="h-4 w-4 xs:h-5 xs:w-5 flex-shrink-0" />
+                          <Link 
+                            href={item.href} 
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={cn(
+                              "flex-1",
+                              pathname === item.href
+                                ? "text-primary"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            {item.label}
+                          </Link>
+                        </div>
                       </SheetClose>
                     ))}
                   </nav>
                   
                   {/* Mobile Social Links */}
-                  <div className="p-4 sm:p-6 border-t border-border">
-                    <div className="flex items-center justify-center gap-3 sm:gap-4">
+                  <div className="p-3 xs:p-4 sm:p-6 border-t border-border">
+                    <div className="flex items-center justify-center gap-2 xs:gap-3 sm:gap-4">
                       {socialLinks.map((social) => (
                         <Button
                           key={social.href}
                           asChild
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg hover:bg-accent/50 transition-colors duration-200"
+                          className="h-8 w-8 xs:h-9 xs:w-9 sm:h-10 sm:w-10 rounded-lg hover:bg-accent/50 transition-colors duration-200"
                         >
                           <Link href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
-                            <social.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                            <social.icon className="h-3.5 w-3.5 xs:h-4 xs:w-4 sm:h-5 sm:w-5" />
                           </Link>
                         </Button>
                       ))}

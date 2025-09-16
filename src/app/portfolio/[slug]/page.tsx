@@ -158,6 +158,7 @@ export default async function PortfolioDetailPage({
                           alt={`${project.title || 'Project'} - Screenshot ${index + 1}`}
                           fill
                           className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 60vw"
                           data-ai-hint={project.dataAiHint || 'project detail'}
                           priority={index === 0}
                         />

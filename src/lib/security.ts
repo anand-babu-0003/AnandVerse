@@ -30,6 +30,8 @@ export const CSP_POLICY = {
     'https://*.fundingchoicesmessages.google.com', // Google AdSense funding choices
     'https://va.vercel-scripts.com', // Vercel Analytics
     'https://vitals.vercel-insights.com', // Vercel Speed Insights
+    'https://vercel.live', // Vercel Live feedback
+    'https://*.vercel.live', // Vercel Live subdomains
   ],
   'style-src': [
     "'self'",
@@ -90,6 +92,8 @@ export const CSP_POLICY = {
     'https://tpc.googlesyndication.com', // Google AdSense
     'https://*.google.com', // All Google subdomains
     'https://ep1.adtrafficquality.google', // Google AdSense config
+    'https://vercel.live', // Vercel Live feedback
+    'https://*.vercel.live', // Vercel Live subdomains
     'wss://localhost:*', // For development
     'ws://localhost:*', // For development
   ],
@@ -112,6 +116,8 @@ export const CSP_POLICY = {
     'https://*.adtrafficquality.google',
     'https://fundingchoicesmessages.google.com',
     'https://*.fundingchoicesmessages.google.com',
+    'https://vercel.live', // Vercel Live feedback
+    'https://*.vercel.live', // Vercel Live subdomains
   ],
   'upgrade-insecure-requests': [],
 } as const;

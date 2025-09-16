@@ -150,8 +150,8 @@ export function PerformanceMonitor() {
           }
         } else if (entry.entryType === 'largest-contentful-paint') {
           lcpValue = entry.startTime;
-          // Only log LCP in development if it's critically slow
-          if (process.env.NODE_ENV === 'development' && lcpValue > 5000) {
+          // Only log LCP in development if it's critically slow (and reasonable)
+          if (process.env.NODE_ENV === 'development' && lcpValue > 10000 && lcpValue < 60000) {
             console.warn('Critical LCP:', lcpValue.toFixed(0) + 'ms');
           }
         }

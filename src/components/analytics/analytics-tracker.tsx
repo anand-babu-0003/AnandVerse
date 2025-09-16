@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
-import { trackPageViewAction } from '@/actions/admin/analyticsActions';
+// Removed analyticsActions import - using only Google Analytics now
 import { trackPageView, trackEvent } from './google-analytics';
 
 export function AnalyticsTracker() {
@@ -24,24 +24,6 @@ export function AnalyticsTracker() {
       }
 
       try {
-        // Get basic device and browser info
-        const userAgent = navigator.userAgent;
-        const device = /Mobile|Android|iPhone|iPad/.test(userAgent) 
-          ? (/iPad/.test(userAgent) ? 'tablet' : 'mobile')
-          : 'desktop';
-        
-        // Get referrer
-        const referrer = document.referrer || '';
-        
-        // Track the page view in your custom analytics (only once per page)
-        await trackPageViewAction(
-          pathname,
-          referrer,
-          userAgent,
-          undefined, // country - would need IP geolocation service
-          device
-        );
-
         // Track the page view in Google Analytics
         trackPageView(window.location.href);
 

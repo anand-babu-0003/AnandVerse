@@ -42,7 +42,7 @@ const nextConfig: NextConfig = {
   
   // Webpack configuration
   webpack: (config: any, { dev, isServer }) => {
-    // Disable source maps in both development and production
+    // Completely disable source maps in both development and production
     config.devtool = false;
     
     // Bundle analyzer (only in development)
