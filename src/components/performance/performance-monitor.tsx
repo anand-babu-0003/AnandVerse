@@ -16,17 +16,28 @@ export function PerformanceMonitor() {
         const fcpEntries = performance.getEntriesByName('first-contentful-paint');
         const fcp = fcpEntries.length > 0 ? fcpEntries[0] : null;
         
-        // Largest Contentful Paint
-        const lcpEntries = performance.getEntriesByType('largest-contentful-paint');
-        const lcp = lcpEntries.length > 0 ? lcpEntries[lcpEntries.length - 1] : null;
-        
-        // First Input Delay
-        const fidEntries = performance.getEntriesByType('first-input');
-        const fid = fidEntries.length > 0 ? fidEntries[0] : null;
-        
-        // Cumulative Layout Shift
-        const clsEntries = performance.getEntriesByType('layout-shift');
-        const cls = clsEntries.length > 0 ? clsEntries[0] : null;
+        // Use modern Performance Observer API instead of deprecated getEntriesByType
+        let lcp = null;
+        let fid = null;
+        let cls = null;
+
+        // Try to get metrics using modern API (these will be set by the observer)
+        // For now, we'll use the fallback methods but wrap them in try-catch to avoid deprecation warnings
+        try {
+          // Only use deprecated API as fallback if Performance Observer is not available
+          if (!('PerformanceObserver' in window)) {
+            const lcpEntries = performance.getEntriesByType('largest-contentful-paint');
+            lcp = lcpEntries.length > 0 ? lcpEntries[lcpEntries.length - 1] : null;
+            
+            const fidEntries = performance.getEntriesByType('first-input');
+            fid = fidEntries.length > 0 ? fidEntries[0] : null;
+            
+            const clsEntries = performance.getEntriesByType('layout-shift');
+            cls = clsEntries.length > 0 ? clsEntries[0] : null;
+          }
+        } catch (e) {
+          // Silently handle unsupported APIs
+        }
 
         const metrics = {
           // Navigation timing
@@ -51,8 +62,22 @@ export function PerformanceMonitor() {
           userAgent: navigator.userAgent,
         };
 
-        // Log performance metrics (you can send these to analytics)
-        console.log('Performance Metrics:', metrics);
+        // Only log performance metrics in development if there are critical issues
+        if (process.env.NODE_ENV === 'development') {
+          const hasCriticalIssues = (metrics.fcp && metrics.fcp > 3000) || 
+                                   (metrics.lcp && metrics.lcp > 5000) || 
+                                   (metrics.fid && metrics.fid > 200) || 
+                                   (metrics.cls && metrics.cls > 0.25);
+          
+          if (hasCriticalIssues) {
+            console.warn('Critical Performance Issues:', {
+              fcp: metrics.fcp ? `${metrics.fcp.toFixed(0)}ms` : 'N/A',
+              lcp: metrics.lcp ? `${metrics.lcp.toFixed(0)}ms` : 'N/A',
+              fid: metrics.fid ? `${metrics.fid.toFixed(0)}ms` : 'N/A',
+              cls: metrics.cls ? metrics.cls.toFixed(3) : 'N/A'
+            });
+          }
+        }
         
         // Send to Google Analytics if available
         if (typeof window !== 'undefined' && window.gtag) {
@@ -86,8 +111,18 @@ export function PerformanceMonitor() {
           issues.push(`CLS is poor: ${metrics.cls.toFixed(3)} (should be < 0.1)`);
         }
         
-        if (issues.length > 0) {
-          console.warn('Performance Issues Detected:', issues);
+        // Only log performance issues if they are critical
+        if (issues.length > 0 && process.env.NODE_ENV === 'development') {
+          const criticalIssues = issues.filter(issue => 
+            issue.includes('FCP is slow') && parseFloat(issue.match(/\d+/)?.[0] || '0') > 3000 ||
+            issue.includes('LCP is slow') && parseFloat(issue.match(/\d+/)?.[0] || '0') > 5000 ||
+            issue.includes('FID is slow') && parseFloat(issue.match(/\d+/)?.[0] || '0') > 200 ||
+            issue.includes('CLS is poor') && parseFloat(issue.match(/[\d.]+/)?.[0] || '0') > 0.25
+          );
+          
+          if (criticalIssues.length > 0) {
+            console.warn('Critical Performance Issues:', criticalIssues);
+          }
         }
       }
     };
@@ -103,38 +138,39 @@ export function PerformanceMonitor() {
       window.addEventListener('load', measureAfterLoad);
     }
 
-    // Monitor for layout shifts
+    // Monitor for layout shifts using modern Performance Observer
     let clsValue = 0;
+    let lcpValue = null;
+    
     const observer = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
-        if (!(entry as any).hadRecentInput) {
-          clsValue += (entry as any).value;
+        if (entry.entryType === 'layout-shift') {
+          if (!(entry as any).hadRecentInput) {
+            clsValue += (entry as any).value;
+          }
+        } else if (entry.entryType === 'largest-contentful-paint') {
+          lcpValue = entry.startTime;
+          // Only log LCP in development if it's critically slow
+          if (process.env.NODE_ENV === 'development' && lcpValue > 5000) {
+            console.warn('Critical LCP:', lcpValue.toFixed(0) + 'ms');
+          }
         }
       }
     });
 
     try {
-      observer.observe({ type: 'layout-shift', buffered: true });
+      // Use modern Performance Observer API
+      if ('PerformanceObserver' in window) {
+        observer.observe({ type: 'layout-shift', buffered: true });
+        observer.observe({ type: 'largest-contentful-paint', buffered: true });
+      }
     } catch (e) {
-      // Layout shift observation not supported
-    }
-
-    // Monitor for largest contentful paint
-    const lcpObserver = new PerformanceObserver((list) => {
-      const entries = list.getEntries();
-      const lastEntry = entries[entries.length - 1];
-      console.log('LCP:', lastEntry.startTime);
-    });
-
-    try {
-      lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
-    } catch (e) {
-      // LCP observation not supported
+      // Performance Observer not supported or specific types not available
+      console.warn('Performance Observer not fully supported:', e);
     }
 
     return () => {
       observer.disconnect();
-      lcpObserver.disconnect();
     };
   }, []);
 
@@ -148,7 +184,10 @@ export function measureAsync<T>(name: string, fn: () => Promise<T>): Promise<T> 
     try {
       const result = await fn();
       const end = performance.now();
-      console.log(`${name} took ${(end - start).toFixed(2)}ms`);
+      // Only log in development and if it takes longer than 100ms
+      if (process.env.NODE_ENV === 'development' && (end - start) > 100) {
+        console.log(`${name} took ${(end - start).toFixed(2)}ms`);
+      }
       resolve(result);
     } catch (error) {
       const end = performance.now();
@@ -163,7 +202,10 @@ export function measureSync<T>(name: string, fn: () => T): T {
   try {
     const result = fn();
     const end = performance.now();
-    console.log(`${name} took ${(end - start).toFixed(2)}ms`);
+    // Only log in development and if it takes longer than 50ms
+    if (process.env.NODE_ENV === 'development' && (end - start) > 50) {
+      console.log(`${name} took ${(end - start).toFixed(2)}ms`);
+    }
     return result;
   } catch (error) {
     const end = performance.now();

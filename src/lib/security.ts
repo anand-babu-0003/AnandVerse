@@ -19,6 +19,15 @@ export const CSP_POLICY = {
     'https://*.google.com', // All Google subdomains
     'https://googleads.g.doubleclick.net', // Google AdSense
     'https://tpc.googlesyndication.com', // Google AdSense
+    'https://ep1.adtrafficquality.google', // Google AdSense SODAR
+    'https://ep2.adtrafficquality.google', // Google AdSense SODAR
+    'https://*.adtrafficquality.google', // Google AdSense traffic quality
+    'https://partner.googleadservices.com', // Google AdSense
+    'https://www.googleadservices.com', // Google AdSense
+    'https://googlesyndication.com', // Google AdSense
+    'https://*.googlesyndication.com', // Google AdSense subdomains
+    'https://fundingchoicesmessages.google.com', // Google AdSense funding choices
+    'https://*.fundingchoicesmessages.google.com', // Google AdSense funding choices
     'https://va.vercel-scripts.com', // Vercel Analytics
     'https://vitals.vercel-insights.com', // Vercel Speed Insights
   ],
@@ -43,11 +52,19 @@ export const CSP_POLICY = {
     'https://firebase.googleapis.com', // Firebase images
     'https://*.googleusercontent.com', // Google user content
     'https://*.googleapis.com', // Google APIs images
-    'https://pagead2.googlesyndication.com', // Google AdSense images
+    'https://pagead2.googlesyndication.com', // Google AdSense
     'https://googleads.g.doubleclick.net', // Google AdSense
     'https://tpc.googlesyndication.com', // Google AdSense
+    'https://*.googlesyndication.com', // Google AdSense subdomains
+    'https://partner.googleadservices.com', // Google AdSense
+    'https://www.googleadservices.com', // Google AdSense
+    'https://ep1.adtrafficquality.google', // Google AdSense SODAR
+    'https://ep2.adtrafficquality.google', // Google AdSense SODAR
+    'https://*.adtrafficquality.google', // Google AdSense traffic quality
     'https://*.google.com', // All Google subdomains for images
     'https://www.guvi.in', // External blog images
+    'https://fundingchoicesmessages.google.com', // Google AdSense funding choices
+    'https://*.fundingchoicesmessages.google.com', // Google AdSense funding choices
   ],
   'font-src': [
     "'self'",
@@ -86,6 +103,15 @@ export const CSP_POLICY = {
     'https://googleads.g.doubleclick.net',
     'https://tpc.googlesyndication.com',
     'https://pagead2.googlesyndication.com',
+    'https://*.googlesyndication.com',
+    'https://partner.googleadservices.com',
+    'https://www.googleadservices.com',
+    'https://*.google.com',
+    'https://ep1.adtrafficquality.google',
+    'https://ep2.adtrafficquality.google',
+    'https://*.adtrafficquality.google',
+    'https://fundingchoicesmessages.google.com',
+    'https://*.fundingchoicesmessages.google.com',
   ],
   'upgrade-insecure-requests': [],
 } as const;

@@ -23,6 +23,13 @@ const nextConfig: NextConfig = {
     webVitalsAttribution: ['CLS', 'LCP', 'FCP', 'FID', 'TTFB', 'INP'], // Enhanced Web Vitals tracking
   },
   
+  // Reduce development console output
+  logging: {
+    fetches: {
+      fullUrl: false,
+    },
+  },
+  
   // Turbopack configuration (stable)
   turbopack: {
     rules: {
@@ -35,10 +42,8 @@ const nextConfig: NextConfig = {
   
   // Webpack configuration
   webpack: (config: any, { dev, isServer }) => {
-    // Disable source maps in production
-    if (!dev) {
-      config.devtool = false;
-    }
+    // Disable source maps in both development and production
+    config.devtool = false;
     
     // Bundle analyzer (only in development)
     if (process.env.ANALYZE === 'true') {

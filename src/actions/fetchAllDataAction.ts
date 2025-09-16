@@ -79,7 +79,10 @@ export async function fetchAllPortfolioItems(): Promise<PortfolioItem[]> {
       });
     });
 
-    console.log(`Fetched ${portfolioItems.length} portfolio items from Firestore`);
+    // Only log in development and if there are issues
+    if (process.env.NODE_ENV === 'development' && portfolioItems.length === 0) {
+      console.warn('No portfolio items found in Firestore');
+    }
     return portfolioItems;
   } catch (error) {
     console.error("Error fetching portfolio items from Firestore:", error);
@@ -113,7 +116,10 @@ export async function fetchAllSkills(): Promise<Skill[]> {
       });
     });
 
-    console.log(`Fetched ${skills.length} skills from Firestore`);
+    // Only log in development and if there are issues
+    if (process.env.NODE_ENV === 'development' && skills.length === 0) {
+      console.warn('No skills found in Firestore');
+    }
     return skills;
   } catch (error) {
     console.error("Error fetching skills from Firestore:", error);
@@ -158,7 +164,10 @@ export async function fetchAboutMeData(): Promise<AboutMeData> {
         twitterUrl: data.twitterUrl || defaultData.twitterUrl,
       };
 
-      console.log("Fetched about me data from Firestore");
+      // Only log in development and if there are issues
+    if (process.env.NODE_ENV === 'development' && !aboutMeData) {
+      console.warn('No about me data found in Firestore');
+    }
       return aboutMeData;
     } else {
       console.warn("About Me document not found in Firestore. Returning default data.");
@@ -197,7 +206,10 @@ export async function fetchSiteSettings(): Promise<SiteSettings> {
         skillsPageMetaDescription: data.skillsPageMetaDescription || defaultData.skillsPageMetaDescription,
       };
 
-      console.log("Fetched site settings from Firestore");
+      // Only log in development and if there are issues
+    if (process.env.NODE_ENV === 'development' && !siteSettings) {
+      console.warn('No site settings found in Firestore');
+    }
       return siteSettings;
     } else {
       console.warn("Site settings document not found in Firestore. Returning default data.");
@@ -234,7 +246,10 @@ export async function fetchNotFoundPageData(): Promise<NotFoundPageData> {
         buttonText: data.buttonText || defaultData.buttonText,
       };
 
-      console.log("Fetched not found page data from Firestore");
+      // Only log in development and if there are issues
+    if (process.env.NODE_ENV === 'development' && !notFoundData) {
+      console.warn('No not found page data found in Firestore');
+    }
       return notFoundData;
     } else {
       console.warn("Not found page document not found in Firestore. Returning default data.");
@@ -272,7 +287,10 @@ export async function fetchAllContactMessages(): Promise<ContactMessage[]> {
       });
     });
 
-    console.log(`Fetched ${messages.length} contact messages from Firestore`);
+    // Only log in development and if there are issues
+    if (process.env.NODE_ENV === 'development' && messages.length === 0) {
+      console.warn('No contact messages found in Firestore');
+    }
     return messages;
   } catch (error) {
     console.error("Error fetching contact messages from Firestore:", error);
@@ -305,7 +323,10 @@ export async function fetchAllAnnouncements(): Promise<any[]> {
       });
     });
 
-    console.log(`Fetched ${announcements.length} announcements from Firestore`);
+    // Only log in development and if there are issues
+    if (process.env.NODE_ENV === 'development' && announcements.length === 0) {
+      console.warn('No announcements found in Firestore');
+    }
     return announcements;
   } catch (error) {
     console.error("Error fetching announcements from Firestore:", error);
@@ -317,7 +338,10 @@ export async function fetchAllAnnouncements(): Promise<any[]> {
  * Fetch ALL data from Firestore in parallel
  */
 export async function fetchAllDataFromFirestore(): Promise<AppData> {
-  console.log("Starting comprehensive data fetch from Firestore...");
+  // Only log in development and if there are issues
+  if (process.env.NODE_ENV === 'development') {
+    console.log("Starting comprehensive data fetch from Firestore...");
+  }
   
   try {
     // Fetch all data in parallel for better performance
@@ -349,15 +373,21 @@ export async function fetchAllDataFromFirestore(): Promise<AppData> {
       // but we fetched them for completeness
     };
 
-    console.log("Successfully fetched all data from Firestore:", {
-      portfolioItems: portfolioItems.length,
-      skills: skills.length,
-      contactMessages: contactMessages.length,
-      announcements: announcements.length,
-      hasAboutMe: !!aboutMe,
-      hasSiteSettings: !!siteSettings,
-      hasNotFoundPage: !!notFoundPage
-    });
+    // Only log in development and if there are issues
+    if (process.env.NODE_ENV === 'development') {
+      const hasIssues = portfolioItems.length === 0 || skills.length === 0 || !aboutMe || !siteSettings || !notFoundPage;
+      if (hasIssues) {
+        console.warn("Some data missing from Firestore:", {
+          portfolioItems: portfolioItems.length,
+          skills: skills.length,
+          contactMessages: contactMessages.length,
+          announcements: announcements.length,
+          hasAboutMe: !!aboutMe,
+          hasSiteSettings: !!siteSettings,
+          hasNotFoundPage: !!notFoundPage
+        });
+      }
+    }
 
     return appData;
   } catch (error) {

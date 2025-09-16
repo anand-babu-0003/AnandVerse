@@ -150,8 +150,8 @@ export default async function RootLayout({
           >
             <LazyAnalyticsTracker />
             <LazyPerformanceMonitor />
-            <SpeedInsights />
-            <Analytics />
+            <SpeedInsights debug={false} />
+            <Analytics debug={false} />
             
             {/* SEO Structured Data */}
             <WebsiteStructuredData
