@@ -143,6 +143,19 @@ export default async function RootLayout({
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
                 <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
                 <link rel="preconnect" href="https://googleads.g.doubleclick.net" />
+                <link rel="preconnect" href="https://www.googletagmanager.com" />
+                {/* Google Analytics - Direct implementation for better detection */}
+                <script async src="https://www.googletagmanager.com/gtag/js?id=G-QLZPZ39EFS"></script>
+                <script
+                  dangerouslySetInnerHTML={{
+                    __html: `
+                      window.dataLayer = window.dataLayer || [];
+                      function gtag(){dataLayer.push(arguments);}
+                      gtag('js', new Date());
+                      gtag('config', 'G-QLZPZ39EFS');
+                    `,
+                  }}
+                />
                 <script
                   dangerouslySetInnerHTML={{
                     __html: `
@@ -194,7 +207,6 @@ export default async function RootLayout({
                 />
               </head>
       <body className="min-h-screen bg-background text-foreground antialiased">
-        <LazyGoogleAnalytics />
         <LazyGoogleAdSense />
         <SecurityProvider>
           <ThemeProvider
