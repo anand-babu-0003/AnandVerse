@@ -13,13 +13,20 @@ export function PerformanceMonitor() {
       
       if (navigation) {
         // First Contentful Paint
-        const fcp = performance.getEntriesByName('first-contentful-paint')[0];
+        const fcpEntries = performance.getEntriesByName('first-contentful-paint');
+        const fcp = fcpEntries.length > 0 ? fcpEntries[0] : null;
+        
         // Largest Contentful Paint
-        const lcp = performance.getEntriesByType('largest-contentful-paint')[0];
+        const lcpEntries = performance.getEntriesByType('largest-contentful-paint');
+        const lcp = lcpEntries.length > 0 ? lcpEntries[lcpEntries.length - 1] : null;
+        
         // First Input Delay
-        const fid = performance.getEntriesByType('first-input')[0];
+        const fidEntries = performance.getEntriesByType('first-input');
+        const fid = fidEntries.length > 0 ? fidEntries[0] : null;
+        
         // Cumulative Layout Shift
-        const cls = performance.getEntriesByType('layout-shift')[0];
+        const clsEntries = performance.getEntriesByType('layout-shift');
+        const cls = clsEntries.length > 0 ? clsEntries[0] : null;
 
         const metrics = {
           // Navigation timing

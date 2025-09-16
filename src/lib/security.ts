@@ -19,6 +19,8 @@ export const CSP_POLICY = {
     'https://*.google.com', // All Google subdomains
     'https://googleads.g.doubleclick.net', // Google AdSense
     'https://tpc.googlesyndication.com', // Google AdSense
+    'https://va.vercel-scripts.com', // Vercel Analytics
+    'https://vitals.vercel-insights.com', // Vercel Speed Insights
   ],
   'style-src': [
     "'self'",
@@ -59,6 +61,7 @@ export const CSP_POLICY = {
     'https://www.googletagmanager.com',
     'https://analytics.google.com',
     'https://vitals.vercel-insights.com',
+    'https://va.vercel-scripts.com', // Vercel Analytics
     'https://firestore.googleapis.com', // Firebase Firestore
     'https://firebase.googleapis.com', // Firebase services
     'https://identitytoolkit.googleapis.com', // Firebase Auth
@@ -69,6 +72,7 @@ export const CSP_POLICY = {
     'https://googleads.g.doubleclick.net', // Google AdSense
     'https://tpc.googlesyndication.com', // Google AdSense
     'https://*.google.com', // All Google subdomains
+    'https://ep1.adtrafficquality.google', // Google AdSense config
     'wss://localhost:*', // For development
     'ws://localhost:*', // For development
   ],
