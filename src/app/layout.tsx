@@ -7,7 +7,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Navbar from '@/components/layout/navbar';
 import Footer from '@/components/layout/footer';
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
-import { LazyAnalyticsTracker, LazyGoogleAnalytics, LazyGoogleAdSense, LazyPerformanceMonitor } from '@/components/lazy/lazy-analytics';
+import { LazyAnalyticsTracker, LazyGoogleAdSense, LazyPerformanceMonitor } from '@/components/lazy/lazy-analytics';
 import { SecurityProvider, SecurityIndicator } from '@/components/security/security-provider';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/react';

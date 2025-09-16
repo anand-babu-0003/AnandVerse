@@ -11,13 +11,7 @@ export const LazyAnalyticsTracker = dynamic(
   }
 );
 
-export const LazyGoogleAnalytics = dynamic(
-  () => import('@/components/analytics/google-analytics').then(mod => ({ default: mod.GoogleAnalytics })),
-  { 
-    ssr: false,
-    loading: () => null
-  }
-);
+// LazyGoogleAnalytics removed - now using direct head script implementation
 
 export const LazyGoogleAdSense = dynamic(
   () => import('@/components/analytics/google-adsense').then(mod => ({ default: mod.GoogleAdSense })),
