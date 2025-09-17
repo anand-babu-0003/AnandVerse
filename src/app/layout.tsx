@@ -55,8 +55,6 @@ export async function generateMetadata(): Promise<Metadata> {
       title: settings.siteName,
       description: settings.defaultMetaDescription,
       images: [settings.siteOgImageUrl || `${baseUrl}/og-default.jpg`],
-      creator: settings.twitterHandle || '@yourhandle',
-      site: settings.twitterHandle || '@yourhandle',
     },
 
     // Enhanced robots
@@ -100,14 +98,12 @@ export async function generateMetadata(): Promise<Metadata> {
       'msapplication-navbutton-color': '#000000',
     },
 
-    // Canonical URL
+    // Canonical URL and languages
     alternates: {
       canonical: baseUrl,
-    },
-
-    // Language
-    languages: {
-      'en-US': '/en',
+      languages: {
+        'en-US': '/en',
+      },
     },
 
     // Category
@@ -226,7 +222,7 @@ export default async function RootLayout({
               description={settings.defaultMetaDescription}
               url={baseUrl}
               logo={settings.siteOgImageUrl}
-              sameAs={settings.socialLinks ? Object.values(settings.socialLinks).filter(Boolean) : []}
+              sameAs={[]}
             />
             
             <OrganizationStructuredData
@@ -234,7 +230,7 @@ export default async function RootLayout({
               description={settings.defaultMetaDescription}
               url={baseUrl}
               logo={settings.siteOgImageUrl}
-              sameAs={settings.socialLinks ? Object.values(settings.socialLinks).filter(Boolean) : []}
+              sameAs={[]}
             />
             
             <ConditionalLayout>

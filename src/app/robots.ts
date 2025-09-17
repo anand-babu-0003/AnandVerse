@@ -25,6 +25,5 @@ export default function robots(): MetadataRoute.Robots {
       // ✅ Removed all specific user agent blocks - Allow all search engines and AI bots
     ],
     sitemap: `${baseUrl}/sitemap.xml`, // ✅ Main sitemap (Next.js dynamic route with smart priorities)
-    host: baseUrl,
   };
 }
