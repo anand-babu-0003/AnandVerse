@@ -7,11 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { 
   ArrowLeft,
-  Calendar,
   Clock,
   User,
-  Eye,
-  Heart,
   Share2,
   Tag,
   BookOpen,
@@ -106,14 +103,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 {post.category}
               </Badge>
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                {new Date(post.publishedAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </div>
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Clock className="h-4 w-4" />
                 {post.readTime} min read
               </div>
@@ -139,14 +128,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               </div>
               
               <div className="flex items-center gap-4 text-muted-foreground">
-                <div className="flex items-center gap-1">
-                  <Eye className="h-4 w-4" />
-                  <span>{post.views} views</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Heart className="h-4 w-4" />
-                  <span>{post.likes} likes</span>
-                </div>
                 <Button variant="ghost" size="sm">
                   <Share2 className="h-4 w-4" />
                 </Button>

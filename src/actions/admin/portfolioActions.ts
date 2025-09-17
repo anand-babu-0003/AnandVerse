@@ -4,6 +4,7 @@
 import { firestore } from '@/lib/firebaseConfig';
 import { collection, getDocs, doc, getDoc, setDoc, addDoc, deleteDoc, query, where, serverTimestamp, orderBy, Timestamp, writeBatch } from 'firebase/firestore';
 import type { PortfolioItem as LibPortfolioItemType } from '@/lib/types';
+import { processImageInput } from '@/lib/image-storage';
 import { portfolioItemAdminSchema, type PortfolioAdminFormData } from '@/lib/adminSchemas';
 import { revalidatePath } from 'next/cache';
 import { defaultPortfolioItemsDataForClient } from '@/lib/data'; 
@@ -169,14 +170,48 @@ export async function savePortfolioItemAction(
 
   const data = validatedFields.data;
   
-  const imagesFromForm: string[] = [];
-  if (data.image1 && data.image1.trim() !== '') imagesFromForm.push(data.image1);
-  if (data.image2 && data.image2.trim() !== '') imagesFromForm.push(data.image2);
+  // Process images - upload to storage if they are base64 data URLs
+  const processedImages: string[] = [];
+  
+  // Image processing is now enabled since Firebase is working
+  const ENABLE_IMAGE_PROCESSING = true;
+  
+  for (const imageUrl of [data.image1, data.image2]) {
+    if (imageUrl && imageUrl.trim() !== '') {
+      if (ENABLE_IMAGE_PROCESSING) {
+        try {
+          // Only process if it's a base64 data URL (starts with data:image/)
+          if (imageUrl.startsWith('data:image/')) {
+            const imageResult = await processImageInput(imageUrl, 'portfolio-images');
+            if (imageResult.success && imageResult.url) {
+              processedImages.push(imageResult.url);
+            } else {
+              console.warn('Failed to process image:', imageResult.error);
+              // If processing fails, skip this image to avoid Firestore errors
+            }
+          } else {
+            // If it's already a URL, keep it as is
+            processedImages.push(imageUrl);
+          }
+        } catch (error) {
+          console.error('Error processing image:', error);
+          // If processing fails, skip this image to avoid Firestore errors
+        }
+      } else {
+        // If image processing is disabled, only keep regular URLs
+        if (!imageUrl.startsWith('data:image/')) {
+          processedImages.push(imageUrl);
+        } else {
+          console.warn('Image processing disabled, skipping base64 image');
+        }
+      }
+    }
+  }
   
   // Use default images only if it's a new project AND no images were provided from the form.
   // For existing projects, if user clears images, respect that (empty array).
-  const finalImages = (imagesFromForm.length > 0)
-    ? imagesFromForm
+  const finalImages = (processedImages.length > 0)
+    ? processedImages
     : (!data.id ? [...defaultPortfolioItemStructure.images] : []);
 
 

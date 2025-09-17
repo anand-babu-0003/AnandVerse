@@ -18,6 +18,7 @@ import {
   writeBatch 
 } from 'firebase/firestore';
 import type { BlogPost, BlogCategory } from '@/lib/types';
+import { processImageInput } from '@/lib/image-storage';
 import { blogPostAdminSchema, blogCategoryAdminSchema, type BlogPostAdminFormData, type BlogCategoryAdminFormData } from '@/lib/adminSchemas';
 import { revalidatePath } from 'next/cache';
 
@@ -84,8 +85,6 @@ export async function getBlogPostsAction(): Promise<BlogPost[]> {
         tags: Array.isArray(data.tags) ? data.tags : [],
         category: data.category || 'General',
         readTime: data.readTime || 5,
-        views: data.views || 0,
-        likes: data.likes || 0,
         seoTitle: data.seoTitle || '',
         seoDescription: data.seoDescription || '',
         seoKeywords: Array.isArray(data.seoKeywords) ? data.seoKeywords : [],
@@ -190,8 +189,6 @@ export async function getBlogPostBySlugAction(slug: string): Promise<BlogPost | 
       tags: Array.isArray(data.tags) ? data.tags : [],
       category: data.category || 'General',
       readTime: data.readTime || 5,
-      views: data.views || 0,
-      likes: data.likes || 0,
       seoTitle: data.seoTitle || '',
       seoDescription: data.seoDescription || '',
       seoKeywords: Array.isArray(data.seoKeywords) ? data.seoKeywords : [],
@@ -246,29 +243,62 @@ export async function saveBlogPostAction(
   const tags: string[] = data.tagsString ? data.tagsString.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
   const seoKeywords: string[] = data.seoKeywordsString ? data.seoKeywordsString.split(',').map(keyword => keyword.trim()).filter(keyword => keyword) : [];
   
+  // Process featured image - upload to storage if it's a base64 data URL
+  let processedFeaturedImage = data.featuredImage;
+  
+  // Image processing is now enabled since Firebase is working
+  const ENABLE_IMAGE_PROCESSING = true;
+  
+  if (ENABLE_IMAGE_PROCESSING && data.featuredImage && data.featuredImage.trim() !== '') {
+    try {
+      // Only process if it's a base64 data URL (starts with data:image/)
+      if (data.featuredImage.startsWith('data:image/')) {
+        const imageResult = await processImageInput(data.featuredImage, 'blog-images');
+        if (imageResult.success && imageResult.url) {
+          processedFeaturedImage = imageResult.url;
+        } else {
+          console.warn('Failed to process featured image:', imageResult.error);
+          // If processing fails, use empty string to avoid Firestore errors
+          processedFeaturedImage = '';
+        }
+      }
+      // If it's already a URL, keep it as is
+    } catch (error) {
+      console.error('Error processing featured image:', error);
+      // If processing fails, use empty string to avoid Firestore errors
+      processedFeaturedImage = '';
+    }
+  } else if (data.featuredImage && data.featuredImage.startsWith('data:image/')) {
+    // If image processing is disabled and we have a base64 image, use empty string
+    console.warn('Image processing disabled, skipping base64 image');
+    processedFeaturedImage = '';
+  }
+  
   // Calculate read time (average 200 words per minute)
   const wordCount = data.content.split(/\s+/).length;
   const readTime = Math.max(1, Math.ceil(wordCount / 200));
 
+  // Validate and sanitize data before saving to Firestore
+  // Check for extremely large strings that might cause Firestore errors
+  const maxStringLength = 1000000; // 1MB limit for individual fields
+  
   const postDataForFirestore: Omit<BlogPost, 'id' | 'publishedAt' | 'updatedAt'> & { 
     updatedAt: any, 
     publishedAt?: any 
   } = {
-    title: data.title,
-    slug: data.slug,
-    excerpt: data.excerpt,
-    content: data.content,
-    featuredImage: data.featuredImage || '',
-    author: data.author,
-    status: data.status,
-    tags,
-    category: data.category,
-    readTime,
-    views: 0,
-    likes: 0,
-    seoTitle: data.seoTitle || '',
-    seoDescription: data.seoDescription || '',
-    seoKeywords,
+    title: (data.title || '').trim().substring(0, maxStringLength),
+    slug: (data.slug || '').trim().substring(0, maxStringLength),
+    excerpt: (data.excerpt || '').trim().substring(0, maxStringLength),
+    content: (data.content || '').trim().substring(0, maxStringLength),
+    featuredImage: (processedFeaturedImage || '').trim().substring(0, maxStringLength),
+    author: (data.author || 'Admin').trim().substring(0, maxStringLength),
+    status: data.status || 'draft',
+    tags: Array.isArray(tags) ? tags : [],
+    category: (data.category || 'General').trim().substring(0, maxStringLength),
+    readTime: readTime || 1,
+    seoTitle: (data.seoTitle || '').trim().substring(0, maxStringLength),
+    seoDescription: (data.seoDescription || '').trim().substring(0, maxStringLength),
+    seoKeywords: Array.isArray(seoKeywords) ? seoKeywords : [],
     updatedAt: serverTimestamp(),
   };
   
@@ -328,8 +358,6 @@ export async function saveBlogPostAction(
       tags: savedData.tags || postDataForFirestore.tags,
       category: savedData.category || postDataForFirestore.category,
       readTime: savedData.readTime || postDataForFirestore.readTime,
-      views: savedData.views || postDataForFirestore.views,
-      likes: savedData.likes || postDataForFirestore.likes,
       seoTitle: savedData.seoTitle || postDataForFirestore.seoTitle,
       seoDescription: savedData.seoDescription || postDataForFirestore.seoDescription,
       seoKeywords: savedData.seoKeywords || postDataForFirestore.seoKeywords,

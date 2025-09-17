@@ -145,8 +145,6 @@ export interface BlogPost {
   tags: string[];
   category: string;
   readTime: number;
-  views: number;
-  likes: number;
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string[];

@@ -27,6 +27,7 @@ import {
   Save,
   X
 } from 'lucide-react';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { 
   getBlogPostsActionOptimized, 
   getPublishedBlogPostsActionOptimized,
@@ -516,11 +517,13 @@ export default function ComprehensiveBlogManagement({}: BlogManagementProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium">Featured Image URL</label>
-                <Input
-                  value={postForm.featuredImage}
-                  onChange={(e) => setPostForm({ ...postForm, featuredImage: e.target.value })}
+                <ImageUpload
+                  label="Featured Image"
+                  value={postForm.featuredImage || ''}
+                  onChange={(value) => setPostForm({ ...postForm, featuredImage: value })}
                   placeholder="https://example.com/image.jpg"
+                  maxSize={10}
+                  showPreview={true}
                 />
               </div>
               <div>

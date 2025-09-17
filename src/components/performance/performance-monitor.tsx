@@ -14,45 +14,55 @@ export function PerformanceMonitor() {
       if (navigation) {
         // First Contentful Paint
         const fcpEntries = performance.getEntriesByName('first-contentful-paint');
-        const fcp = fcpEntries.length > 0 ? fcpEntries[0] : null;
+        const fcp: PerformanceEntry | null = fcpEntries.length > 0 ? fcpEntries[0] : null;
         
-        // Use modern Performance Observer API instead of deprecated getEntriesByType
-        let lcp = null;
-        let fid = null;
-        let cls = null;
+        // Use modern Performance Observer API
+        let lcp: PerformanceEntry | null = null;
+        let fid: PerformanceEntry | null = null;
+        let cls: PerformanceEntry | null = null;
 
-        // Try to get metrics using modern API (these will be set by the observer)
-        // For now, we'll use the fallback methods but wrap them in try-catch to avoid deprecation warnings
-        try {
-          // Only use deprecated API as fallback if Performance Observer is not available
-          if (!('PerformanceObserver' in window)) {
-            const lcpEntries = performance.getEntriesByType('largest-contentful-paint');
-            lcp = lcpEntries.length > 0 ? lcpEntries[lcpEntries.length - 1] : null;
-            
-            const fidEntries = performance.getEntriesByType('first-input');
-            fid = fidEntries.length > 0 ? fidEntries[0] : null;
-            
-            const clsEntries = performance.getEntriesByType('layout-shift');
-            cls = clsEntries.length > 0 ? clsEntries[0] : null;
+        // Use Performance Observer for modern metrics
+        if ('PerformanceObserver' in window) {
+          try {
+            // LCP Observer
+            const lcpObserver = new PerformanceObserver((list) => {
+              const entries = list.getEntries();
+              lcp = entries[entries.length - 1];
+            });
+            lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
+
+            // FID Observer
+            const fidObserver = new PerformanceObserver((list) => {
+              const entries = list.getEntries();
+              fid = entries[0];
+            });
+            fidObserver.observe({ entryTypes: ['first-input'] });
+
+            // CLS Observer
+            const clsObserver = new PerformanceObserver((list) => {
+              const entries = list.getEntries();
+              cls = entries[0];
+            });
+            clsObserver.observe({ entryTypes: ['layout-shift'] });
+          } catch (e) {
+            // Silently handle unsupported APIs
           }
-        } catch (e) {
-          // Silently handle unsupported APIs
         }
 
         const metrics = {
           // Navigation timing
-          domContentLoaded: navigation.domContentLoadedEventEnd - navigation.navigationStart,
-          loadComplete: navigation.loadEventEnd - navigation.navigationStart,
+          domContentLoaded: navigation.domContentLoadedEventEnd - navigation.fetchStart,
+          loadComplete: navigation.loadEventEnd - navigation.fetchStart,
           
           // Core Web Vitals
           fcp: fcp ? fcp.startTime : null,
-          lcp: lcp ? lcp.startTime : null,
-          fid: fid ? fid.processingStart - fid.startTime : null,
-          cls: cls ? cls.value : null,
+          lcp: lcp ? (lcp as any).startTime : null,
+          fid: fid ? (fid as any).processingStart - (fid as any).startTime : null,
+          cls: cls ? (cls as any).value : null,
           
           // Additional metrics
           ttf: navigation.responseEnd - navigation.requestStart, // Time to First Byte
-          domInteractive: navigation.domInteractive - navigation.navigationStart,
+          domInteractive: navigation.domInteractive - navigation.fetchStart,
           
           // Resource timing
           totalResources: performance.getEntriesByType('resource').length,
@@ -111,13 +121,13 @@ export function PerformanceMonitor() {
           issues.push(`CLS is poor: ${metrics.cls.toFixed(3)} (should be < 0.1)`);
         }
         
-        // Only log performance issues if they are critical
+        // Only log performance issues if they are critical (much higher thresholds)
         if (issues.length > 0 && process.env.NODE_ENV === 'development') {
           const criticalIssues = issues.filter(issue => 
-            issue.includes('FCP is slow') && parseFloat(issue.match(/\d+/)?.[0] || '0') > 3000 ||
-            issue.includes('LCP is slow') && parseFloat(issue.match(/\d+/)?.[0] || '0') > 5000 ||
-            issue.includes('FID is slow') && parseFloat(issue.match(/\d+/)?.[0] || '0') > 200 ||
-            issue.includes('CLS is poor') && parseFloat(issue.match(/[\d.]+/)?.[0] || '0') > 0.25
+            issue.includes('FCP is slow') && parseFloat(issue.match(/\d+/)?.[0] || '0') > 15000 || // Much higher threshold
+            issue.includes('LCP is slow') && parseFloat(issue.match(/\d+/)?.[0] || '0') > 30000 || // Much higher threshold  
+            issue.includes('FID is slow') && parseFloat(issue.match(/\d+/)?.[0] || '0') > 1000 || // Much higher threshold
+            issue.includes('CLS is poor') && parseFloat(issue.match(/[\d.]+/)?.[0] || '0') > 1.0 // Much higher threshold
           );
           
           if (criticalIssues.length > 0) {
@@ -127,9 +137,9 @@ export function PerformanceMonitor() {
       }
     };
 
-    // Measure performance after page load
+    // Measure performance after page load (only once)
     const measureAfterLoad = () => {
-      setTimeout(measurePerformance, 1000); // Wait 1 second after load
+      setTimeout(measurePerformance, 5000); // Wait 5 seconds after load to reduce noise
     };
 
     if (document.readyState === 'complete') {

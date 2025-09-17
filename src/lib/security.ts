@@ -57,6 +57,12 @@ export const CSP_POLICY = {
     'https://pagead2.googlesyndication.com', // Google AdSense
     'https://googleads.g.doubleclick.net', // Google AdSense
     'https://tpc.googlesyndication.com', // Google AdSense
+    'https://images.unsplash.com', // Unsplash images
+    'https://*.unsplash.com', // Unsplash subdomains
+    'https://images.pexels.com', // Pexels images
+    'https://*.pexels.com', // Pexels subdomains
+    'https://via.placeholder.com', // Placeholder images
+    'https://*.placeholder.com', // Placeholder subdomains
     'https://*.googlesyndication.com', // Google AdSense subdomains
     'https://partner.googleadservices.com', // Google AdSense
     'https://www.googleadservices.com', // Google AdSense
@@ -64,6 +70,8 @@ export const CSP_POLICY = {
     'https://ep2.adtrafficquality.google', // Google AdSense SODAR
     'https://*.adtrafficquality.google', // Google AdSense traffic quality
     'https://*.google.com', // All Google subdomains for images
+    'https://www.google.co.in', // Google India domain
+    'https://*.google.co.in', // Google India subdomains
     'https://www.guvi.in', // External blog images
     'https://fundingchoicesmessages.google.com', // Google AdSense funding choices
     'https://*.fundingchoicesmessages.google.com', // Google AdSense funding choices

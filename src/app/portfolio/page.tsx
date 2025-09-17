@@ -24,6 +24,7 @@ import type { PortfolioItem } from '@/lib/types';
 import { generatePageMetadata } from '@/lib/seo';
 import type { Metadata } from 'next';
 import Image from 'next/image';
+import { ImagePreloader } from '@/components/performance/image-preloader';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -53,8 +54,17 @@ export default async function PortfolioPage() {
     return createdAt > sixMonthsAgo;
   }).length;
 
+  // Extract image URLs for preloading
+  const imageUrls = portfolioItems
+    .slice(0, 6) // Preload first 6 images
+    .map(item => item.images?.[0])
+    .filter(Boolean) as string[];
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Image Preloader */}
+      <ImagePreloader images={imageUrls} priority={true} delay={1000} />
+      
       {/* Hero Section - Redesigned */}
       <section className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden">
         {/* Background Elements */}

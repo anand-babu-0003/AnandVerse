@@ -24,8 +24,8 @@
 
 ### **Recommended Image Specifications:**
 - **Aspect Ratio**: 16:9 (800x450px or 1200x675px)
-- **Format**: JPG, PNG, or WebP
-- **File Size**: Under 2MB per image
+- **Format**: JPG, PNG, WebP, AVIF, GIF, SVG, BMP, TIFF, ICO
+- **File Size**: Under 10MB per image
 - **Quality**: High resolution for crisp display
 
 ### **Image Sources:**
@@ -40,8 +40,9 @@
 1. Go to `/admin/portfolio`
 2. Click "New Project"
 3. Fill in project details
-4. Add image URLs in the "Image URL" field
-5. Save the project
+4. Upload images using the drag & drop interface or paste image URLs
+5. Supports all image formats: JPG, PNG, WebP, AVIF, GIF, SVG, BMP, TIFF, ICO
+6. Save the project
 
 ### **Option 2: Direct Database (Advanced)**
 1. Access Firebase Console
@@ -94,6 +95,18 @@ https://your-domain.com/images/project-screenshot-2.jpg
 2. Ensure images are publicly accessible
 3. Verify HTTPS URLs (required for production)
 4. Check browser console for CORS errors
+
+### **Upload Size Errors:**
+1. **"Body exceeded 1 MB limit"**: Restart your development server after configuration changes
+2. **File too large**: Ensure files are under 10MB
+3. **Server restart required**: Run `npm run dev` after Next.js config changes
+4. **Memory issues**: Large images may require more server memory
+
+### **Firestore Size Limits:**
+1. **"Value longer than 1048487 bytes"**: Images are now automatically uploaded to Firebase Storage
+2. **Base64 images**: Large base64 images are converted to storage URLs
+3. **Automatic processing**: No manual intervention required
+4. **Fallback handling**: Original URLs preserved if upload fails
 
 ### **Poor Image Quality:**
 1. Use high-resolution source images

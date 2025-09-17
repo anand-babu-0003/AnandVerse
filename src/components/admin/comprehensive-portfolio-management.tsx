@@ -28,6 +28,7 @@ import {
   Github,
   Play
 } from 'lucide-react';
+import { ImageUpload, MultiImageUpload } from '@/components/ui/image-upload';
 import { fetchAllPortfolioItems } from '@/actions/fetchAllDataAction';
 import { savePortfolioItemAction, deletePortfolioItemAction } from '@/actions/admin/portfolioActions';
 import type { PortfolioItem } from '@/lib/types';
@@ -452,11 +453,13 @@ export default function ComprehensivePortfolioManagement({}: PortfolioManagement
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium">Image URL</label>
-                <Input
+                <ImageUpload
+                  label="Project Image"
                   value={itemForm.imageUrl}
-                  onChange={(e) => setItemForm({ ...itemForm, imageUrl: e.target.value })}
+                  onChange={(value) => setItemForm({ ...itemForm, imageUrl: value })}
                   placeholder="https://example.com/image.jpg"
+                  maxSize={10}
+                  showPreview={true}
                 />
               </div>
               <div>

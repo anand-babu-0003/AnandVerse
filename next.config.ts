@@ -21,6 +21,9 @@ const nextConfig: NextConfig = {
     optimizeCss: true, // Optimize CSS
     optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'], // Optimize icon imports
     webVitalsAttribution: ['CLS', 'LCP', 'FCP', 'FID', 'TTFB', 'INP'], // Enhanced Web Vitals tracking
+    serverActions: {
+      bodySizeLimit: '10mb', // Allow up to 10MB for image uploads
+    },
   },
   
   // Reduce development console output
@@ -102,17 +105,50 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'firebasestorage.googleapis.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'images.unsplash.com',
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: '*.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.pexels.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.pexels.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
-    formats: ['image/webp', 'image/avif'], // Modern image formats
+    formats: ['image/avif', 'image/webp'], // AVIF first for better compression
     minimumCacheTTL: 31536000, // Cache images for 1 year
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840], // Optimized device sizes
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384], // Optimized image sizes
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Enhanced image optimization
+    unoptimized: false, // Enable optimization
+    loader: 'default', // Use Next.js default loader
+    // Enable modern image formats
+    domains: [], // Use remotePatterns instead
+    // Enable responsive images
+    path: '/_next/image',
+    // Enable image optimization
+    disableStaticImages: false,
   },
   // Security headers
   async headers() {

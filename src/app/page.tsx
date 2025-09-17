@@ -22,6 +22,7 @@ import { defaultAboutMeDataForClient } from '@/lib/data';
 import Starfield from '@/components/layout/starfield';
 import { generatePageMetadata } from '@/lib/seo';
 import { getSiteSettingsAction } from '@/actions/admin/settingsActions';
+import { preloadImage } from '@/components/ui/optimized-image';
 import type { Metadata } from 'next';
 
 // Force dynamic rendering
@@ -92,6 +93,14 @@ export default async function Home() {
   const bioGlimpse = firstThreeSentences.length > 200 ? firstThreeSentences.substring(0, 200) + '...' : firstThreeSentences;
   const firstParagraphBio = bioGlimpse || 'Passionate developer creating amazing digital experiences.';
 
+  // Preload critical images
+  if (typeof window !== 'undefined') {
+    featuredProjects.forEach((project, index) => {
+      if (project.images && project.images[0] && index < 2) {
+        preloadImage(project.images[0]);
+      }
+    });
+  }
 
   const features = [
     {

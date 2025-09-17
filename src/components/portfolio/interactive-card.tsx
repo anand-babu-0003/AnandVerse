@@ -13,7 +13,7 @@ import {
   Sparkles,
   Zap
 } from 'lucide-react';
-import Image from 'next/image';
+import { OptimizedImage, preloadImage } from '@/components/ui/optimized-image';
 import Link from 'next/link';
 import type { PortfolioItem } from '@/lib/types';
 
@@ -62,7 +62,7 @@ export function InteractiveCard({ item, index, featured = false }: InteractiveCa
       onMouseLeave={handleMouseLeave}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        <Image
+        <OptimizedImage
           src={item.images[0] || 'https://placehold.co/600x450.png?text=Project'}
           alt={item.title}
           fill
@@ -71,6 +71,9 @@ export function InteractiveCard({ item, index, featured = false }: InteractiveCa
             ${isHovered ? 'scale-110 brightness-110' : 'scale-100 brightness-100'}
           `}
           sizes={featured ? "(max-width: 1024px) 100vw, 50vw" : "(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"}
+          priority={featured || index < 2}
+          quality={90}
+          placeholder="blur"
         />
         
         {/* Dynamic gradient overlay */}

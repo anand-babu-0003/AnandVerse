@@ -30,6 +30,7 @@ import {
   Code,
   Link as LinkIcon
 } from 'lucide-react';
+import { ImageUpload, MultiImageUpload } from '@/components/ui/image-upload';
 import { usePortfolioData } from '@/hooks/useFirestoreData';
 import { savePortfolioItemAction, deletePortfolioItemAction } from '@/actions/admin/portfolioActions';
 import { useToast } from '@/hooks/use-toast';
@@ -470,51 +471,23 @@ function PortfolioForm({ item, onSubmit, onCancel, isSubmitting = false }: Portf
       {/* Images */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Project Images</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="image1">Image URL 1</Label>
-            <Input
-              id="image1"
-              type="url"
-              value={formData.image1}
-              onChange={(e) => setFormData(prev => ({ ...prev, image1: e.target.value }))}
-              placeholder="https://example.com/image1.jpg"
-            />
-            {formData.image1 && (
-              <div className="mt-2">
-                <img 
-                  src={formData.image1} 
-                  alt="Preview" 
-                  className="w-full h-32 object-cover rounded-md border"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              </div>
-            )}
-          </div>
-          <div>
-            <Label htmlFor="image2">Image URL 2</Label>
-            <Input
-              id="image2"
-              type="url"
-              value={formData.image2}
-              onChange={(e) => setFormData(prev => ({ ...prev, image2: e.target.value }))}
-              placeholder="https://example.com/image2.jpg"
-            />
-            {formData.image2 && (
-              <div className="mt-2">
-                <img 
-                  src={formData.image2} 
-                  alt="Preview" 
-                  className="w-full h-32 object-cover rounded-md border"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              </div>
-            )}
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <ImageUpload
+            label="Image 1"
+            value={formData.image1}
+            onChange={(value) => setFormData(prev => ({ ...prev, image1: value }))}
+            placeholder="https://example.com/image1.jpg"
+            maxSize={10}
+            showPreview={true}
+          />
+          <ImageUpload
+            label="Image 2"
+            value={formData.image2}
+            onChange={(value) => setFormData(prev => ({ ...prev, image2: value }))}
+            placeholder="https://example.com/image2.jpg"
+            maxSize={10}
+            showPreview={true}
+          />
         </div>
       </div>
 

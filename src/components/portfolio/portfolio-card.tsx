@@ -1,5 +1,5 @@
 
-import Image from 'next/image';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,17 +21,15 @@ export function PortfolioCard({ project }: PortfolioCardProps) {
     <Card className="group flex flex-col h-full overflow-hidden card-professional rounded-lg">
       {/* Image Section */}
       <CardHeader className="p-0 relative aspect-video overflow-hidden">
-        <Image
+        <OptimizedImage
           src={imageUrl}
           alt={`Screenshot of ${project.title || 'Project'} - ${project.description || 'Portfolio project'}`}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
-          loading="lazy"
           quality={85}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          data-ai-hint={project.dataAiHint || 'project technology'}
           placeholder="blur"
-          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
+          fallbackSrc="https://placehold.co/600x400/3b82f6/ffffff?text=Project+Image"
         />
         
         {/* Overlay Actions */}

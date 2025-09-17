@@ -6,11 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { 
   ArrowRight, 
-  Calendar,
   Clock,
   User,
-  Eye,
-  Heart,
   Search,
   Filter,
   Tag,
@@ -59,8 +56,8 @@ export default async function BlogPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
         <div className="absolute inset-0 [background-image:radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.15)_1px,transparent_0)] [background-size:20px_20px] [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
         
-        {/* Animated Starfield */}
-        <Starfield density={0.4} speed={0.3} twinkleSpeed={0.01} />
+        {/* Animated Starfield - Optimized for performance */}
+        <Starfield density={0.1} speed={0.1} twinkleSpeed={0.005} />
         
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
           <div className="max-w-5xl mx-auto">
@@ -125,10 +122,6 @@ export default async function BlogPage() {
                 <div className="text-sm text-muted-foreground">Topics</div>
               </div>
               
-              <div className="text-center p-4 rounded-2xl bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-xl transition-all duration-300 hover-glow">
-                <div className="text-3xl font-bold text-primary mb-2">{blogPosts.reduce((sum, post) => sum + post.views, 0)}</div>
-                <div className="text-sm text-muted-foreground">Views</div>
-              </div>
             </div>
           </div>
         </div>
@@ -156,6 +149,7 @@ export default async function BlogPage() {
                     className="w-full h-full object-cover border border-border rounded-lg"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     fallbackSrc="https://placehold.co/800x600/3b82f6/ffffff?text=Featured+Post"
+                    priority
                   />
                 </div>
                 <div className="p-6 sm:p-8 lg:p-12 flex flex-col justify-center">
@@ -163,10 +157,6 @@ export default async function BlogPage() {
                     <Badge variant="secondary" className="text-xs">
                       {featuredPost.category}
                     </Badge>
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3" />
-                      {new Date(featuredPost.publishedAt).toLocaleDateString()}
-                    </div>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
                       <Clock className="h-3 w-3" />
                       {featuredPost.readTime} min read
@@ -185,16 +175,6 @@ export default async function BlogPage() {
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <User className="h-4 w-4" />
                       {featuredPost.author}
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Eye className="h-4 w-4" />
-                        {featuredPost.views}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Heart className="h-4 w-4" />
-                        {featuredPost.likes}
-                      </div>
                     </div>
                   </div>
                   
@@ -263,23 +243,9 @@ export default async function BlogPage() {
                         <User className="h-4 w-4" />
                         {post.author}
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {new Date(post.publishedAt).toLocaleDateString()}
-                      </div>
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Eye className="h-4 w-4" />
-                          {post.views}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Heart className="h-4 w-4" />
-                          {post.likes}
-                        </div>
-                      </div>
                       
                       <Button asChild size="sm" variant="ghost" className="text-primary hover:text-primary/80">
                         <Link href={`/blog/${post.slug}`}>
@@ -346,23 +312,9 @@ export default async function BlogPage() {
                         <User className="h-4 w-4" />
                         {post.author}
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {new Date(post.publishedAt).toLocaleDateString()}
-                      </div>
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Eye className="h-4 w-4" />
-                          {post.views}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Heart className="h-4 w-4" />
-                          {post.likes}
-                        </div>
-                      </div>
                       
                       <Button asChild size="sm" variant="ghost" className="text-primary hover:text-primary/80">
                         <Link href={`/blog/${post.slug}`}>

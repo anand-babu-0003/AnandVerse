@@ -1,18 +1,22 @@
 
 import { initializeApp, getApps, getApp, type FirebaseOptions } from 'firebase/app';
 import { getFirestore, type Firestore, connectFirestoreEmulator, enableNetwork, disableNetwork, terminate, clearIndexedDbPersistence } from 'firebase/firestore';
+import { getStorage, type FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig: FirebaseOptions = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyAMgwhy9fM30pdkgrkGJxlOyfBE9Pm5sMc",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "anandverse.firebaseapp.com",
+  databaseURL: "https://anandverse-default-rtdb.firebaseio.com",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "anandverse",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "anandverse.firebasestorage.app",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "197492755998",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:197492755998:web:0e908708f96acebd7d280f",
+  measurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-3075EF3LJY",
 };
 
 let app: any;
 let firestoreInstance: Firestore | null = null;
+let storageInstance: FirebaseStorage | null = null;
 
 const IS_SERVER = typeof window === 'undefined';
 const logPrefix = IS_SERVER ? "[SERVER FirebaseConfig]" : "[CLIENT FirebaseConfig]";
@@ -36,6 +40,17 @@ const RETRY_CONFIG = {
 const requiredConfigKeys: (keyof FirebaseOptions)[] = ['apiKey', 'authDomain', 'projectId', 'appId'];
 const missingKeys = requiredConfigKeys.filter(key => !firebaseConfig[key]);
 
+// Debug logging for environment variables
+console.log(`${logPrefix} Firebase config values:`, {
+  apiKey: firebaseConfig.apiKey ? 'SET' : 'MISSING',
+  authDomain: firebaseConfig.authDomain ? 'SET' : 'MISSING',
+  projectId: firebaseConfig.projectId ? 'SET' : 'MISSING',
+  storageBucket: firebaseConfig.storageBucket ? 'SET' : 'MISSING',
+  messagingSenderId: firebaseConfig.messagingSenderId ? 'SET' : 'MISSING',
+  appId: firebaseConfig.appId ? 'SET' : 'MISSING',
+  measurementId: firebaseConfig.measurementId ? 'SET' : 'MISSING',
+});
+
 // Safe Firebase reinitialization function
 async function safeReinitializeFirebase(): Promise<void> {
   try {
@@ -51,6 +66,9 @@ async function safeReinitializeFirebase(): Promise<void> {
       }
       firestoreInstance = null;
     }
+    
+    // Reset storage instance
+    storageInstance = null;
     
     // Reset connection state
     connectionState = {
@@ -170,6 +188,15 @@ async function initializeFirebase(): Promise<void> {
         
         return firestore;
       }, 'Firestore Initialization');
+      
+      // Initialize Firebase Storage
+      storageInstance = await connectWithRetry(async () => {
+        console.log(`${logPrefix} Initializing Firebase Storage...`);
+        console.log(`${logPrefix} Storage bucket:`, firebaseConfig.storageBucket);
+        const storage = getStorage(app as any, firebaseConfig.storageBucket);
+        console.log(`${logPrefix} Storage initialized with bucket:`, firebaseConfig.storageBucket);
+        return storage;
+      }, 'Firebase Storage Initialization');
     }
 
     console.log(`${logPrefix} Firebase initialized successfully`);
@@ -206,12 +233,16 @@ if (!IS_SERVER) {
     try {
       app = initializeApp(firebaseConfig);
       firestoreInstance = getFirestore(app);
+      storageInstance = getStorage(app, firebaseConfig.storageBucket);
+      console.log(`${logPrefix} Server-side storage bucket:`, firebaseConfig.storageBucket);
     } catch (error) {
       console.error(`${logPrefix} Server-side Firebase initialization failed:`, error);
     }
   } else {
     app = getApp();
     firestoreInstance = getFirestore(app);
+    storageInstance = getStorage(app, firebaseConfig.storageBucket);
+    console.log(`${logPrefix} Server-side storage bucket:`, firebaseConfig.storageBucket);
   }
 }
 
@@ -256,4 +287,4 @@ export async function recoverFromAssertionError(): Promise<void> {
   }
 }
 
-export { firestoreInstance as firestore, firebaseConfig, app as firebaseApp };
+export { firestoreInstance as firestore, storageInstance as storage, firebaseConfig, app as firebaseApp };

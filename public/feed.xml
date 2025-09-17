@@ -5,7 +5,7 @@
     <description>Latest insights, tutorials, and thoughts on web development and technology</description>
     <link>https://anandverse.com</link>
     <language>en-us</language>
-    <lastBuildDate>Tue, 16 Sep 2025 16:49:41 GMT</lastBuildDate>
+    <lastBuildDate>Wed, 17 Sep 2025 21:08:12 GMT</lastBuildDate>
     <atom:link href="https://anandverse.com/feed.xml" rel="self" type="application/rss+xml"/>
     <generator>Next.js RSS Generator</generator>
     <managingEditor>contact@anandverse.com (AnandVerse)</managingEditor>
@@ -20,7 +20,7 @@
       <description>Stay tuned for exciting content about web development, technology, and more!</description>
       <link>https://anandverse.com/blog</link>
       <guid isPermaLink="true">https://anandverse.com/blog</guid>
-      <pubDate>Tue, 16 Sep 2025 16:49:41 GMT</pubDate>
+      <pubDate>Wed, 17 Sep 2025 21:08:12 GMT</pubDate>
       <category>Announcement</category>
     </item>
   </channel>

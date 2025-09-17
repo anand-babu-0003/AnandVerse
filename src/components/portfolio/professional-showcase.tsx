@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import Image from 'next/image';
+import { OptimizedImage, preloadImage } from '@/components/ui/optimized-image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -51,13 +51,15 @@ export function ProfessionalShowcase({ items }: ProfessionalShowcaseProps) {
         {items.slice(0, 2).map((item, index) => (
           <Card key={item.id} className="group overflow-hidden border-0 bg-card/50 backdrop-blur-sm hover:bg-card/80 transition-all duration-500 hover:shadow-2xl">
             <div className="relative aspect-[16/10] overflow-hidden">
-              <Image
+              <OptimizedImage
                 src={item.images[0] || 'https://placehold.co/800x500.png?text=Project'}
                 alt={item.title}
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority={index === 0}
+                quality={90}
+                placeholder="blur"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               
