@@ -8,6 +8,7 @@
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
     "build:analyze": "ANALYZE=true next build",
+    "build:cloudflare": "npx @cloudflare/next-on-pages@1",
     "postbuild": "node scripts/generate-rss-feed.js",
     "start": "next start",
     "lint": "next lint",
