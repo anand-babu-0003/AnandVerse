@@ -32,6 +32,7 @@ import type { Metadata } from 'next';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const runtime = 'edge';
 
 // Generate dynamic metadata for portfolio item
 export async function generateMetadata({

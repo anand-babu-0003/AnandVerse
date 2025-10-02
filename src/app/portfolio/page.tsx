@@ -29,6 +29,7 @@ import { ImagePreloader } from '@/components/performance/image-preloader';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const runtime = 'edge';
 
 // Generate dynamic metadata
 export async function generateMetadata(): Promise<Metadata> {

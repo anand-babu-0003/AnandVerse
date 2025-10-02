@@ -67,10 +67,10 @@ import { SKILL_CATEGORIES } from './constants';
 // --- Default Data Structures for Client-Side Admin Forms & Fallbacks ---
 
 export const defaultSiteSettingsForClient: SiteSettings = {
-  siteName: 'VermaVerse',
-  defaultMetaDescription: 'A showcase of my projects and skills in VermaVerse, the digital realm of Anand Verma.',
+  siteName: 'AnandVerse',
+  defaultMetaDescription: 'A showcase of my projects and skills in AnandVerse, the digital realm of Anand Verma.',
   defaultMetaKeywords: 'portfolio, web developer, react, nextjs, anand verma, full-stack',
-  siteOgImageUrl: 'https://placehold.co/1200x630.png?text=VermaVerse',
+  siteOgImageUrl: 'https://placehold.co/1200x630.png?text=AnandVerse',
   maintenanceMode: false,
   
   // Global meta tags
@@ -87,8 +87,8 @@ export const defaultSiteSettingsForClient: SiteSettings = {
   cookiesPageMetaTags: undefined,
   
   // Legacy fields (for backward compatibility)
-  skillsPageMetaTitle: 'My Skills | VermaVerse',
-  skillsPageMetaDescription: 'Explore my diverse skill set including programming languages, frameworks, and tools used in VermaVerse.',
+  skillsPageMetaTitle: 'My Skills | AnandVerse',
+  skillsPageMetaDescription: 'Explore my diverse skill set including programming languages, frameworks, and tools used in AnandVerse.',
   homePageMetaTitle: undefined,
   homePageMetaDescription: undefined,
   contactPageMetaTitle: undefined,
@@ -145,11 +145,11 @@ export const defaultPortfolioItemsDataForClient: PortfolioItem[] = [
       'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=800&h=600&fit=crop&crop=center'
     ],
     tags: ['Next.js', 'React', 'Tailwind CSS', 'Firebase', 'TypeScript', 'ShadCN UI'],
-    slug: 'personal-portfolio-vermaverse',
+    slug: 'personal-portfolio-AnandVerse',
     dataAiHint: 'website design code modern',
-    readmeContent: '# Personal Portfolio - VermaVerse\n\nThis project is the source code for my personal portfolio website, VermaVerse. It demonstrates my ability to build full-stack applications with modern technologies.\n\n## Key Features\n- Dynamic content managed via Firestore.\n- Responsive design for all devices.\n- Showcase of projects, skills, and professional background.\n- Interactive contact form.\n- Admin panel for content updates (portfolio, skills, about me, site settings).\n\n## Technology Stack\n- **Frontend**: Next.js (App Router), React, TypeScript, Tailwind CSS, ShadCN UI Components, Lucide Icons\n- **Backend/Database**: Firebase (Firestore)\n- **Styling**: Tailwind CSS, PostCSS\n- **State Management**: React Hooks, Server Actions\n- **Form Handling**: React Hook Form, Zod for validation\n\nThis site is deployed on Vercel.',
+    readmeContent: '# Personal Portfolio - AnandVerse\n\nThis project is the source code for my personal portfolio website, AnandVerse. It demonstrates my ability to build full-stack applications with modern technologies.\n\n## Key Features\n- Dynamic content managed via Firestore.\n- Responsive design for all devices.\n- Showcase of projects, skills, and professional background.\n- Interactive contact form.\n- Admin panel for content updates (portfolio, skills, about me, site settings).\n\n## Technology Stack\n- **Frontend**: Next.js (App Router), React, TypeScript, Tailwind CSS, ShadCN UI Components, Lucide Icons\n- **Backend/Database**: Firebase (Firestore)\n- **Styling**: Tailwind CSS, PostCSS\n- **State Management**: React Hooks, Server Actions\n- **Form Handling**: React Hook Form, Zod for validation\n\nThis site is deployed on Vercel.',
     liveUrl: '#',
-    repoUrl: 'https://github.com/yourusername/vermaverse-portfolio',
+    repoUrl: 'https://github.com/yourusername/AnandVerse-portfolio',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },

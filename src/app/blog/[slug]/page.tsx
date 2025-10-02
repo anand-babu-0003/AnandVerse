@@ -30,6 +30,7 @@ interface BlogPostPageProps {
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const runtime = 'edge';
 
 // Generate dynamic metadata for blog posts
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
